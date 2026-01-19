@@ -1,7 +1,8 @@
 import { cn } from "../../lib/utils"
 
-function Input({ className, type, helperText, error , ...props }) {
-    return (<div>
+function Input({ className, icons ,type, helperText, error , ...props }) {
+    return (<div className="relative">
+        { icons && <div className="absolute top-5 left-3">{icons}</div>}
         <input
             type={type}
             data-slot="input"
@@ -9,6 +10,7 @@ function Input({ className, type, helperText, error , ...props }) {
                 'border border-gray-300 rounded-sm py-1 px-3 w-full bg-gray-50 outline-none',
                 'focus-visible:border-gray-300 focus-visible:ring-gray-300 focus-visible:ring-1',
                 ( error ? '!border-red-500' : null),
+                ( icons ? 'pl-10' : null ),
                 className
             )}
             {...props}
