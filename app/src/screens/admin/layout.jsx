@@ -27,7 +27,7 @@ export default function Layout_admin() {
                 </div>
                 <div className="flex flex-col gap-1 px-4 py-3">
 
-                    <CardLink to="/admin/" or="/admin"
+                    <CardLink to="/admin/"
                         icone={<LuLayoutDashboard />}>
                         Tableau de bord</CardLink>
 
@@ -35,7 +35,7 @@ export default function Layout_admin() {
                         icone={<LuPill />}>
                         Médicaments</CardLink>
 
-                    <CardLink to=""
+                    <CardLink to="/admin/stock"
                         icone={<FiPackage />}>
                         Stock</CardLink>
 
@@ -58,7 +58,7 @@ export default function Layout_admin() {
         </nav>
 
         <main className="pl-[20%] bg-white">
-            < Outlet />
+            <div className="px-4 py-3">< Outlet /></div>
         </main>
     </>)
 }

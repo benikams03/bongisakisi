@@ -6,6 +6,7 @@ import Caissier from './screens/caissier/page'
 
 import Layout_admin from './screens/admin/layout'
 import Dashbord from './screens/admin/dashbord'
+import Stock from './screens/admin/stock'
 
 export const route = createBrowserRouter([
     {
@@ -20,7 +21,11 @@ export const route = createBrowserRouter([
             {
                 path: '',
                 element: <Dashbord />
-            }
+            },
+            {
+                path: 'stock',
+                element: <Stock />
+            },
         ]
     },
     // ============================================================================
