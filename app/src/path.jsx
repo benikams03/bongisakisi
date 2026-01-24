@@ -9,6 +9,7 @@ import Dashbord from './screens/admin/dashbord'
 import Stock from './screens/admin/stock'
 import Medicaments from './screens/admin/medicaments'
 import Categorie from './screens/admin/categorie'
+import Rapports from './screens/admin/rapport'
 
 export const route = createBrowserRouter([
     {
@@ -35,6 +36,10 @@ export const route = createBrowserRouter([
             {
                 path: 'categorie',
                 element: <Categorie />
+            },
+            {
+                path: 'rapport',
+                element: <Rapports />
             },
         ]
     },

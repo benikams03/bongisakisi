@@ -39,7 +39,7 @@ export default function Layout_admin() {
                         icone={<FiPackage />}>
                         Stock</CardLink>
 
-                    <CardLink to=""
+                    <CardLink to="/admin/rapport"
                         icone={<AiOutlineBarChart />}>
                         Rapports</CardLink>
 
