@@ -31,7 +31,7 @@ export default function Layout_admin() {
                         icone={<LuLayoutDashboard />}>
                         Tableau de bord</CardLink>
 
-                    <CardLink to=""
+                    <CardLink to="/admin/medicament"
                         icone={<LuPill />}>
                         Médicaments</CardLink>
 
@@ -57,7 +57,7 @@ export default function Layout_admin() {
             </div>
         </nav>
 
-        <main className="pl-[20%] bg-white">
+        <main className="pl-[20%] bg-white pt-2">
             <div className="px-4 py-3">< Outlet /></div>
         </main>
     </>)

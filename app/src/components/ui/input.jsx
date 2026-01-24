@@ -2,7 +2,7 @@ import { cn } from "../../lib/utils"
 
 function Input({ className, icons ,type, helperText, error , ...props }) {
     return (<div className="relative">
-        { icons && <div className="absolute top-5 left-3">{icons}</div>}
+        { icons && <div className="absolute top-2 left-3">{icons}</div>}
         <input
             type={type}
             data-slot="input"

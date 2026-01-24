@@ -98,19 +98,19 @@ export default function Stock() {
             </tr>
 
             <tr className="text-gray-500 border-b border-gray-300">
-                <td className="p-2 text-start text-gray-900 font-semibold">Doliprane 1000mg</td>
-                <td className="p-2 text-start">Antalgique</td>
-                <td className="p-2 text-end text-gray-900 font-semibold">150</td>
-                <td className="p-2 text-start">31/12/2026</td>
-                <td className="p-2 text-start">
-                    {/* <div className="text-white text-center text-sm bg-red-500 p-1 rounded-lg">
+                <td className="p-3 text-start text-gray-900 font-semibold">Doliprane 1000mg</td>
+                <td className="p-3 text-start">Antalgique</td>
+                <td className="p-3 text-end text-gray-900 font-semibold">150</td>
+                <td className="p-3 text-start">31/12/2026</td>
+                <td className="p-3 text-start">
+                    {/* <div className="text-white text-center text-sm bg-red-500 p-1 rounded">
                         <span className="font-semibold ">Expire bientôt</span>
                         <span className="font-semibold ">Expiré</span>
                     </div> */}
-                    <div className="text-white text-center text-sm bg-yellow-500 rounded-lg">
+                    <div className="text-white text-center text-sm bg-yellow-500 rounded">
                         <span className="font-semibold ">Stock faible</span>
                     </div>
-                    {/* <div className="text-white text-center text-sm bg-green-500 rounded-lg">
+                    {/* <div className="text-white text-center text-sm bg-green-500 rounded">
                         <span className="font-semibold ">OK</span>
                     </div> */}
                 </td>

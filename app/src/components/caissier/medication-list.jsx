@@ -8,9 +8,8 @@ export function MedicationList() {
     return(<>
     <div class="w-full h-full py-6 px-4 rounded-lg shadow-xs border border-gray-400/50 bg-gray-50">
         <div>
-            <h3 className="font-semibold text-xl">Liste des Medicaments</h3>
+            <h3 className="font-semibold text-xl mb-3">Liste des Medicaments</h3>
             <Input icons={<FiSearch className="text-gray-500" />}
-                className="mt-3"
                 placeholder="Recheercher un medicament..."/>
         </div>
 
