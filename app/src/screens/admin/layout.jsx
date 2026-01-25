@@ -9,6 +9,12 @@ import { FiPackage } from "react-icons/fi";
 import { AiOutlineBarChart } from "react-icons/ai";
 
 export default function Layout_admin() {
+
+    const Deconnexion = () => {
+        sessionStorage.removeItem('user');
+        window.location.reload()
+    }
+
     return(<>
         <nav 
             className="
@@ -21,7 +27,7 @@ export default function Layout_admin() {
                     <GiPill size={24} />
                     <div>
                         <h2 className="text-center font-bold text-xl ">
-                            <span className="text-gray-400 text-lg">BATELA</span>pharma
+                            <span className="text-gray-400">BATELA</span>PHARMA
                         </h2>   
                     </div>
                 </div>
@@ -51,7 +57,9 @@ export default function Layout_admin() {
                     <MdOutlineSettings size={24} className="bg-gray-300 p-1 rounded-full" />
                     <p>Administrateur</p>
                 </div>
-                <Bouton className="w-full mt-3">
+                <Bouton
+                    onClick={Deconnexion}
+                    className="w-full mt-3">
                     Déconnexion
                 </Bouton>
             </div>

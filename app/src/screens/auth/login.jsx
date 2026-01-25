@@ -2,16 +2,31 @@ import { Input } from "../../components/ui/input"
 import { Bouton } from "../../components/ui/bouton"
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
+import { Auths } from "../../services/authentification"
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
 
-    const { register, handleSubmit, formState: {errors} } = useForm()
-    const auth = async () => {
-        toast.success( 'test' , {
-            iconTheme: {
-                primary: "#000000",
-            },
-        })
+    const redirect = useNavigate()
+
+    const { register, handleSubmit, formState: {errors}, reset } = useForm()
+    const auth = async (data) => {
+        
+        const res = Auths(data.username, data.password)
+        if(res.succes) {
+            reset()
+            toast.success( 'Connexion réussi')
+            sessionStorage.setItem('user', JSON.stringify({ role : res.role }))
+            if( res.role === 'caissier'  ) {
+                redirect('/')
+            } else if ( res.role === 'admin' ) {
+                redirect('/admin')
+            } else {
+                null
+            }
+        }else {
+            toast.error( res.msg )
+        }
     }
 
     return(<>
@@ -19,7 +34,7 @@ export default function Login() {
         <div className="w-2/7">
 
             <h3 className="text-center font-bold text-3xl pb-6">
-                <span className="text-gray-400 text-2xl">BATELA</span>pharma</h3>
+                <span className="text-gray-400">BATELA</span>PHARMA</h3>
 
             <form method="post" onSubmit={handleSubmit(auth)} className="border border-gray-300 py-8 px-6 rounded-lg shadow-sx w-full">
                 <div className="text-center pb-4">
@@ -33,7 +48,7 @@ export default function Login() {
                         {...register('username',
                             { 
                                 required:'Champ requis', 
-                                pattern: /^[A-Za-zà-ÿ\s'-]+$/
+                                pattern: /^[A-Za-zà-ÿ0-1\s'-]+$/
                             }
                         )}
                         error={errors.username}

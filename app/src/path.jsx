@@ -11,15 +11,17 @@ import Medicaments from './screens/admin/medicaments'
 import Categorie from './screens/admin/categorie'
 import Rapports from './screens/admin/rapport'
 
+import Middleware from './utils/hooks/Middleware'
+
 export const route = createBrowserRouter([
     {
         path : '/',
-        element: <Caissier />
+        element: <Middleware roles={['caissier']}> <Caissier /> </Middleware>
     },
     // ============================================================================
     {
         path: '/admin',
-        element: <Layout_admin />,
+        element: <Middleware roles={['admin']}> <Layout_admin /> </Middleware>,
         children: [
             {
                 path: '',
