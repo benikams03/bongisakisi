@@ -1,6 +1,7 @@
 {
   "name": "electron",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "dev": "npx electron main.js"
@@ -11,5 +12,8 @@
   "description": "",
   "devDependencies": {
     "electron": "^40.0.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.6.2"
   }
 }

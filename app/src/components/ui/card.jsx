@@ -24,8 +24,8 @@ function CardLink( { to, icone, children } ) {
         className={`
             flex items-center gap-2 py-2 px-3 rounded-lg font-semibold text-gray-600
             hover:bg-gray-100 duration-200 hover:text-gray-900
-            ${ pathname === to ? 'bg-gray-200 text-gray-900' : null  }
-            ${ to === '/admin/' && pathname === '/admin' ? 'bg-gray-200 text-gray-900' : null }
+            ${ pathname === to ? 'bg-gray-50 text-gray-900' : null  }
+            ${ to === '/admin/' && pathname === '/admin' ? 'bg-gray-50 text-gray-900' : null }
         `}>
         {icone}
         {children}

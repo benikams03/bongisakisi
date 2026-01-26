@@ -1,7 +1,6 @@
-const { contextBridge, ipcRenderer } = require('electron')
+import { contextBridge, ipcRenderer } from "electron"
 
-// Expose une API sécurisée à React
 contextBridge.exposeInMainWorld('electronAPI', {
-  sendData: (data) => ipcRenderer.send('send-data', data),
-  onReply: (callback) => ipcRenderer.on('reply-data', (event, data) => callback(data))
+    createUser: (name) => ipcRenderer.invoke('user:create', name),
+    getUsers: () => ipcRenderer.invoke('user:get')
 })

@@ -19,7 +19,8 @@ export default function Layout_admin() {
         <nav 
             className="
                 w-[20%] fixed top-0 border-r border-gray-300 h-screen
-                bg-white flex flex-col justify-between
+                flex flex-col justify-between
+                bg-gray-200
             ">
             
             <div>
