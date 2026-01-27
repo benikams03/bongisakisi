@@ -14,12 +14,14 @@ export default function Categorie() {
 
     const [categories, setCategories] = useState([]);
     const [change, setChange] = useState(true)
+    const [countCategories, setCountCategories] = useState([]);
 
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const categories = await window.electron.getCategories();
-                setCategories(categories);
+                const data = await window.electron.getCategories();
+                setCountCategories(data.length);
+                setCategories(data);
             } catch (error) {
                 console.error('Error fetching categories:', error);
             }  
@@ -28,6 +30,7 @@ export default function Categorie() {
     }, [change])
 
     // -----------------------------------------------------------------------------------------
+    // ajoute une categorie
     const [openA, setOpenA] = useState(false)
     const handleCloseA = () => setOpenA(false)
     const handleOpenA = () => setOpenA(true)
@@ -50,6 +53,7 @@ export default function Categorie() {
         }
     }
     // -------------------------------------------------------------------------------------------
+    // met à jour une categorie
     const [getIdUpdate, setIdUpdate] = useState(0)
     const [getNameUpdate, setNameUpdate] = useState('')
     const [openE, setOpenE] = useState(false)
@@ -83,6 +87,7 @@ export default function Categorie() {
     }
 
     // --------------------------------------------------------------------------------------------
+    // supprime une categorie
     const [getId, setGetId] = useState(0)
     const [getName, setName] = useState('')
     const [openD, setOpenD] = useState(false)
@@ -110,6 +115,7 @@ export default function Categorie() {
     <div className="pb-6 flex justify-between items-end">
         <div>
             <h3 className="font-bold text-2xl">Mes catiegories</h3>
+            <p className="text-gray-700">{countCategories} Categorie au catalogue</p>
         </div>
         <div className="flex gap-2">
             <Bouton onClick={handleOpenA}>

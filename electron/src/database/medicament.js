@@ -13,6 +13,7 @@ export default {
         SELECT m.*, c.nom AS categorie_nom
         FROM medicament m
         LEFT JOIN categorie c ON m.categorieid = c.idcategorie
+        ORDER BY m.idmed DESC
         `).all();
     },
 

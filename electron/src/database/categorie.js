@@ -6,7 +6,7 @@ export default {
     },
 
     get() {
-        return db.prepare('SELECT * FROM categorie').all();
+        return db.prepare('SELECT * FROM categorie ORDER BY idcategorie DESC').all();
     },
 
     getById(idcategorie) {
