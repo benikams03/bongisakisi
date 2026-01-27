@@ -156,12 +156,12 @@ export default function Medicaments() {
             </div>
             
             <div className="mt-3 flex justify-end gap-2 w-full">
+                <Bouton className="px-6 w-full">
+                    Mettre à jour
+                </Bouton>
                 <Bouton className="px-6 w-full" outline
                     onClick={handleCloseE}>
                     Fermer
-                </Bouton>
-                <Bouton className="px-6 w-full">
-                    Mettre à jour
                 </Bouton>
             </div>
         </div>
@@ -223,12 +223,12 @@ export default function Medicaments() {
             </div>
             
             <div className="mt-3 flex justify-end gap-2 w-full">
+                <Bouton className="px-6 w-full">
+                    Ajouter
+                </Bouton>
                 <Bouton className="px-6 w-full" outline
                     onClick={handleCloseA}>
                     Fermer
-                </Bouton>
-                <Bouton className="px-6 w-full">
-                    Ajouter
                 </Bouton>
             </div>
         </div>

@@ -4,6 +4,7 @@ import medicaments from './database/medicament.js'
 import notificationDB from './database/notification.js'
 import achatDB from './database/achat.js'
 
+
 // categorie 
 ipcMain.handle('categorie:create', (_, name) => categorie.create(name))
 ipcMain.handle('categorie:getAll', () => categorie.get())

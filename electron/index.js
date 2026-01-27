@@ -1,15 +1,13 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
-import { fileURLToPath } from 'url';
+import { app, BrowserWindow } from 'electron'
 import path from 'path';
+import { fileURLToPath } from 'url';
+import './src/ipcHandlers.js'
 
-let mainWindow
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-import './src/ipcHandlers.js'
-
 function createWindow() {
-    mainWindow = new BrowserWindow({
+    const mainWindow = new BrowserWindow({
         width: 1200,
         height: 800,
         minWidth: 1200,
@@ -17,18 +15,18 @@ function createWindow() {
         backgroundColor: '#ffffff',
         titleBarStyle: 'default',
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
+            preload: path.join( __dirname, 'preload.js'),
             contextIsolation: true, 
+            nodeIntegration: false,
         }
-    })
+    })    
 
     mainWindow.setMenu(null)
     mainWindow.loadURL('http://localhost:5173')
+    
+    mainWindow.webContents.on('console-message', (event) => {
+        console.log(`[Renderer] ${event.message}`);
+    });
 }
 
 app.whenReady().then(createWindow)
-
-ipcMain.on('send-data', (event, data) => {
-    console.log('Données reçues de React :', data)
-    event.sender.send('reply-data', `Electron a bien reçu : ${JSON.stringify(data)}`)
-})
