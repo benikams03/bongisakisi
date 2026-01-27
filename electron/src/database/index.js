@@ -29,7 +29,8 @@ db.exec(`
 
     CREATE TABLE IF NOT EXISTS achat (
         idachat INTEGER PRIMARY KEY AUTOINCREMENT,
-        details TEXT NOT NULL,
+        nom TEXT NOT NULL,
+        etat TEXT NOT NULL,
         prix_total REAL NOT NULL,
         benefice REAL NOT NULL,
         quantite INTEGER NOT NULL,

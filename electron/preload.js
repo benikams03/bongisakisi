@@ -34,8 +34,13 @@ try {
         
         // =============================================================================================================
         totalsmedocs: () => ipcRenderer.invoke('medicaments:totals'),
+        panierTotal: () => ipcRenderer.invoke('panier:totals'),
+        confirm_all: () => ipcRenderer.invoke('achat:confirm-all'),
+        stats_day: () => ipcRenderer.invoke('achat:stats-day'),
+        panierAdd: (name, id) => ipcRenderer.invoke('panier:add', name, id),
+        panierRemove: (name, id) => ipcRenderer.invoke('panier:remove', name, id),
         // =============================================================================================================
-
+        print: (html) => ipcRenderer.send("print-content", html),
     });
     console.log('✓ Electron API exposed to window');
 } catch (err) {

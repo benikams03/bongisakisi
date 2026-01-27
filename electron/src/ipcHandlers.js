@@ -49,3 +49,98 @@ ipcMain.handle('medicaments:totals', () => {
         totalVente: row.total_vente || 0
     }
 })
+
+ipcMain.handle('panier:totals', () => {
+    const row = db.prepare(`
+        SELECT 
+        SUM(prix_total * quantite) AS prix_total,
+        SUM(benefice * quantite) AS benefice
+        FROM achat
+        WHERE etat = 'attente'
+    `).get()
+
+    return {
+        total: row.prix_total || 0,
+        totalbenef: row.benefice || 0
+    }
+})
+
+ipcMain.handle('panier:add', (_, name, id) => {
+    const med = db.prepare(`
+        SELECT quantite FROM medicament WHERE nom = ?
+    `).get(name)
+
+    if (!med || med.quantite <= 0) {
+        return { success: false }
+    }
+
+    db.prepare(`
+        UPDATE medicament
+        SET quantite = quantite - 1
+        WHERE nom = ?
+    `).run(name)
+
+    db.prepare(`
+        UPDATE achat
+        SET quantite = quantite + 1
+        WHERE idachat = ?
+    `).run(id)
+
+    return { success: true }
+})
+
+ipcMain.handle('panier:remove', (_, name, id) => {
+    const achat = db.prepare(`
+        SELECT quantite FROM achat WHERE idachat = ?
+    `).get(id)
+
+    if (!achat || achat.quantite <= 1) {
+        return { success: false }
+    }
+
+    db.prepare(`
+        UPDATE medicament
+        SET quantite = quantite + 1
+        WHERE nom = ?
+    `).run(name)
+
+    db.prepare(`
+        UPDATE achat
+        SET quantite = quantite - 1
+        WHERE idachat = ?
+    `).run(id)
+
+    return { success: true }
+})
+
+ipcMain.handle('achat:confirm-all', () => {
+    const result = db.prepare(`
+        UPDATE achat
+        SET etat = 'confirmer'
+        WHERE etat = 'attente'
+    `).run()
+
+    return {
+        success: true,
+        updated: result.changes
+    }
+})
+
+ipcMain.handle('achat:stats-day', () => {
+    const row = db.prepare(`
+        SELECT
+        COUNT(*) AS totalAchats,
+        SUM(prix_total) AS totalPrix,
+        SUM(benefice) AS totalBenefice
+        FROM achat
+        WHERE DATE(datecreate) = DATE('now')
+        AND etat = 'confirmer'
+    `).get()
+
+    return {
+        totalAchats: row.totalAchats || 0,
+        totalPrix: row.totalPrix || 0,
+        totalBenefice: row.totalBenefice || 0
+    }
+})
+

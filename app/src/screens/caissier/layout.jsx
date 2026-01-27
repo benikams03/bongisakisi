@@ -11,7 +11,7 @@ export default function Layout_caissier({children}){
     }
 
     return(<>
-    <header className="z-10 fixed top-0 left-0 w-full bg-white shadow flex h-16 items-center justify-between border-b border-gray-300 bg-card px-6">
+    <header className="z-10 fixed top-0 left-0 w-full bg-gray-200 shadow flex h-16 items-center justify-between border-b border-gray-300 bg-card px-6">
         <div className="flex items-center gap-x-3">
             <GiPill size={24} />
             <div>

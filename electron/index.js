@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'path';
 import { fileURLToPath } from 'url';
 import './src/ipcHandlers.js'
@@ -30,3 +30,41 @@ function createWindow() {
 }
 
 app.whenReady().then(createWindow)
+
+ipcMain.on("print-content", (event, html) => {
+    const win = new BrowserWindow({
+        show: false,
+        webPreferences: {
+        sandbox: false,
+        },
+    });
+
+    win.loadURL(
+        "data:text/html;charset=utf-8," +
+        encodeURIComponent(`
+            <html>
+            <head>
+                <style>
+                body {
+                    font-family: Arial;
+                    padding: 20px;
+                }
+                </style>
+            </head>
+            <body>
+                ${html}
+            </body>
+            </html>
+        `)
+    );
+
+    win.webContents.on("did-finish-load", () => {
+        win.webContents.print(
+        {
+            silent: false,
+            printBackground: true,
+        },
+        () => win.close()
+        );
+    });
+});
