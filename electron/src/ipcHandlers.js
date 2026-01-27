@@ -3,6 +3,7 @@ import categorie from './database/categorie.js'
 import medicaments from './database/medicament.js'
 import notificationDB from './database/notification.js'
 import achatDB from './database/achat.js'
+import db from './database/index.js'
 
 
 // categorie 
@@ -32,3 +33,19 @@ ipcMain.handle('achat:getAll', () => achatDB.get())
 ipcMain.handle('achat:get', (_, idachat) => achatDB.getById(idachat))
 ipcMain.handle('achat:update', (_, idachat, achat) => achatDB.update(idachat, achat))
 ipcMain.handle('achat:delete', (_, idachat) => achatDB.delete(idachat))
+
+// ------------------------------------------------------------------------------------------------
+
+ipcMain.handle('medicaments:totals', () => {
+    const row = db.prepare(`
+        SELECT 
+        SUM(prix_achat * quantite) AS total_achat,
+        SUM(prix_vente * quantite) AS total_vente
+        FROM medicament
+    `).get()
+
+    return {
+        totalAchat: row.total_achat || 0,
+        totalVente: row.total_vente || 0
+    }
+})
