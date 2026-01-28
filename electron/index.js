@@ -23,7 +23,9 @@ function createWindow() {
     })    
 
     mainWindow.setMenu(null)
-    mainWindow.loadURL('http://localhost:5173')
+    // mainWindow.loadURL('http://localhost:5173')
+    mainWindow.loadFile(path.join( __dirname, 'dist', 'index.html'))
+
     
     mainWindow.webContents.on('console-message', (event) => {
         console.log(`[Renderer] ${event.message}`);
