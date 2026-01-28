@@ -73,6 +73,10 @@ export default function Medicaments() {
                 quantite : data.quantiteAdd, 
                 statut : data.quantiteAdd >= 30 ? 'Stock OK' : data.quantiteAdd >= 10 ? 'Stock faible' : 'Stock critique'
             })
+            // ----------------------------------------------------------
+            // notiificaiton verification de expiration ou stock
+            
+            // ----------------------------------------------------------
             setChange(!change)
             toast.success( 'Ajout réussi')
         } catch (e) {
@@ -148,6 +152,12 @@ export default function Medicaments() {
                 quantite : data.quantiteUpdate, 
                 statut : data.quantiteUpdate >= 30 ? 'Stock OK' : data.quantiteUpdate >= 10 ? 'Stock faible' : 'Stock critique'
             })
+            // ----------------------------------------------------------
+            // notiificaiton verifie si le stock es maintenant stable ou la date d'expiration
+            if(data.quantiteUpdate >= 10) {
+                await window.electron.updateNotification(getIdUpdate, 1)
+            }
+            // ----------------------------------------------------------
             setChange(!change)
             toast.success( 'Modification réussi')
         } catch (e) {

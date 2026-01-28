@@ -54,7 +54,7 @@ export default function Rapports() {
     return(<>
     
     <h3 className="font-bold text-2xl">Rapports</h3>
-    <p className="text-gray-700">Analysez vos performances de vente</p>{focus}
+    <p className="text-gray-700">Analysez vos performances de vente</p>
 
     <div className="my-4 flex items-center gap-1">
         <Bouton

@@ -13,6 +13,7 @@ export default function Dashbord() {
     const [stats, setStats] = useState([]);
     const [Medeciments, setMedeciments] = useState([]);
     const [lastAchat, setLastAchat] = useState([]);
+    const [alert, setAlert] = useState([])
     
     useEffect(() => {
         const fetchCategories = async () => {
@@ -20,9 +21,11 @@ export default function Dashbord() {
                 const date = await window.electron.stats_day();
                 const data2 = await window.electron.getMedicaments();
                 const data3 = await window.electron.getAchatLimit();
+                const date4 = await window.electron.getNotifications()
                 setMedeciments(data2);
                 setStats(date);
                 setLastAchat(data3);
+                setAlert(date4)
             } catch (error) {
                 console.error('Error fetching categories:', error);
             }  
@@ -102,20 +105,19 @@ export default function Dashbord() {
             <p className="text-gray-700 text-sm">Médicaments nécessitant attention</p>
 
             <div className="flex flex-col gap-2 pt-4">
-                <Card className="px-3 py-2 bg-gray-100 flex justify-between items-center">
-                    <div className="font-semibold">
-                        <p className="text-sm font-bold ">Amoxicilline 500mg</p>
-                        <p className="text-xs text-red-600">Expire dans 30 jours</p>
-                    </div>
-                    <FiAlertTriangle  className="text-red-600" />
-                </Card>
-                <Card className="px-3 py-2 bg-gray-100 flex justify-between items-center">
-                    <div className="font-semibold">
-                        <p className="text-sm font-bold ">Amoxicilline 500mg</p>
-                        <p className="text-xs text-yellow-500">Stock: 8</p>
-                    </div>
-                    <FiAlertTriangle  className="text-yellow-500" />
-                </Card>
+                { alert.map((valeur, index) => (
+                    <Card key={index} className="px-3 py-2 bg-gray-100 flex justify-between items-center">
+                        <div className="font-semibold">
+                            <p className="text-sm font-bold ">{valeur.nom}</p>
+                            { valeur.type === 'stock' ? ( 
+                                <p className="text-xs text-red-500">Stock: {valeur.quantite}</p>
+                            ) : (
+                                <p className="text-xs text-red-600">Expire dans 30 jours</p>
+                            )}
+                        </div>
+                        <FiAlertTriangle  className="text-red-600" />
+                    </Card>
+                )) }
             </div>
         </Card>
 

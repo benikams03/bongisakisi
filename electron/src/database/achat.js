@@ -43,6 +43,30 @@ export default {
             WHERE nom = ?
         `).run(quantite, nom)
 
+        const meds = db.prepare(`
+            SELECT * FROM medicament WHERE nom = ?
+        `).get(nom)
+
+        if(meds.quantite < 10 ) {
+            db.prepare(`
+                UPDATE medicament
+                SET statut = 'Stock critique'
+                WHERE nom = ?
+            `).run(nom)
+        } else if( meds.quantite < 30 ) {
+            db.prepare(`
+                UPDATE medicament
+                SET statut = 'Stock faible'
+                WHERE nom = ?
+            `).run(nom)
+        }else {
+            db.prepare(`
+                UPDATE medicament
+                SET statut = 'Stock OK'
+                WHERE nom = ?
+            `).run(nom)
+        }
+
         return { success: true }
     },
 
@@ -94,6 +118,31 @@ export default {
             DELETE FROM achat
             WHERE idachat = ?
         `).run(idachat)
+        
+        // ----------------------------
+        const med = db.prepare(`
+            SELECT * FROM medicament WHERE nom = ?
+        `).get(achat.nom)
+
+        if(med.quantite < 10 ) {
+            db.prepare(`
+                UPDATE medicament
+                SET statut = 'Stock critique'
+                WHERE nom = ?
+            `).run(achat.nom)
+        } else if( med.quantite < 30 ) {
+            db.prepare(`
+                UPDATE medicament
+                SET statut = 'Stock faible'
+                WHERE nom = ?
+            `).run(achat.nom)
+        }else {
+            db.prepare(`
+                UPDATE medicament
+                SET statut = 'Stock OK'
+                WHERE nom = ?
+            `).run(achat.nom)
+        }
 
         return { success: true }
     }

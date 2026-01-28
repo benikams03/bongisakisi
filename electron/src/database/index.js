@@ -22,9 +22,11 @@ db.exec(`
 
     CREATE TABLE IF NOT EXISTS notification (
         idnotif INTEGER PRIMARY KEY AUTOINCREMENT,
-        titre TEXT NOT NULL,
-        details TEXT NOT NULL,
-        datecreate DATETIME DEFAULT CURRENT_TIMESTAMP
+        idMedoc INTEGER NOT NULL,
+        type TEXT NOT NULL,
+        read INTEGER NOT NULL,
+        datecreate DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (idMedoc) REFERENCES medicament(idmed)
     );
 
     CREATE TABLE IF NOT EXISTS achat (

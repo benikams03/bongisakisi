@@ -80,6 +80,26 @@ ipcMain.handle('panier:add', (_, name, id) => {
         WHERE nom = ?
     `).run(name)
 
+    if(med.quantite < 10 ) {
+        db.prepare(`
+            UPDATE medicament
+            SET statut = 'Stock critique'
+            WHERE nom = ?
+        `).run(name)
+    } else if( med.quantite < 30 ) {
+        db.prepare(`
+            UPDATE medicament
+            SET statut = 'Stock faible'
+            WHERE nom = ?
+        `).run(name)
+    }else {
+        db.prepare(`
+            UPDATE medicament
+            SET statut = 'Stock OK'
+            WHERE nom = ?
+        `).run(name)
+    }
+
     db.prepare(`
         UPDATE achat
         SET quantite = quantite + 1
@@ -120,6 +140,26 @@ ipcMain.handle('panier:remove', (_, name, id) => {
         WHERE nom = ?
     `).run(name)
 
+    if(med.quantite < 10 ) {
+        db.prepare(`
+            UPDATE medicament
+            SET statut = 'Stock critique'
+            WHERE nom = ?
+        `).run(name)
+    } else if( med.quantite < 30 ) {
+        db.prepare(`
+            UPDATE medicament
+            SET statut = 'Stock faible'
+            WHERE nom = ?
+        `).run(name)
+    }else {
+        db.prepare(`
+            UPDATE medicament
+            SET statut = 'Stock OK'
+            WHERE nom = ?
+        `).run(name)
+    }
+
     db.prepare(`
         UPDATE achat
         SET quantite = quantite - 1
@@ -142,6 +182,7 @@ ipcMain.handle('panier:remove', (_, name, id) => {
 })
 
 ipcMain.handle('achat:confirm-all', () => {
+    // 1. Dernier panier du jour
     const row = db.prepare(`
         SELECT MAX(panier) AS lastPanier
         FROM achat
@@ -151,6 +192,41 @@ ipcMain.handle('achat:confirm-all', () => {
 
     const newPanier = row?.lastPanier ? row.lastPanier + 1 : 1
 
+    // 2. Récupérer les achats en attente avec leur médicament
+    const achats = db.prepare(`
+        SELECT 
+        a.nom,
+        m.idmed,
+        m.quantite
+        FROM achat a
+        JOIN medicament m ON m.nom = a.nom
+        WHERE a.etat = 'attente'
+    `).all()
+
+    // 3. Vérification du stock + notification
+    const checkNotif = db.prepare(`
+        SELECT idnotif
+        FROM notification
+        WHERE idMedoc = ?
+        AND type = 'stock'
+        AND read = 0
+    `)
+
+    const insertNotif = db.prepare(`
+        INSERT INTO notification (idMedoc, type, read)
+        VALUES (?, 'stock', 0)
+    `)
+
+    for (const achat of achats) {
+        if (achat.quantite < 10) {
+        const exist = checkNotif.get(achat.idmed)
+        if (!exist) {
+            insertNotif.run(achat.idmed)
+        }
+        }
+    }
+
+    // 4. Confirmer les achats
     const result = db.prepare(`
         UPDATE achat
         SET etat = 'confirmer',
@@ -284,3 +360,6 @@ ipcMain.handle('achats:getAllChartMonth', () => {
 
 })
 
+// ------------------------------------------
+// ------------------------------------------
+// notification
