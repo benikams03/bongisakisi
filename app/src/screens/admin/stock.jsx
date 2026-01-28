@@ -8,6 +8,7 @@ import { Select } from "../../components/ui/select";
 import { useState, useEffect } from "react";
 import { useFormttedData } from "../../utils/useFormttedData";
 import { useFormMoney } from "../../utils/useMoney"
+import { getDaysBeforeExpiration } from "../../utils/useDateRestant";
 
 export default function Stock() {
 
@@ -31,6 +32,7 @@ export default function Stock() {
     }, [])
     // -------------------------------------------------------------------------------------------
     const [filtre, setFiltre] = useState('')
+    const today = new Date()
 
     return(<>
     
@@ -74,9 +76,28 @@ export default function Stock() {
             <p className="text-gray-700">Expire bientôt</p>
             <div className="flex items-center gap-1 mt-6">
                 <FiAlertTriangle size={20} className="text-red-600" />
-                <h2 className="text-2xl font-bold text-red-600">{ medeciments.filter(valeur => valeur.statut === "Expire bientôt").length }</h2>
+                <h2 className="text-2xl font-bold text-red-600">
+                    {
+                        medeciments.filter(m => {
+                            const expiration = new Date(m.date_expiration)
+                            expiration.setHours(0,0,0,0)
+                            today.setHours(0,0,0,0)
+                            const diffDays = Math.ceil((expiration - today) / (1000 * 60 * 60 * 24))
+                            return diffDays > 0 && diffDays <= 30
+                        }).length
+                    }
+                </h2>
             </div>
-            <p className="text-sm font-semibold text-red-600">{ medeciments.filter(valeur => valeur.statut === "Expiré").length } déjà expiré</p>
+            <p className="text-sm font-semibold text-red-600">
+                {
+                    medeciments.filter(m => {
+                        const expiration = new Date(m.date_expiration)
+                        expiration.setHours(0,0,0,0)
+                        today.setHours(0,0,0,0)
+                        const diffDays = Math.ceil((expiration - today) / (1000 * 60 * 60 * 24))
+                        return diffDays <= 0
+                    }).length
+                } déjà expiré</p>
         </Card>
         
     </div>
@@ -129,13 +150,34 @@ export default function Stock() {
             </tr>
 
             { medeciments.map((valeur, index) => {
-                const view = (filtre === '' || valeur.statut === filtre);
+                const view = (() => {
+                    if (filtre === '') return true
+                    if (filtre === 'Expire bientôt') {
+                        const jours = getDaysBeforeExpiration(valeur.date_expiration)
+                        return jours > 0 && jours <= 30
+                    }
+                    if (filtre === 'Expiré') {
+                        return getDaysBeforeExpiration(valeur.date_expiration) === 0
+                    }
+                    return valeur.statut === filtre
+                })()
+
+                    ;
                 return(
-                    <tr key={index} className={`${ view ? '' : 'hidden' } text-gray-500 border-b border-gray-300`}>
+                    <tr key={index} 
+                        className={`
+                            ${ view ? '' : 'hidden' } text-gray-500 border-b border-gray-300
+                            ${ getDaysBeforeExpiration(valeur.date_expiration) === 0 ? 'bg-red-50' : '' }
+                        `}>
                         <td className="p-3 text-start text-gray-900 font-semibold">{valeur.nom}</td>
                         <td className="p-3 text-start">{valeur.categorie_nom}</td>
                         <td className="p-3 text-end text-gray-900 font-semibold">{valeur.quantite}</td>
-                        <td className="p-3 text-start text-sm">{ useFormttedData(valeur.date_expiration)}</td>
+                        <td className={`p-3 text-start text-xs ${getDaysBeforeExpiration(valeur.date_expiration) === 0 ? 'text-red-600 font-bold' : ( getDaysBeforeExpiration(valeur.date_expiration) <= 30 ? 'text-yellow-600 font-semibold' : '') }`}>
+                            {   
+                                getDaysBeforeExpiration(valeur.date_expiration) === 0 ? 'Expiré le ' + useFormttedData(valeur.date_expiration) :
+                                "Expiration dans " + getDaysBeforeExpiration(valeur.date_expiration) + " jours"
+                            }
+                        </td>
                         <td className="p-3 text-start">
                             { valeur.quantite >= 30 ? (
                                 <div className="text-green-500 bg-green-50 text-center text-xs border border-green-500 rounded">

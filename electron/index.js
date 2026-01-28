@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { checkExpirationNotifications } from './src/service-back/checkNotif.js';
 import './src/ipcHandlers.js'
 
 const __filename = fileURLToPath(import.meta.url);
@@ -29,7 +30,13 @@ function createWindow() {
     });
 }
 
-app.whenReady().then(createWindow)
+// app.whenReady().then(createWindow)
+
+app.whenReady().then(() => {
+    checkExpirationNotifications()  
+    createWindow()
+})
+
 
 ipcMain.on("print-content", (event, html) => {
     const win = new BrowserWindow({

@@ -17,6 +17,7 @@ import { GiPill } from "react-icons/gi";
 import { FiPrinter } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { useFormMoney } from "../../utils/useMoney";
+import { getDaysBeforeExpiration } from "../../utils/useDateRestant" 
 
 export default function Caissier() {
 
@@ -152,8 +153,9 @@ export default function Caissier() {
                                     className={`
                                         ${ view ? 'block' : 'hidden' } 
                                         !bg-gray-100 mb-2 flex justify-between items-center px-3 py-1
-                                        ${ valeur.quantite === 0 ? 'opacity-40' : '' }`
-                                    }>
+                                        ${ valeur.quantite === 0 ? 'opacity-40' : '' }
+                                        ${ getDaysBeforeExpiration(valeur.date_expiration) === 0 ? 'opacity-40' : '' }
+                                    `}>
                                     <div className="py-1">
                                         <h3 className="text-lg font-semibold">{valeur.nom}</h3>
                                         <div className="flex items-center gap-3 text-sm text-gray-500">
@@ -162,16 +164,23 @@ export default function Caissier() {
                                             <p className={`
                                                 ${valeur.quantite >= 30 ? '' : ( valeur.quantite >= 10 ? 'text-yellow-500' : 'text-red-500') }
                                                 `}>stock : {valeur.quantite}</p>
+                                            <div className="border border-l border-gray-500 h-4" />
+                                            { getDaysBeforeExpiration(valeur.date_expiration) === 0 ? <p className="text-red-500 font-bold">Expiré</p> : ''}
                                         </div>
                                     </div>
 
                                     <div className="flex items-center gap-3">
                                         <h2 className="font-bold text-xl">{useFormMoney(valeur.prix_vente)} Fc</h2>
                                         { valeur.quantite !== 0 ? 
-                                            (<Bouton
-                                                onClick={ () => add(valeur.nom, (valeur.prix_vente - valeur.prix_achat), valeur.prix_vente) }                                            className="px-2">
-                                                <IoMdAdd size={18} />
-                                            </Bouton> ) : 
+                                            getDaysBeforeExpiration(valeur.date_expiration) !== 0 ?
+                                                (<Bouton
+                                                    onClick={ () => add(valeur.nom, (valeur.prix_vente - valeur.prix_achat), valeur.prix_vente) }                                            className="px-2">
+                                                    <IoMdAdd size={18} />
+                                                </Bouton> )
+                                            :   <Bouton>
+                                                    <IoMdAdd size={18} />
+                                                </Bouton>
+                                            : 
                                             (<Bouton>
                                                 <IoMdAdd size={18} />
                                             </Bouton> ) 

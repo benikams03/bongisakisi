@@ -7,6 +7,7 @@ import { FiAlertTriangle } from "react-icons/fi";
 import { useState, useEffect } from "react";
 import { useFormMoney } from "../../utils/useMoney";
 import { useFormatDateToLabel } from "../../utils/useFormatDateHeureLabel"
+import { getDaysBeforeExpiration } from "../../utils/useDateRestant"
 
 export default function Dashbord() {
 
@@ -32,6 +33,8 @@ export default function Dashbord() {
         }
         fetchCategories();
     }, [])
+
+    const today = new Date()
 
     return(<>
     
@@ -75,7 +78,25 @@ export default function Dashbord() {
             <p className="text-sm text-gray-700">
                 { Medeciments.filter(m => m.statut === 'Stock faible').length } faibles, 
                 { Medeciments.filter(m => m.statut === 'Stock critique').length } Critique <br /> 
-                { Medeciments.filter(m => m.statut === 'Expirera').length } expirant</p>
+
+                {
+                    Medeciments.filter(m => {
+                        const expiration = new Date(m.date_expiration)
+                        expiration.setHours(0,0,0,0)
+                        today.setHours(0,0,0,0)
+                        const diffDays = Math.ceil((expiration - today) / (1000 * 60 * 60 * 24))
+                        return diffDays > 0 && diffDays <= 30
+                    }).length
+                } Expire bientot , 
+                {
+                    Medeciments.filter(m => {
+                        const expiration = new Date(m.date_expiration)
+                        expiration.setHours(0,0,0,0)
+                        today.setHours(0,0,0,0)
+                        const diffDays = Math.ceil((expiration - today) / (1000 * 60 * 60 * 24))
+                        return diffDays <= 0
+                    }).length
+                } Expirée</p>
         </Card>
     </div>
 
@@ -112,7 +133,10 @@ export default function Dashbord() {
                             { valeur.type === 'stock' ? ( 
                                 <p className="text-xs text-red-500">Stock: {valeur.quantite}</p>
                             ) : (
-                                <p className="text-xs text-red-600">Expire dans 30 jours</p>
+                                <p className="text-xs text-red-600">{
+                                    getDaysBeforeExpiration(valeur.date_expiration) === 0 ? 'Produit expiré' : 
+                                    "Expire dans " + getDaysBeforeExpiration(valeur.date_expiration) + " jours"
+                                }</p>
                             )}
                         </div>
                         <FiAlertTriangle  className="text-red-600" />

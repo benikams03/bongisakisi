@@ -14,6 +14,7 @@ import { capitalize } from "../../utils/string";
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
 import { useFormttedData } from "../../utils/useFormttedData";
+import { getDaysBeforeExpiration } from "../../utils/useDateRestant";
 
 export default function Medicaments() {
 
@@ -73,10 +74,6 @@ export default function Medicaments() {
                 quantite : data.quantiteAdd, 
                 statut : data.quantiteAdd >= 30 ? 'Stock OK' : data.quantiteAdd >= 10 ? 'Stock faible' : 'Stock critique'
             })
-            // ----------------------------------------------------------
-            // notiificaiton verification de expiration ou stock
-            
-            // ----------------------------------------------------------
             setChange(!change)
             toast.success( 'Ajout réussi')
         } catch (e) {
@@ -224,10 +221,19 @@ export default function Medicaments() {
                 const view = valeur.nom.toLowerCase().includes(recherche.toLowerCase())
                     && (filtre === '' || valeur.categorieid.toString() === filtre);
                 return(
-                    <tr key={index} className={`${ view ? '' : 'hidden' } text-gray-500 border-b border-gray-300`}>
+                    <tr key={index} 
+                        className={`
+                            ${ view ? '' : 'hidden' } text-gray-500 border-b border-gray-300
+                            ${ getDaysBeforeExpiration(valeur.date_expiration) === 0 ? 'bg-red-50' : '' }
+                        `}>
                         <td className="p-3 text-start text-gray-900 font-semibold">{valeur.nom}</td>
                         <td className="p-3 text-start">{valeur.categorie_nom}</td>
-                        <td className="p-3 text-start text-sm">{ useFormttedData(valeur.date_expiration)}</td>
+                        <td className={`p-3 text-start text-xs ${getDaysBeforeExpiration(valeur.date_expiration) === 0 ? 'text-red-600 font-bold' : ( getDaysBeforeExpiration(valeur.date_expiration) <= 30 ? 'text-yellow-600 font-semibold' : '') }`}>
+                            {   
+                                getDaysBeforeExpiration(valeur.date_expiration) === 0 ? 'Expiré le ' + useFormttedData(valeur.date_expiration) :
+                                "Expiration dans " + getDaysBeforeExpiration(valeur.date_expiration) + " jours"
+                            }
+                        </td>
                         <td className="p-3 text-end font-semibold">{valeur.prix_achat} Fc</td>
                         <td className="p-3 text-end font-semibold text-green-500">{valeur.prix_vente} Fc</td>
                         <td className="p-3 text-end text-gray-900 font-semibold">{valeur.quantite}</td>
