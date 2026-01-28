@@ -34,6 +34,7 @@ db.exec(`
         prix_total REAL NOT NULL,
         benefice REAL NOT NULL,
         quantite INTEGER NOT NULL,
+        panier INTEGER NOT NULL,
         datecreate DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 

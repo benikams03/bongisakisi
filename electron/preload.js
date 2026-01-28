@@ -27,8 +27,8 @@ try {
 
         // -------------------- ACHAT --------------------
         createAchat: (achat) => ipcRenderer.invoke('achat:create', achat),
-        getAchats: () => ipcRenderer.invoke('achat:getAll'),
-        getAchatById: (idachat) => ipcRenderer.invoke('achat:get', idachat),
+        getAchats: () => ipcRenderer.invoke('achat:get'),
+        getAchatLimit: () => ipcRenderer.invoke('achat:getLimit'),
         updateAchat: (idachat, achat) => ipcRenderer.invoke('achat:update', idachat, achat),
         deleteAchat: (idachat) => ipcRenderer.invoke('achat:delete', idachat),
         
@@ -37,6 +37,11 @@ try {
         panierTotal: () => ipcRenderer.invoke('panier:totals'),
         confirm_all: () => ipcRenderer.invoke('achat:confirm-all'),
         stats_day: () => ipcRenderer.invoke('achat:stats-day'),
+        stats_month: () => ipcRenderer.invoke('achat:stats-month'),
+        rapport_bestVent: () => ipcRenderer.invoke('rapport:bestvente'),
+        rapport_bestventeMonth: () => ipcRenderer.invoke('rapport:bestventeMonth'),
+        achats_getAllChart_week: () => ipcRenderer.invoke('achats:getAllChart'),
+        achats_getAllChart_month: () => ipcRenderer.invoke('achats:getAllChartMonth'),
         panierAdd: (name, id) => ipcRenderer.invoke('panier:add', name, id),
         panierRemove: (name, id) => ipcRenderer.invoke('panier:remove', name, id),
         // =============================================================================================================

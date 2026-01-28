@@ -196,7 +196,7 @@ export default function Caissier() {
                             <Card key={index} className="px-3 py-1 mb-2">
                                 <div className="flex justify-between items-center font-semibold">
                                     <p className="text-gray-700">{valeur.nom}</p>
-                                    <p>{useFormMoney(valeur.prix_total * valeur.quantite)} Fc</p>
+                                    <p>{useFormMoney(valeur.prix_total)} Fc</p>
                                 </div>
                                 <div className="flex justify-between items-center py-1 font-semibold">
                                     <div className="flex items-center justify-between gap-3">
@@ -275,7 +275,7 @@ export default function Caissier() {
                                 { detail.map((valeur, index) => (
                                     <div key={index} className="flex justify-between items-center">
                                         <p className="text-gray-600">{valeur.nom} X {valeur.quantite}</p>
-                                        <p className="font-semibold ">{useFormMoney(valeur.prix_total * valeur.quantite)} Fc</p>
+                                        <p className="font-semibold ">{useFormMoney(valeur.prix_total)} Fc</p>
                                     </div>
                                 )) }
                             </div>

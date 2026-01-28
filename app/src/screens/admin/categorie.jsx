@@ -129,13 +129,11 @@ export default function Categorie() {
         <table className="w-full">
             <tr className="text-gray-500 border-b border-gray-300 text-sm">
                 <th className="text-start p-2 font-semibold ">Nom</th>
-                <th className="text-start p-2 font-semibold ">Nombre des medicaments</th>
                 <th className="text-end p-2 font-semibold ">Action</th>
             </tr>
 
             { categories.map((valeur,index) => ( <tr key={index} className="text-gray-500 border-b border-gray-300">
                 <td className="p-3 text-start text-gray-900 font-semibold">{valeur.nom}</td>
-                <td className="p-3 text-start font-semibold text-blue-500">150</td>
                 <td className="p-3 text-end">
                     <div className="flex justify-end items-center gap-4">
                         <button onClick={ () => handleOpenD(valeur.idcategorie, valeur.nom)} className="cursor-pointer hover:text-red-400 text-red-500 duration-200">
