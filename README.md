@@ -1,15 +1,34 @@
-## Optimiser sont application
-Supprime les packages inutiles :
-```sh
-    npm prune
+# bongisakisi
+
+An Electron application with React
+
+## Recommended IDE Setup
+
+- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+
+## Project Setup
+
+### Install
+
+```bash
+$ npm install
 ```
 
-## Vérifier ce qui pèse lourd
-```sh
-    npx cost-of-modules
+### Development
+
+```bash
+$ npm run dev
 ```
 
-Juste avant de build avec electron-builder,
-```sh
-    npm install --omit=dev
+### Build
+
+```bash
+# For windows
+$ npm run build:win
+
+# For macOS
+$ npm run build:mac
+
+# For Linux
+$ npm run build:linux
 ```
