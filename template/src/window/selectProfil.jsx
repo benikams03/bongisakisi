@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { User, UserCheck, Plus, Crown, ChevronRight, Package } from 'lucide-react'
+import { User, UserCheck, Plus, Crown, ChevronRight, Package, Download, AlertCircle, Check, X } from 'lucide-react'
 import { Bouton } from '../components/ui/bouton/index'
+import Update from '../components/common/update';
+import Drawer from "@mui/material/Drawer";
 
 export default function SelectProfil() {
     const [selectedProfile, setSelectedProfile] = useState(null)
@@ -28,8 +30,12 @@ export default function SelectProfil() {
         console.log(`Profil sélectionné: ${profile.title}`)
     }
 
-    return (
-        <div className="h-screen flex items-center justify-center p-4">
+    
+
+    const [open, setOpen] = useState(false);
+
+    return (<>
+        <div className="bg-[url('./../assets/wavy-lines.svg')] bg-cover bg-center h-screen flex items-center justify-center p-4">
             <div className="max-w-6xl w-full">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -53,7 +59,7 @@ export default function SelectProfil() {
                                 className={`
                                     relative p-6 rounded-2xl border-1 transition-all duration-200 w-1/5
                                     ${isSelected 
-                                        ? 'border-emerald-500 bg-emerald-50/50 shadow-lg scale-105' 
+                                        ? 'border-emerald-500 bg-white shadow-lg scale-105' 
                                         : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
                                     }
                                     group cursor-pointer
@@ -132,9 +138,27 @@ export default function SelectProfil() {
 
                 {/* Footer */}
                 <div className="mt-12 text-center text-sm text-gray-500">
-                    <p> 2026 BongisaKisi - Solution de gestion pharmacetique</p>
+                    <p>&copy; 2026 BongisaKisi - Solution de gestion pharmacetique</p>
+                    <div className="mt-4 flex justify-center">
+                        <Bouton outline
+                            onClick={() => setOpen(true)}>
+                            <Download className="w-4 h-4 text-gray-600" />
+                            <span className="">Mise à jour</span>
+                        </Bouton>
+                    </div>
                 </div>
             </div>
         </div>
-    )
+        
+        {/* Modal de mise à jour */}
+        <Drawer
+            anchor="bottom"
+            open={open}
+            onClose={ () => setOpen(false)}
+            PaperProps={{
+                className: "bg-white shadow border border-gray-200 rounded-t-2xl text-black w-2/5 mx-auto"
+            }}>
+                <Update after={() => setOpen(false)} />
+        </Drawer>
+    </>)
 }
