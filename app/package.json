@@ -1,0 +1,16 @@
+{
+    "name": "bongisakisi",
+    "version": "2.0.0",
+    "description": "Application de gestion d'une pharmacie",
+    "main": "./src/main/index.js",
+    "type": "module",
+    "scripts": {
+        "dev": "electron ./src/main/index.js",
+        "build": ""
+    },
+    "author": "Beni Mukungulu",
+    "license": "ISC",
+    "devDependencies": {
+        "electron": "^41.0.2"
+    }
+}

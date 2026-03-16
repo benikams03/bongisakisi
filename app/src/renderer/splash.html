@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bongisakisi - Chargement</title>
+    <script src="./tailwindcss.js"></script>
+    <style>
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="h-screen bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center relative overflow-hidden">
+        <div class="text-center">
+            <!-- Logo -->
+            <div class="mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur rounded-full mb-4">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-semibold text-white mb-1">BongisaKisi</h1>
+                <p class="text-white/80 text-sm">Pharmacie Management</p>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="w-64 mx-auto mb-4">
+                <div class="w-full bg-white/20 rounded-full h-2 overflow-hidden backdrop-blur">
+                    <div id="progress-bar" class="h-full bg-white rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Loading text -->
+            <div class="text-center">
+                <div class="inline-block">
+                    <p id="loading-text" class="text-white/90 text-sm font-light tracking-wide animate-pulse">
+                        Initialisation...
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let progress = 0;
+        const loadingTexts = [
+            'Initialisation du système...',
+            'Chargement des données...',
+            'Vérification des stocks...',
+            "Préparation de l'interface...",
+            'Finalisation...',
+            'Prêt à démarrer...'
+        ];
+
+        const progressBar = document.getElementById('progress-bar');
+        const loadingText = document.getElementById('loading-text');
+
+        const interval = setInterval(() => {
+            progress = progress < 100 ? progress + 1 : 100;
+
+            // Update progress bar
+            progressBar.style.width = `${progress}%`;
+
+            // Change text based on progress
+            const textIndex = Math.floor((progress / 100) * loadingTexts.length);
+            loadingText.textContent = loadingTexts[Math.min(textIndex, loadingTexts.length - 1)];
+
+            // Stop when complete
+            if (progress >= 100) {
+                clearInterval(interval);
+            }
+        }, 30);
+    </script>
+</body>
+</html>
