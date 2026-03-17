@@ -1,46 +1,7 @@
-import { useState } from "react"
-import { User, UserCheck, Plus, Crown, ChevronRight, Package, Download, AlertCircle, Check, Loader } from 'lucide-react'
+import { Download, Check, Loader } from 'lucide-react'
 import { Bouton } from "../ui/bouton/index";
 
 export default function Update({ after }) {
-    
-    const [showUpdateModal, setShowUpdateModal] = useState(false)
-    const [updateStatus, setUpdateStatus] = useState('checking') // checking, available, downloading
-    const [downloadProgress, setDownloadProgress] = useState(0)
-    const [showDependencyModal, setShowDependencyModal] = useState(false)
-
-    const checkForUpdates = () => {
-        setShowUpdateModal(true)
-        setUpdateStatus('checking')
-        
-        // Simulation de vérification de mises à jour
-        setTimeout(() => {
-            setUpdateStatus('available')
-        }, 2000)
-    }
-
-    const downloadUpdate = () => {
-        setUpdateStatus('downloading')
-        
-        // Simulation de téléchargement avec barre de progression
-        let progress = 0
-        const interval = setInterval(() => {
-            progress += 10
-            setDownloadProgress(progress)
-            if (progress >= 100) {
-                clearInterval(interval)
-                setTimeout(() => {
-                    setShowUpdateModal(false)
-                    setDownloadProgress(0)
-                    setUpdateStatus('checking')
-                }, 500)
-            }
-        }, 200)
-    }
-
-    const installDependencies = () => {
-        setShowDependencyModal(true)
-    }
     
     return (<>
         <div className="w-full py-8 px-18">

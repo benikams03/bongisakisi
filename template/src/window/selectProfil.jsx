@@ -3,6 +3,7 @@ import { User, UserCheck, Plus, Crown, ChevronRight, Package, Download, AlertCir
 import { Bouton } from '../components/ui/bouton/index'
 import Update from '../components/common/update';
 import Drawer from "@mui/material/Drawer";
+import { Link } from 'react-router-dom';
 
 export default function SelectProfil() {
     const [selectedProfile, setSelectedProfile] = useState(null)
@@ -13,14 +14,16 @@ export default function SelectProfil() {
             title: 'Administrateur',
             description: 'Accès complet à l\'administration du système',
             icon: Crown,
-            color: 'from-purple-500 to-purple-600'
+            color: 'from-purple-500 to-purple-600',
+            link: '/admin'
         },
         {
             id: 'caissier',
             title: 'Caissier',
             description: 'Gestion des ventes et des transactions',
             icon: User,
-            color: 'from-green-500 to-green-600'
+            color: 'from-green-500 to-green-600',
+            link: '/caissier/'
         }
     ]
 
@@ -92,7 +95,7 @@ export default function SelectProfil() {
                                 )}
 
                                 { isSelected && (
-                                <div className="mt-8 text-center">
+                                <Link to={profile.link} className="mt-8 flex text-center">
                                     <Bouton
                                         onClick={() => console.log('Redirection vers le dashboard')}
                                         className="w-full"
@@ -100,7 +103,7 @@ export default function SelectProfil() {
                                         Continuer
                                         <ChevronRight className="w-5 h-5" />
                                     </Bouton>
-                                </div> ) }
+                                </Link> ) }
                             </button>
                         )
                     })}

@@ -23,9 +23,9 @@ function createWindow () {
 
     // Create main window but keep it hidden
     const mainWindow = new BrowserWindow({
-        width: 1100,
+        width: 1300,
         height: 700,
-        minWidth: 1100,
+        minWidth: 1300,
         minHeight: 700,
         backgroundColor: '#ffffff',
         titleBarStyle: 'default',
@@ -47,6 +47,7 @@ function createWindow () {
     // Show main window after 3 seconds and close splash
     setTimeout(() => {
         splash.close()
+        mainWindow.maximize()
         mainWindow.show()
     }, 5000)
 }
