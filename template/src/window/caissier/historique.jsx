@@ -8,7 +8,7 @@ export default function Historique() {
     const [open, setOpen] = useState(false)
 
     return (<>
-        <div className="flex-1 p-3">
+        <div className="flex-1 p-2.5">
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-2xl font-bold text-gray-900">Historique des ventes du jour</h3>
                 <div className="flex gap-2">

@@ -6,6 +6,7 @@ import LayoutCaissier from '../components/common/layout/layout-caissier'
 // CAISSIER
 import IndexCaisse from '../window/caissier/index'
 import Historique from '../window/caissier/historique'
+import Rapport from '../window/caissier/rapport'
 
 export const route = createHashRouter([
     {
@@ -23,6 +24,10 @@ export const route = createHashRouter([
             {
                 path: 'historique',
                 element: <Historique />
+            },
+            {
+                path: 'rapports',
+                element: <Rapport />
             }
         ]
     }
