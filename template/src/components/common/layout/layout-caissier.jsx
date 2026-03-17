@@ -3,7 +3,7 @@ import { ShoppingCart, Package, History, FileText, LogOut, User } from 'lucide-r
 import { Bouton } from './../../ui/bouton/index';
 
 const menuItems = [
-    { id: '/', label: 'Caisse', icon: ShoppingCart },
+    { id: 'home', label: 'Caisse', icon: ShoppingCart },
     { id: 'acquisition', label: 'Acquisition', icon: Package },
     { id: 'historique', label: 'Historique', icon: History },
     { id: 'rapports', label: 'Rapports', icon: FileText },
@@ -26,7 +26,7 @@ export default function LayoutCaissier() {
                             key={item.id}
                             className={`
                                 w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors
-                                ${activeSection === '/caissier' + item.id 
+                                ${activeSection === '/caissier/' + item.id 
                                     ? 'bg-emerald-600/50 text-emerald-300' 
                                     : 'hover:bg-gray-50/10 text-gray-300'
                                 }

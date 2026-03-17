@@ -31,7 +31,7 @@ export default function IndexCaisse() {
                     </div>
                 </div>
 
-                <div className="mb-3 space-y-4 flex items-center gap-2">
+                <div className="space-y-4 flex items-center gap-2">
                     <div className='w-full'>
                         <Input icons={<Search className="text-gray-400 w-5 h-5" />} 
                             placeholder="Rechercher un médicament, n° lot, ou catégorie..." 
@@ -184,7 +184,7 @@ export default function IndexCaisse() {
             </div>
             
             
-            <div className="mt-3 flex gap-2">
+            <div className="flex gap-2">
                 <Bouton className="w-full" outline
                     onClick={() => setOpen(false)}>
                     Annuler
@@ -195,7 +195,7 @@ export default function IndexCaisse() {
                     Confirmation
                 </Bouton>
             </div>
-            <div className="mt-3 flex flex-col gap-2">
+            <div className="flex flex-col gap-2">
                 <Bouton primary
                     className="w-full">
                     <Printer />

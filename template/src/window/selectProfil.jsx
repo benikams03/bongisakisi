@@ -23,7 +23,7 @@ export default function SelectProfil() {
             description: 'Gestion des ventes et des transactions',
             icon: User,
             color: 'from-green-500 to-green-600',
-            link: '/caissier/'
+            link: '/caissier/home'
         }
     ]
 
