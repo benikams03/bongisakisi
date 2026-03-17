@@ -24,7 +24,7 @@ export function SelectTrigger({ ico,children }) {
     <button
       type="button"
       onClick={() => setOpen(!open)}
-      className="flex h-10 w-full items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
+      className="flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
     >
       <span className="mr-2">
         { ico && (<SlidersHorizontal size={18} />) }

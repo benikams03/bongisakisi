@@ -12,7 +12,7 @@ function Bouton({ className, delet , load ,outline,primary, children,...props })
                 ( load && 'bg-gray-600'),
                 ( outline && '!bg-white !border-gray-300 !text-gray-700 hover:!bg-gray-200' ),
                 ( delet && '!bg-red-600 !text-white hover:!bg-red-700' ),
-                ( primary && '!bg-emerald-400'),
+                ( primary && '!bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 transition-all duration-200'),
                 className
             )}
             disabled={load}

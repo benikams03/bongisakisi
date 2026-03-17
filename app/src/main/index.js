@@ -13,6 +13,7 @@ function createWindow () {
         minWidth: 350,
         minHeight: 450,
         frame: false,
+        transparent: true,
         alwaysOnTop: true,
         transparent: true
     })
@@ -23,9 +24,9 @@ function createWindow () {
 
     // Create main window but keep it hidden
     const mainWindow = new BrowserWindow({
-        width: 1300,
+        width: 1200,
         height: 700,
-        minWidth: 1300,
+        minWidth: 1200,
         minHeight: 700,
         backgroundColor: '#ffffff',
         titleBarStyle: 'default',

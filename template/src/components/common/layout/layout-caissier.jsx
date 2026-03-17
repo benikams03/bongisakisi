@@ -49,7 +49,7 @@ export default function LayoutCaissier() {
             </div>
         </div>
 
-        <div className='w-[81%] h-full bg-gray-100'>
+        <div className='w-[81%] h-full bg-gray-100 overflow-hidden'>
             <nav className='bg-white flex justify-end p-4 border-b border-gray-200 z-10'>
                 <div className='flex gap-2'>
                     <User className="w-6 h-6 bg-gray-300 p-1 rounded-lg" />
@@ -57,8 +57,8 @@ export default function LayoutCaissier() {
 
                 </div>    
             </nav>
-            <div className='h-[90%] w-full p-3 overflow-auto'> 
-                <div className='w-full p-3 bg-white rounded-lg border border-gray-200'>
+            <div className='h-[92%] w-full p-3'> 
+                <div className='w-full h-full p-3 bg-white rounded-lg border border-gray-200'>
                     <Outlet />
                 </div>
             </div>
