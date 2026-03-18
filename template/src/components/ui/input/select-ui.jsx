@@ -18,8 +18,9 @@ export function Select({ children, items, defaultValue = null }) {
   );
 }
 
-export function SelectTrigger({ ico,children }) {
+export function SelectTrigger({ ico, icons, children }) {
   const { open, setOpen } = useContext(SelectContext);
+  const Icon = icons;
   return (
     <button
       type="button"
@@ -27,7 +28,8 @@ export function SelectTrigger({ ico,children }) {
       className="flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
     >
       <span className="mr-2">
-        { ico && (<SlidersHorizontal size={18} />) }
+        { ico && (<SlidersHorizontal size={19} className='text-gray-400'/>) }
+        { icons && (<Icon size={19} className="text-gray-400" />) }
       </span>
       {children}
       <span className="ml-2">

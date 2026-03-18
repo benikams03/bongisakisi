@@ -7,16 +7,6 @@ export default function Rapport() {
     <div className="flex-1 p-2.5">
         <div className="flex justify-between items-center mb-6">
             <h3 className="text-2xl font-bold text-gray-900">Rapports</h3>
-            <div className="flex gap-2">
-                <Bouton primary>
-                    <Download className="w-4 h-4" />
-                    Exporter PDF
-                </Bouton>
-                <Bouton outline>
-                    <Printer className="w-4 h-4" />
-                    Imprimer
-                </Bouton>
-            </div>
         </div>
         
         <div className="grid grid-cols-4 gap-3 mb-4">
@@ -63,9 +53,6 @@ export default function Rapport() {
                             <div className="flex gap-2">
                                 <Bouton outline className="text-xs">
                                     <Download className="w-3 h-3" />
-                                </Bouton>
-                                <Bouton outline className="text-xs">
-                                    <Printer className="w-3 h-3" />
                                 </Bouton>
                             </div>
                         </div>
