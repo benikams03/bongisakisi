@@ -2,12 +2,22 @@ import { createHashRouter } from 'react-router-dom'
 
 import SelectProfil from '../window/selectProfil'
 import LayoutCaissier from '../components/common/layout/layout-caissier'
+import LayoutAdmin from '../components/common/layout/layout-admin'
 
 // CAISSIER
 import IndexCaisse from '../window/caissier/index'
 import Historique from '../window/caissier/historique'
 import Rapport from '../window/caissier/rapport'
 import Acquisition from '../window/caissier/acquisition'
+
+// ADMIN
+import Dashboard from '../window/admin/dashboard'
+import Produits from '../window/admin/produits'
+import Categories from '../window/admin/categories'
+import Rapports from '../window/admin/rapports'
+import Settings from '../window/admin/settings'
+import Approvisionnement from '../window/admin/approvisionnement'
+import Ravitaillement from '../window/admin/ravitaillement'
 
 export const route = createHashRouter([
     {
@@ -33,6 +43,40 @@ export const route = createHashRouter([
             {
                 path: 'acquisition',
                 element: <Acquisition />
+            }
+        ]
+    },
+    {
+        path: '/admin',
+        element: <LayoutAdmin />,
+        children: [
+            {
+                path: 'dashboard',
+                element: <Dashboard />
+            },
+            {
+                path: 'produits',
+                element: <Produits />
+            },
+            {
+                path: 'categories',
+                element: <Categories />
+            },
+            {
+                path: 'approvisionnement',
+                element: <Approvisionnement />
+            },
+            {
+                path: 'ravitaillement',
+                element: <Ravitaillement />
+            },
+            {
+                path: 'rapports',
+                element: <Rapports />
+            },
+            {
+                path: 'settings',
+                element: <Settings />
             }
         ]
     }

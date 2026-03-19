@@ -15,7 +15,7 @@ export default function SelectProfil() {
             description: 'Accès complet à l\'administration du système',
             icon: Crown,
             color: 'from-purple-500 to-purple-600',
-            link: '/admin'
+            link: '/admin/dashboard'
         },
         {
             id: 'caissier',
@@ -141,6 +141,12 @@ export default function SelectProfil() {
 
                 {/* Footer */}
                 <div className="mt-12 text-center text-sm text-gray-500">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                        <Package className="w-4 h-4 text-gray-400" />
+                        <span>Version 2.1.0</span>
+                        <span className="text-gray-400">•</span>
+                        <span>Build 2024.03.19</span>
+                    </div>
                     <p>&copy; 2026 BongisaKisi - Solution de gestion pharmacetique</p>
                     <div className="mt-4 flex justify-center">
                         <Bouton outline

@@ -24,7 +24,7 @@ function InputLabel({ className, icons ,type, helperText, error , label, ...prop
     const Icons = icons
     return (
     <div>
-        <label className="block text-sm font-medium text-gray-500 mb-1 ml-1">{label}</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">{label}</label>
         <div className="relative">
             { icons && <div className="absolute top-2.5 left-3">
                 <Icons className="w-5 h-5 text-gray-400" />
