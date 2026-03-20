@@ -1,12 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { User, UserCheck, Plus, Crown, ChevronRight, Package, Download, AlertCircle, Check, X } from 'lucide-react'
 import { Bouton } from '../components/ui/bouton/index'
 import Update from '../components/common/update';
+import OnboardingModal from '../components/common/onboarding';
 import Drawer from "@mui/material/Drawer";
 import { Link } from 'react-router-dom';
 
 export default function SelectProfil() {
     const [selectedProfile, setSelectedProfile] = useState(null)
+    const [open, setOpen] = useState(false)
+    const [showOnboarding, setShowOnboarding] = useState(false)
+
+    // Vérifier si c'est un nouvel utilisateur au chargement du composant
+    useEffect(() => {
+        const checkFirstTimeUser = () => {
+            const hasCompletedOnboarding = localStorage.getItem('bongisakisi_onboarding_completed')
+            if (!hasCompletedOnboarding) {
+                // Nouvel utilisateur, afficher l'onboarding après un court délai
+                setTimeout(() => {
+                    setShowOnboarding(true)
+                }, 1000)
+            }
+        }
+        
+        checkFirstTimeUser()
+    }, [])
 
     const profiles = [
         {
@@ -33,9 +51,13 @@ export default function SelectProfil() {
         console.log(`Profil sélectionné: ${profile.title}`)
     }
 
-    
-
-    const [open, setOpen] = useState(false);
+    const handleOnboardingComplete = (pharmacyData) => {
+        // Sauvegarder les informations de la pharmacie
+        localStorage.setItem('bongisakisi_pharmacy_info', JSON.stringify(pharmacyData))
+        localStorage.setItem('bongisakisi_onboarding_completed', 'true')
+        setShowOnboarding(false)
+        console.log('Configuration terminée:', pharmacyData)
+    }
 
     return (<>
         <div className="bg-[url('./../assets/wavy-lines.svg')] bg-cover bg-center h-screen flex items-center justify-center p-4">
@@ -169,5 +191,12 @@ export default function SelectProfil() {
             }}>
                 <Update after={() => setOpen(false)} />
         </Drawer>
+
+        {/* Modal d'onboarding pour nouveaux utilisateurs */}
+        <OnboardingModal 
+            open={showOnboarding}
+            // onClose={() => setShowOnboarding(false)}
+            onComplete={handleOnboardingComplete}
+        />
     </>)
 }
