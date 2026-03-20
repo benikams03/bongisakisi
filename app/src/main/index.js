@@ -14,8 +14,7 @@ function createWindow () {
         minHeight: 450,
         frame: false,
         transparent: true,
-        alwaysOnTop: true,
-        transparent: true
+        alwaysOnTop: true
     })
     
     splash.loadFile(

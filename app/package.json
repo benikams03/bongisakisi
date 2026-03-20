@@ -6,7 +6,51 @@
     "type": "module",
     "scripts": {
         "dev": "electron ./src/main/index.js",
-        "build": ""
+        "build": "electron-builder"
+    },
+    "build": {
+        "appId": "com.bongisakisi.app",
+        "productName": "Bongisakisi",
+        "asar": true,
+        "compression": "maximum",
+        "copyright": "© 2026 Bongisakisi",
+        "files": [
+            "dist/**/*",
+            "src/**/*",
+            "node_modules/**/*",
+            "package.json",
+
+            "!node_modules/*/{test,__tests__,tests}",
+            "!node_modules/*.md",
+            "!node_modules/*.ts",
+            "!docs"
+        ],
+        "directories": {
+            "buildResources": "resources"
+        },
+        "win": {
+            "target": [
+                {
+                    "target": "nsis",
+                    "arch": ["x64"]
+                },
+                "zip"
+            ],
+            "publisherName": "Bongisakisi SARL",
+            "icon": "resources/logo.ico"
+        },
+        "forceCodeSigning": false, 
+        "nsis": {
+            "oneClick": false,
+            "perMachine": true,
+            "allowToChangeInstallationDirectory": true,
+            "createDesktopShortcut": true,
+            "createStartMenuShortcut": true,
+            "installerIcon": "resources/logo.ico",
+            "uninstallerIcon": "resources/logo.ico",
+            "installerHeaderIcon": "resources/logo.ico",
+            "deleteAppDataOnUninstall": true
+        }
     },
     "author": "Beni Mukungulu",
     "license": "ISC",
