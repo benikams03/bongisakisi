@@ -51,14 +51,14 @@ const OnboardingModal = ({ open, onClose, onComplete }) => {
             icon: Users,
             content: (
                 <div className="space-y-4">
-                    <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
+                    <div className="bg-green-50 border border-purple-200 rounded-xl p-4">
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                            <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
                                 <Settings className="w-4 h-4 text-white" />
                             </div>
-                            <h4 className="font-semibold text-purple-900">Administrateur</h4>
+                            <h4 className="font-semibold text-green-900">Administrateur</h4>
                         </div>
-                        <p className="text-sm text-purple-700">
+                        <p className="text-sm text-green-700">
                             Gestion complète des produits, stocks, rapports et paramètres système
                         </p>
                     </div>

@@ -40,6 +40,11 @@ function createWindow () {
         }
     })
 
+    // Ouvrir DevTools en développement
+    if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
+        mainWindow.webContents.openDevTools()
+    }
+
     mainWindow.setMenu(null)
     mainWindow.loadURL('http://localhost:5173')
 

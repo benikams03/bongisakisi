@@ -5,6 +5,7 @@ import Update from '../components/common/update';
 import OnboardingModal from '../components/common/onboarding';
 import Drawer from "@mui/material/Drawer";
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import FeatureNotAvailableModal from '../components/common/modal/FeatureNotAvailableModal';
 
 export default function SelectProfil() {
@@ -15,13 +16,14 @@ export default function SelectProfil() {
 
     // Vérifier si c'est un nouvel utilisateur au chargement du composant
     useEffect(() => {
-        const checkFirstTimeUser = () => {
-            const hasCompletedOnboarding = localStorage.getItem('test')
-            if (!hasCompletedOnboarding) {
-                // Nouvel utilisateur, afficher l'onboarding après un court délai
-                setTimeout(() => {
-                    setShowOnboarding(true)
-                }, 1000)
+        const checkFirstTimeUser = async () => {
+            const response = await window.localApi.invoke('getSettings')
+            if(response.success) {
+                if(!response.data){
+                    setTimeout(() => {
+                        setShowOnboarding(true)
+                    }, 1000)
+                }
             }
         }
 
@@ -51,9 +53,18 @@ export default function SelectProfil() {
         setSelectedProfile(profile.id)
     }
 
-    const handleOnboardingComplete = (pharmacyData) => {
-        setShowOnboarding(false)
-        console.log('Configuration terminée:', pharmacyData)
+    const handleOnboardingComplete = async (pharmacyData) => {
+        try {
+            const res = await window.localApi.invoke('setSettings', pharmacyData)
+            if(res.success) {
+                toast.success('Pharmacie configurée avec succès')
+                setShowOnboarding(false)
+            }else {
+                toast.error('Erreur lors de la configuration de la pharmacie')
+            }
+        } catch (error) {
+            console.error('Error saving pharmacy data:', error.message)
+        }
     }
 
     return (<>

@@ -1,5 +1,5 @@
 import Store from 'electron-store';
-import Text from '../utils/text';
+import { Text } from '../utils/text.js';
 
 export class SettingsController {
 
@@ -8,16 +8,34 @@ export class SettingsController {
     }
 
     get() {
-        return this.store.get('settings');
+        try{
+            return {
+                success: true,
+                data: this.store.get('settings')
+            }
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            }
+        }
     }
 
-    create(settings) {
-        this.store.set('settings', {
-            name: Text.capitalizeWords(settings.name),
-            telephone: settings.telephone.trim(),
-            email: Text.toLowerCase(settings.email),
-            address: Text.capitalizeWords(settings.address)
-        });
+    set(settings) {
+        try{
+            this.store.set('settings', {
+                name: Text.capitalizeWords(settings.name),
+                phone: settings.phone.trim(),
+                email: Text.toLowerCase(settings.email),
+                address: Text.capitalizeWords(settings.address)
+            });
+            return { success: true }
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            }
+        }
     }
 
 }
