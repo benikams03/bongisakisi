@@ -56,7 +56,8 @@
     "author": "Beni Mukungulu",
     "license": "ISC",
     "devDependencies": {
-        "electron": "^41.0.2"
+        "electron": "^41.0.2",
+        "electron-rebuild": "^3.2.9"
     },
     "dependencies": {
         "better-sqlite3": "^12.8.0",

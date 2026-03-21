@@ -16,7 +16,7 @@ export default function SelectProfil() {
     // Vérifier si c'est un nouvel utilisateur au chargement du composant
     useEffect(() => {
         const checkFirstTimeUser = () => {
-            const hasCompletedOnboarding = localStorage.getItem('bongisakisi_onboarding_completed')
+            const hasCompletedOnboarding = localStorage.getItem('test')
             if (!hasCompletedOnboarding) {
                 // Nouvel utilisateur, afficher l'onboarding après un court délai
                 setTimeout(() => {
@@ -25,18 +25,6 @@ export default function SelectProfil() {
             }
         }
 
-        const test = async () => {
-            try {
-                const data1 = await window.localApi.invoke('test')
-                alert('Test result: ' + data1);
-                
-                const userData = await window.localApi.invoke('getUserData', 12, 'John')
-                alert('User data: ' + userData.name);
-            } catch (error) {
-                console.error('IPC Error:', error);
-            }
-        }        
-        test()
         checkFirstTimeUser()
     }, [])
 
