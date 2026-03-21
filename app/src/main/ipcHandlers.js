@@ -1,22 +1,14 @@
 import { ipcMain } from 'electron'
 import { SettingsController } from './controllers/settingsController.js'
-// import { queries } from './models/index.js'
+import { FamilieController } from './controllers/familieController.js'
 
 const settingsController = new SettingsController()
+const familleController = new FamilieController()
 
 // Test de base
 ipcMain.handle('test', () => 'BongisaKisi API fonctionne!')
 
-// Settings handlers
 ipcMain.handle('getSettings', () => settingsController.get())
 ipcMain.handle('setSettings', (_, settings) => settingsController.set(settings))
 
-// ipcMain.handle('getClients', () => {
-//     try {
-//         checkDatabase();
-//         return queries.findAll('clients');
-//     } catch (error) {
-//         console.error('Erreur getClients:', error);
-//         return [];
-//     }
-// })
+ipcMain.handle('getDefaultFamille', () => familleController.getDefault())

@@ -20,19 +20,40 @@ export class Seeds {
 
             // Insérer les clients par défaut
             const families = [
-                { name: 'Antibiotiques' },
-                { name: 'Antalgiques' },
-                { name: 'Antipaludiques' },
-                { name: 'Anti-inflammatoires' },
-                { name: 'Vitamines & fortifiants' },
-                { name: 'Digestifs' },
-                { name: 'Matériel médical' }
+                { 
+                    name: 'Antibiotiques',
+                    defaults: 1
+                },
+                { 
+                    name: 'Antalgiques',
+                    defaults: 1
+                },
+                { 
+                    name: 'Antipaludiques',
+                    defaults: 1
+                },
+                { 
+                    name: 'Anti-inflammatoires',
+                    defaults: 1
+                },
+                { 
+                    name: 'Vitamines & fortifiants',
+                    defaults: 1
+                },
+                { 
+                    name: 'Digestifs',
+                    defaults: 1
+                },
+                { 
+                    name: 'Matériel médical',
+                    defaults: 1
+                }
             ];
 
             families.forEach(family => {
                 this.db.prepare(`
-                    INSERT OR IGNORE INTO families (name) 
-                    VALUES (@name)
+                    INSERT OR IGNORE INTO families (name, defaults) 
+                    VALUES (@name, @defaults)
                 `).run(family);
             });
 

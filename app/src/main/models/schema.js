@@ -26,6 +26,7 @@ export class Schema {
             CREATE TABLE IF NOT EXISTS families (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL UNIQUE,
+                defaults BOOLEAN DEFAULT 0,
                 date_creation DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `).run();

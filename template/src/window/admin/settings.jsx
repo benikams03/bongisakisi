@@ -1,15 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Settings, Save, Bell, Database, Download, Shield, AlertTriangle, Calendar, Key } from 'lucide-react'
 import { Bouton } from '../../components/ui/bouton'
 import { InputLabel } from '../../components/ui/input'
 import Modal from "@mui/material/Modal"
+import { parametreService } from '../../services/admin/parametre'
 
 export default function SettingsPage() {
+
     const [activeTab, setActiveTab] = useState('general')
     const [openLicenseModal, setOpenLicenseModal] = useState(false)
     const [licenseForm, setLicenseForm] = useState({
         newLicenseKey: ''
     })
+
+    const [dataGeneral, setDataGeneral] = useState([])
+
+    useEffect(() => {
+        const res = async () => setDataGeneral((await parametreService.getSettings()).data)
+        res()
+    },[])
 
     // Données de licence simulées
     const [licenseInfo] = useState({
@@ -136,28 +145,24 @@ export default function SettingsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <InputLabel 
                         label="Nom de la pharmacie"
-                        value={formData.nomPharmacie}
-                        onChange={(e) => setFormData({...formData, nomPharmacie: e.target.value})}
+                        type='text'
+                        value={dataGeneral?.name}
                     />
                     <InputLabel 
                         label="Email"
                         type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        value={dataGeneral?.email}
                     />
                     <InputLabel 
                         label="Téléphone"
                         type="tel"
-                        value={formData.telephone}
-                        onChange={(e) => setFormData({...formData, telephone: e.target.value})}
+                        value={dataGeneral?.phone}
                     />
                     <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
-                        <textarea
-                            value={formData.adresse}
-                            onChange={(e) => setFormData({...formData, adresse: e.target.value})}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-                            rows={3}
+                        <InputLabel 
+                            label="Adresse"
+                            type="text"
+                            value={dataGeneral?.address}
                         />
                     </div>
                 </div>

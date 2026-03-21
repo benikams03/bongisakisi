@@ -11,24 +11,55 @@ export class Queries {
         return stmt.run(data);
     }
 
-    findAll(table, columns = "*") {
-        return this.db.prepare(`SELECT ${columns} FROM ${table}`).all();
+    findAll(table, columns = "*", options = {}) {
+        const { orderBy = null, order = 'ASC' } = options;
+        let sql = `SELECT ${columns} FROM ${table}`;
+        
+        if (orderBy) {
+            sql += ` ORDER BY ${orderBy} ${order.toUpperCase()}`;
+        }
+        
+        return this.db.prepare(sql).all();
     }
 
-    find(table, conditions = {}, columns = "*") {
+    find(table, conditions = {}, columns = "*", options = {}) {
+        const { orderBy = null, order = 'ASC' } = options;
         const where = Object.keys(conditions)
             .map(k => `${k}=@${k}`)
             .join(" AND ");
-        if (!where) return this.findAll(table, columns);
-        return this.db.prepare(`SELECT ${columns} FROM ${table} WHERE ${where}`).all(conditions);
+        
+        let sql = `SELECT ${columns} FROM ${table}`;
+        
+        if (where) {
+            sql += ` WHERE ${where}`;
+        }
+        
+        if (orderBy) {
+            sql += ` ORDER BY ${orderBy} ${order}`;
+        }
+        
+        if (!where && !orderBy) return this.findAll(table, columns, options);
+        return this.db.prepare(sql).all(conditions);
     }
 
-    findOne(table, conditions = {}, columns = "*") {
-        const where = Object.keys(conditions)
-            .map(k => `${k}=@${k}`)
-            .join(" AND ");
-        if (!where) return null;
-        return this.db.prepare(`SELECT ${columns} FROM ${table} WHERE ${where}`).get(conditions);
+    findOne(table, conditions = {}, columns = "*", options = {}) {
+        const { orderBy = null, order = 'ASC' } = options;
+        const where = Object.keys(conditions).map(k => `${k}=@${k}`).join(" AND ");
+        
+        let sql = `SELECT ${columns} FROM ${table}`;
+        
+        if (where) {
+            sql += ` WHERE ${where}`;
+        }
+        
+        if (orderBy) {
+            sql += ` ORDER BY ${orderBy} ${order.toUpperCase()}`;
+        }
+        
+        sql += ` LIMIT 1`;
+        
+        if (!where && !orderBy) return null;
+        return this.db.prepare(sql).get(conditions);
     }
 
     update(table, data, conditions) {
@@ -44,11 +75,19 @@ export class Queries {
 
     // ---------- Jointures ----------
     join(options) {
-        const { columns = "*", from, join, where } = options;
+        const { columns = "*", from, join, where, orderBy = null, order = 'ASC' } = options;
         let sql = `SELECT ${columns} FROM ${from} JOIN ${join.table} ON ${join.on}`;
+        
         if (where && Object.keys(where).length) {
             const whereClause = Object.keys(where).map(k => `${k}=@${k}`).join(" AND ");
             sql += ` WHERE ${whereClause}`;
+        }
+        
+        if (orderBy) {
+            sql += ` ORDER BY ${orderBy} ${order.toUpperCase()}`;
+        }
+        
+        if (where && Object.keys(where).length) {
             return this.db.prepare(sql).all(where);
         }
         return this.db.prepare(sql).all();
