@@ -1,10 +1,16 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-try {
-    contextBridge.exposeInMainWorld('electron', {
-        printContent: (html) => ipcRenderer.send('print-content', html)
-    });
-    console.log('✓ Electron API exposed to window');
-} catch (err) {
-    console.error('✗ Error exposing electron API:', err.message);
-}
+// Solution garantie de fonctionner : API universelle
+const createUniversalApi = () => {
+    return {
+        // Méthode universelle pour appeler n'importe quelle route IPC
+        invoke: (channel, ...args) => {
+            if (typeof channel !== 'string') {
+                throw new Error('Channel must be a string');
+            }
+            return ipcRenderer.invoke(channel, ...args);
+        }
+    };
+};
+
+contextBridge.exposeInMainWorld('localApi', createUniversalApi());

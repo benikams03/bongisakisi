@@ -5,9 +5,11 @@ import Update from '../components/common/update';
 import OnboardingModal from '../components/common/onboarding';
 import Drawer from "@mui/material/Drawer";
 import { Link } from 'react-router-dom';
+import FeatureNotAvailableModal from '../components/common/modal/FeatureNotAvailableModal';
 
 export default function SelectProfil() {
     const [selectedProfile, setSelectedProfile] = useState(null)
+    const [showFeatureModal, setShowFeatureModal] = useState(false)
     const [open, setOpen] = useState(false)
     const [showOnboarding, setShowOnboarding] = useState(false)
 
@@ -22,7 +24,19 @@ export default function SelectProfil() {
                 }, 1000)
             }
         }
-        
+
+        const test = async () => {
+            try {
+                const data1 = await window.localApi.invoke('test')
+                alert('Test result: ' + data1);
+                
+                const userData = await window.localApi.invoke('getUserData', 12, 'John')
+                alert('User data: ' + userData.name);
+            } catch (error) {
+                console.error('IPC Error:', error);
+            }
+        }        
+        test()
         checkFirstTimeUser()
     }, [])
 
@@ -47,14 +61,9 @@ export default function SelectProfil() {
 
     const handleProfileSelect = (profile) => {
         setSelectedProfile(profile.id)
-        // Ici vous pouvez ajouter la logique de redirection
-        console.log(`Profil sélectionné: ${profile.title}`)
     }
 
     const handleOnboardingComplete = (pharmacyData) => {
-        // Sauvegarder les informations de la pharmacie
-        localStorage.setItem('bongisakisi_pharmacy_info', JSON.stringify(pharmacyData))
-        localStorage.setItem('bongisakisi_onboarding_completed', 'true')
         setShowOnboarding(false)
         console.log('Configuration terminée:', pharmacyData)
     }
@@ -132,7 +141,6 @@ export default function SelectProfil() {
                     
                     {/* Card pour créer un nouveau profil */}
                     <button
-                        onClick={() => console.log('Créer un nouveau profil')}
                         className="relative p-6 rounded-2xl border-1 border-dashed border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100 transition-all duration-200 group cursor-pointer w-1/5"
                     >
                         {/* Icône + */}
@@ -152,7 +160,7 @@ export default function SelectProfil() {
 
                         <div className="mt-8 text-center">
                             <Bouton 
-                                onClick={() => console.log('Redirection vers le dashboard')}
+                                onClick={() => setShowFeatureModal(true)}
                                 className="w-full">
                                 Continuer
                                 <ChevronRight className="w-5 h-5" />
@@ -197,6 +205,13 @@ export default function SelectProfil() {
             open={showOnboarding}
             // onClose={() => setShowOnboarding(false)}
             onComplete={handleOnboardingComplete}
+        />
+
+        {/* Modal pour fonctionnalités non disponibles */}
+        <FeatureNotAvailableModal 
+            isOpen={showFeatureModal}
+            onClose={() => setShowFeatureModal(false)}
+            featureName="Creation du nouveau profil"
         />
     </>)
 }

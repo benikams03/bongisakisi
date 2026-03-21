@@ -1,9 +1,12 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'path';
 import { fileURLToPath } from 'url';
+import './ipcHandlers.js'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+app.setName("BongisaKisi")
 
 function createWindow () {
     // Create splash screen
@@ -39,10 +42,6 @@ function createWindow () {
 
     mainWindow.setMenu(null)
     mainWindow.loadURL('http://localhost:5173')
-
-    mainWindow.webContents.on('console-message', (event) => {
-        console.log(`[Renderer] ${event.message}`);
-    });
 
     // Show main window after 3 seconds and close splash
     setTimeout(() => {

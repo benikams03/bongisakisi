@@ -1,16 +1,29 @@
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { X, ChevronRight, ChevronLeft, Store, Mail, Phone, MapPin, Check, Package, Users, BarChart3, Settings, Shield } from 'lucide-react'
 import { Bouton } from '../../ui/bouton/index'
 import Drawer from "@mui/material/Drawer"
 import { InputLabel } from "./../../ui/input/index"
+import toast from 'react-hot-toast'
+import logo  from './../../../assets/logo.png'
 
 const OnboardingModal = ({ open, onClose, onComplete }) => {
     const [currentStep, setCurrentStep] = useState(0)
-    const [pharmacyInfo, setPharmacyInfo] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        address: ''
+    
+    // Configuration de react-hook-form avec validation
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isValid },
+        trigger
+    } = useForm({
+        mode: 'onChange',
+        defaultValues: {
+            name: '',
+            email: '',
+            phone: '',
+            address: ''
+        }
     })
 
     const steps = [
@@ -22,7 +35,7 @@ const OnboardingModal = ({ open, onClose, onComplete }) => {
             content: (
                 <div className="text-center space-y-4">
                     <div className="w-20 h-20 mx-auto bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center">
-                        <Package className="w-10 h-10 text-white" />
+                        <img src={logo} alt="BongisaKisi" className="w-14 h-14" />
                     </div>
                     <p className="text-gray-600 leading-relaxed">
                         BongisaKisi est conçu pour simplifier la gestion de votre pharmacie. 
@@ -108,29 +121,62 @@ const OnboardingModal = ({ open, onClose, onComplete }) => {
                             label="Nom de la pharmacie *"
                             icons={Store}
                             placeholder="Pharmacie du Centre"
-                            value={pharmacyInfo.name}
-                            onChange={(e) => setPharmacyInfo({...pharmacyInfo, name: e.target.value})}
+                            {...register('name', {
+                                required: 'Le nom de la pharmacie est obligatoire',
+                                minLength: {
+                                    value: 2,
+                                    message: 'Le nom doit contenir au moins 2 caractères'
+                                }
+                            })}
+                            helperText={errors.name?.message}
+                            error={!!errors.name}
                         />
                         <InputLabel 
                             label="Email *"
                             icons={Mail}
                             placeholder="email@pharmacie.com"
-                            value={pharmacyInfo.email}
-                            onChange={(e) => setPharmacyInfo({...pharmacyInfo, email: e.target.value})}
+                            type="email"
+                            {...register('email', {
+                                required: 'L\'email est obligatoire',
+                                pattern: {
+                                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                    message: 'Format d\'email invalide'
+                                }
+                            })}
+                            helperText={errors.email?.message}
+                            error={!!errors.email}
                         />
                         <InputLabel 
                             label="Téléphone *"
                             icons={Phone}
-                            placeholder="+243 000 000 000"
-                            value={pharmacyInfo.phone}
-                            onChange={(e) => setPharmacyInfo({...pharmacyInfo, phone: e.target.value})}
+                            placeholder="243 000 000 000"
+                            {...register('phone', {
+                                required: 'Le téléphone est obligatoire',
+                                pattern: {
+                                    value: /^[+]?[0-9\s\-()]+$/,
+                                    message: 'Format de téléphone invalide'
+                                },
+                                minLength: {
+                                    value: 10,
+                                    message: 'Le téléphone doit contenir au moins 10 chiffres'
+                                }
+                            })}
+                            helperText={errors.phone?.message}
+                            error={!!errors.phone}
                         />
                         <InputLabel 
                             label="Adresse *"
                             icons={MapPin}
                             placeholder="123 Rue de la Pharmacie"
-                            value={pharmacyInfo.address}
-                            onChange={(e) => setPharmacyInfo({...pharmacyInfo, address: e.target.value})}
+                            {...register('address', {
+                                required: 'L\'adresse est obligatoire',
+                                minLength: {
+                                    value: 5,
+                                    message: 'L\'adresse doit contenir au moins 5 caractères'
+                                }
+                            })}
+                            helperText={errors.address?.message}
+                            error={!!errors.address}
                         />
                     </div>
                 </div>
@@ -141,14 +187,20 @@ const OnboardingModal = ({ open, onClose, onComplete }) => {
     const isLastStep = currentStep === steps.length - 1
     const isFirstStep = currentStep === 0
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (isLastStep) {
-            // Valider les champs obligatoires
-            if (!pharmacyInfo.name || !pharmacyInfo.email || !pharmacyInfo.phone || !pharmacyInfo.address) {
-                alert('Veuillez remplir tous les champs obligatoires')
+            // Valider tous les champs avant la soumission
+            const isFormValid = await trigger()
+            if (!isFormValid) {
+                toast.error('Veuillez corriger les erreurs dans le formulaire')
                 return
             }
-            onComplete(pharmacyInfo)
+            
+            // Soumettre les données
+            handleSubmit((data) => {
+                onComplete(data)
+                toast.success('Configuration terminée avec succès!')
+            })()
         } else {
             setCurrentStep(currentStep + 1)
         }
@@ -248,7 +300,7 @@ const OnboardingModal = ({ open, onClose, onComplete }) => {
                             primary
                             onClick={handleNext}
                             className="flex items-center gap-2"
-                            disabled={isLastStep && (!pharmacyInfo.name || !pharmacyInfo.email || !pharmacyInfo.phone || !pharmacyInfo.address)}
+                            disabled={isLastStep && !isValid}
                         >
                             {isLastStep ? (
                                 <>

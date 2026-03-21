@@ -19,7 +19,6 @@
             "src/**/*",
             "node_modules/**/*",
             "package.json",
-
             "!node_modules/*/{test,__tests__,tests}",
             "!node_modules/*.md",
             "!node_modules/*.ts",
@@ -32,14 +31,16 @@
             "target": [
                 {
                     "target": "nsis",
-                    "arch": ["x64"]
+                    "arch": [
+                        "x64"
+                    ]
                 },
                 "zip"
             ],
             "publisherName": "Bongisakisi SARL",
             "icon": "resources/logo.ico"
         },
-        "forceCodeSigning": false, 
+        "forceCodeSigning": false,
         "nsis": {
             "oneClick": false,
             "perMachine": true,
@@ -56,5 +57,9 @@
     "license": "ISC",
     "devDependencies": {
         "electron": "^41.0.2"
+    },
+    "dependencies": {
+        "better-sqlite3": "^12.8.0",
+        "electron-store": "^11.0.2"
     }
 }
