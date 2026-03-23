@@ -4,94 +4,85 @@ import { Bouton } from '../../components/ui/bouton'
 import { InputLabel } from '../../components/ui/input'
 import Modal from "@mui/material/Modal"
 import { famillieService } from '../../services/admin/famillie'
+import { useForm } from 'react-hook-form'
 
-
-
-// Catégories personnalisées (supprimables)
-const customCategories = [
-    { id: 8, nom: 'Dermatologie', description: 'Produits pour la peau et les cheveux', produitCount: 12, isDefault: false },
-    { id: 9, nom: 'Diabète', description: 'Médicaments pour le traitement du diabète', produitCount: 8, isDefault: false }
-]
 
 export default function Categories() {
 
+    const [loading, setLoading] = useState(false)
     const [defaultCategorie, setDefaultCategorie] = useState([])
-
-    const [categories, setCategories] = useState([ ...customCategories])
-    const [searchTerm, setSearchTerm] = useState('')
+    const [customCategorie, setCustomCategorie] = useState([])
     const [openModal, setOpenModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
-    const [selectedCategory, setSelectedCategory] = useState(null)
-    const [formData, setFormData] = useState({
-        nom: '',
-        description: ''
+
+    const {
+        register: registerAdd,
+        handleSubmit: handleSubmitAdd,
+        formState: { errors: errorsAdd },
+        reset: resetAdd
+    } = useForm({
+        defaultValues: { name: '' }
     })
+    
+    const [editData, setEditData] = useState({
+        id: 0,
+        name :''
+    })
+    const {
+        register: registerUpdate,
+        handleSubmit: handleSubmitUpdate,
+        formState: { errors: errorsUpdate },
+        reset: resetUpdate
+    } = useForm()
 
+    
     useEffect(()=>{
-        const res = async () => setDefaultCategorie((await famillieService.getDefault()))
+        const res = async () => {
+            setDefaultCategorie((await famillieService.getDefault()))
+            setCustomCategorie((await famillieService.getCustom()))
+        }
         res()
-    },[])
+    },[loading])
+    
 
-    const filteredCategories = categories.filter(category =>
-        category.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        category.description.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-
-    const handleAddCategory = () => {
-        const newCategory = {
-            id: Math.max(...categories.map(c => c.id)) + 1,
-            ...formData,
-            produitCount: 0,
-            isDefault: false
-        }
-        setCategories([...categories, newCategory])
-        resetForm()
-        setOpenModal(false)
-    }
-
-    const handleEditCategory = () => {
-        const updatedCategories = categories.map(category =>
-            category.id === selectedCategory.id
-                ? { ...category, ...formData }
-                : category
-        )
-        setCategories(updatedCategories)
-        resetForm()
-        setEditModal(false)
-    }
-
-    const handleDeleteCategory = (id) => {
-        const category = categories.find(c => c.id === id)
-        if (category.isDefault) {
-            alert('Cette catégorie par défaut ne peut pas être supprimée.')
-            return
-        }
-        
-        if (confirm(`Êtes-vous sûr de vouloir supprimer la catégorie "${category.nom}" ?`)) {
-            setCategories(categories.filter(category => category.id !== id))
+    const handleAddCategory = async (data) => {
+        const success = await famillieService.addCustom(data)
+        if(success) { 
+            resetAdd()
+            setLoading(!loading)
+            setOpenModal(false)
         }
     }
 
-    const openEditModal = (category) => {
-        if (category.isDefault) {
-            alert('Cette catégorie par défaut ne peut pas être modifiée.')
-            return
-        }
-        
-        setSelectedCategory(category)
-        setFormData({
-            nom: category.nom,
-            description: category.description
+    const handleEditCategory = async(data) => {
+        const success = await famillieService.updateCustom({
+            id: editData.id,
+            name: data.name
         })
+        if(success) { 
+            setLoading(!loading)
+            setEditModal(false)
+        }
+    }
+
+    const handleDeleteCategory = async (id) => {
+        const success = await famillieService.deleteCustom({ id: id })
+        if(success) { 
+            setLoading(!loading)
+        }
+    }
+
+    const openEditModal = (name, id) => {
+        setEditData({
+            id: id,
+            name: name
+        })
+        // Réinitialiser le formulaire avec les nouvelles valeurs
+        resetUpdate({ name: name })
         setEditModal(true)
     }
 
-    const resetForm = () => {
-        setFormData({
-            nom: '',
-            description: ''
-        })
-    }
+    
 
     return (
         <div className="flex-1 p-2.5 h-full overflow-auto">
@@ -105,14 +96,11 @@ export default function Categories() {
                     <div className="flex items-center gap-2 bg-gray-200 px-3 py-1 rounded-full">
                         <Tag className="w-4 h-4 text-gray-600" />
                         <span className="text-sm font-medium text-gray-700">
-                            {defaultCategorie?.data?.length || 0} catégories
+                            {defaultCategorie?.data?.length + customCategorie?.data?.length || 0} catégories
                         </span>
                     </div>
                     <Bouton 
-                        onClick={() => {
-                            resetForm()
-                            setOpenModal(true)
-                        }}
+                        onClick={() => { setOpenModal(true) }}
                         primary>
                         <Plus className="w-4 h-4" />
                         Nouvelle catégorie
@@ -153,40 +141,38 @@ export default function Categories() {
             </div>
 
             {/* Catégories personnalisées */}
-            {customCategories.length > 0 && (
+            {customCategorie?.data?.length > 0 && (
                 <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Catégories personnalisées</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {filteredCategories
-                            .filter(cat => !cat.isDefault)
-                            .map((category) => (
-                            <div key={category.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        {customCategorie?.data?.map((category, index) => (
+                            <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow transition-shadow">
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-start gap-3">
                                         <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
                                             <Tag className="w-5 h-5 text-emerald-600" />
                                         </div>
                                         <div className="flex-1">
-                                            <h4 className="font-semibold text-gray-900">{category.nom}</h4>
+                                            <h4 className="font-semibold text-gray-900">{category.name}</h4>
                                             <div className="flex items-center gap-2">
                                                 <div className="flex items-center gap-1 text-xs text-gray-500">
                                                     <Package className="w-3 h-3" />
-                                                    <span>{category.produitCount} produits</span>
+                                                    <span>{category.medicament_count} produits</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-1">
                                         <button 
-                                            onClick={() => openEditModal(category)}
-                                            className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                            onClick={() => openEditModal(category.name, category.id)}
+                                            className="p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
                                             title="Modifier"
                                         >
                                             <Edit className="w-4 h-4 text-blue-600" />
                                         </button>
                                         <button 
                                             onClick={() => handleDeleteCategory(category.id)}
-                                            className="p-1 hover:bg-red-100 rounded transition-colors"
+                                            className="p-1 hover:bg-red-100 rounded transition-colors cursor-pointer"
                                             title="Supprimer"
                                         >
                                             <Trash2 className="w-4 h-4 text-red-600" />
@@ -200,16 +186,13 @@ export default function Categories() {
             )}
 
             {/* Message si aucune catégorie personnalisée */}
-            {filteredCategories.filter(cat => !cat.isDefault).length === 0 && searchTerm === '' && (
+            {customCategorie?.data?.length === 0 && (
                 <div className="text-center flex flex-col justify-center items-center py-12 bg-gray-50 rounded-lg border border-gray-200">
                     <Tag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune catégorie personnalisée</h3>
                     <p className="text-gray-600 mb-4">Créez vos propres catégories pour organiser vos produits</p>
                     <Bouton 
-                        onClick={() => {
-                            resetForm()
-                            setOpenModal(true)
-                        }}
+                        onClick={() => { setOpenModal(true) }}
                         primary>
                         <Plus className="w-4 h-4" />
                         Créer une catégorie
@@ -220,52 +203,66 @@ export default function Categories() {
             {/* ============================================================================= */}
             {/* Modal Ajout */}
             <Modal open={openModal} className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4">
-                <div className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
+                <form method='post' onSubmit={handleSubmitAdd(handleAddCategory)} className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
                     <h2 className="text-xl font-semibold mb-5">Ajouter une nouvelle catégorie</h2>
                     <div className="space-y-4">
                         <InputLabel 
                             type="Nom"
                             label="Nom de la catégorie *"
                             placeholder="Ex: Dermatologie"
-                            value={formData.nom}
-                            onChange={(e) => setFormData({...formData, nom: e.target.value})}
+                            {...registerAdd('name', {
+                                required: 'Le nom de la catégorie est obligatoire',
+                                minLength: {
+                                    value: 2,
+                                    message: 'Le nom de la catégorie doit contenir au moins 2 caractères'
+                                }
+                            })}
+                            error={!!errorsAdd.name}
+                            helperText={errorsAdd.name?.message}
                         />
                     </div>
                     
                     <div className="flex gap-2 mt-6">
+                        <Bouton type="submit" primary className="flex-1">
+                            Ajouter la catégorie
+                        </Bouton>
                         <Bouton className="flex-1" outline onClick={() => setOpenModal(false)}>
                             Annuler
                         </Bouton>
-                        <Bouton primary className="flex-1" onClick={handleAddCategory}>
-                            Ajouter la catégorie
-                        </Bouton>
                     </div>
-                </div>
+                </form>
             </Modal>
 
             {/* Modal Modification */}
             <Modal open={editModal} className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4">
-                <div className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
+                <form method='post' onSubmit={handleSubmitUpdate(handleEditCategory)} className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
                     <h2 className="text-xl font-semibold mb-5">Modifier la catégorie</h2>
                     <div className="space-y-4">
                         <InputLabel 
                             type="Nom"
                             label="Nom de la catégorie *"
                             placeholder="Ex: Dermatologie"
-                            value={formData.nom}
-                            onChange={(e) => setFormData({...formData, nom: e.target.value})}
+                            {...registerUpdate('name', {
+                                required: 'Le nom de la catégorie est obligatoire',
+                                minLength: {
+                                    value: 2,
+                                    message: 'Le nom de la catégorie doit contenir au moins 2 caractères'
+                                }
+                            })}
+                            error={!!errorsUpdate.name}
+                            helperText={errorsUpdate.name?.message}
                         />
                     </div>
                     
                     <div className="flex gap-2 mt-6">
+                        <Bouton type="submit" primary className="flex-1">
+                            Sauvegarder
+                        </Bouton>
                         <Bouton className="flex-1" outline onClick={() => setEditModal(false)}>
                             Annuler
                         </Bouton>
-                        <Bouton primary className="flex-1" onClick={handleEditCategory}>
-                            Sauvegarder
-                        </Bouton>
                     </div>
-                </div>
+                </form>
             </Modal>
         </div>
     )

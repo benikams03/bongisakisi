@@ -4,6 +4,7 @@ export class Queries {
     }
 
     // ---------- CRUD ----------
+    // inser('name', { name: 'John' })
     insert(table, data) {
         const keys = Object.keys(data).join(", ");
         const placeholders = Object.keys(data).map(k => `@${k}`).join(", ");
@@ -11,6 +12,7 @@ export class Queries {
         return stmt.run(data);
     }
 
+    // findAll('name')
     findAll(table, columns = "*", options = {}) {
         const { orderBy = null, order = 'ASC' } = options;
         let sql = `SELECT ${columns} FROM ${table}`;
@@ -22,6 +24,7 @@ export class Queries {
         return this.db.prepare(sql).all();
     }
 
+    // find('name', { name: 'John' })
     find(table, conditions = {}, columns = "*", options = {}) {
         const { orderBy = null, order = 'ASC' } = options;
         const where = Object.keys(conditions)
@@ -42,6 +45,7 @@ export class Queries {
         return this.db.prepare(sql).all(conditions);
     }
 
+    // findOne('name', { name: 'John' })
     findOne(table, conditions = {}, columns = "*", options = {}) {
         const { orderBy = null, order = 'ASC' } = options;
         const where = Object.keys(conditions).map(k => `${k}=@${k}`).join(" AND ");
@@ -62,12 +66,14 @@ export class Queries {
         return this.db.prepare(sql).get(conditions);
     }
 
+    // update('name', { name: 'John' }, { id: 1 })
     update(table, data, conditions) {
         const set = Object.keys(data).map(k => `${k}=@${k}`).join(", ");
         const where = Object.keys(conditions).map(k => `${k}=@${k}`).join(" AND ");
         return this.db.prepare(`UPDATE ${table} SET ${set} WHERE ${where}`).run({ ...data, ...conditions });
     }
 
+    // delete('name', { id: 1 })
     delete(table, conditions) {
         const where = Object.keys(conditions).map(k => `${k}=@${k}`).join(" AND ");
         return this.db.prepare(`DELETE FROM ${table} WHERE ${where}`).run(conditions);

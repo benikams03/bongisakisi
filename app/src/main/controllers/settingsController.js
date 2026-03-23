@@ -1,5 +1,6 @@
 import Store from 'electron-store';
 import { Text } from '../utils/text.js';
+import Log from 'electron-log';
 
 export class SettingsController {
 
@@ -14,6 +15,7 @@ export class SettingsController {
                 data: this.store.get('settings')
             }
         } catch (error) {
+            Log.error('Error getting settings:', error);
             return {
                 success: false,
                 error: error.message
@@ -31,6 +33,7 @@ export class SettingsController {
             });
             return { success: true }
         } catch (error) {
+            Log.error('Error setting settings:', error);
             return {
                 success: false,
                 error: error.message

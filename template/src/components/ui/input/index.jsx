@@ -34,7 +34,7 @@ function InputLabel({ className, icons ,type, helperText, error , label, ...prop
                 data-slot="input"
                 className={cn(
                     'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500',
-                    ( error ? '!border-red-500' : null),
+                    ( error ? '!border-red-500 focus:ring-red-500 focus:ring-1' : null),
                     ( icons ? 'pl-10' : null ),
                     className
                 )}
