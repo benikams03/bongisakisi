@@ -2,7 +2,7 @@ import Store from 'electron-store';
 import { Text } from '../utils/text.js';
 import Log from 'electron-log';
 
-export class SettingsController {
+class SettingsController {
 
     constructor() {
         this.store = new Store();
@@ -42,3 +42,5 @@ export class SettingsController {
     }
 
 }
+
+export const settingsController = new SettingsController();

@@ -3,7 +3,7 @@ import { Settings, Save, Bell, Database, Download, Shield, AlertTriangle, Calend
 import { Bouton } from '../../components/ui/bouton'
 import { InputLabel } from '../../components/ui/input'
 import Modal from "@mui/material/Modal"
-import { parametreService } from '../../services/admin/parametre'
+import { parametreService } from '../../services/admin/parametre_service'
 
 export default function SettingsPage() {
 

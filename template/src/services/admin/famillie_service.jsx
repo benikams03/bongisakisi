@@ -2,6 +2,14 @@ import toast from "react-hot-toast"
 
 export const famillieService = {
 
+    get : async () => {
+        try{ return await window.localApi.invoke('getFamilles') }
+        catch {
+            toast.error('Erreur lors de la récupération des familles')
+            return null
+        }
+    },
+
     getDefault : async () => {
         try{ return await window.localApi.invoke('getDefaultFamille') }
         catch {

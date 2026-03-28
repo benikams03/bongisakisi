@@ -1,11 +1,27 @@
 import { queries } from './../models/index.js'
-import Log from 'electron-log';
+import log from 'electron-log';
 import { Text } from '../utils/text.js';
 
-export class FamilieController {
+class FamilieController {
 
     constructor() {
         this.queries = queries;
+    }
+
+    get() {
+        try {
+            const data = this.queries.findAll('families');
+            return {
+                success: true,
+                data: data
+            }
+        } catch (error) {
+            log.error('Error getting family:', error);
+            return {
+                success: false,
+                error: error.message
+            }
+        }
     }
 
     getDefault() {
@@ -32,7 +48,7 @@ export class FamilieController {
                 data: data
             }
         } catch (error) {
-            Log.error('Error getting default family:', error);
+            log.error('Error getting default family:', error);
             return {
                 success: false,
                 error: error.message
@@ -64,7 +80,7 @@ export class FamilieController {
                 data: data
             }
         } catch (error) {
-            Log.error('Error getting custom family:', error);
+            log.error('Error getting custom family:', error);
             return {
                 success: false,
                 error: error.message
@@ -77,6 +93,7 @@ export class FamilieController {
             
             const verify = this.queries.findOne('families', { name: Text.capitalize(data.name) })
             if(verify) {
+                log.warn('le nom de la famille existe déjà:', data.name);
                 return { success: false, error: 'Le nom de la famille existe déjà' }
             } else {
                 this.queries.insert('families', {
@@ -86,7 +103,7 @@ export class FamilieController {
                 return { success: true}
             }
         } catch (error) {
-            Log.error('Error adding family:', error);
+            log.error('Error adding family:', error);
             return {
                 success: false,
                 error: error.message
@@ -99,6 +116,7 @@ export class FamilieController {
             
             const verify = this.queries.findOne('families', { name: Text.capitalize(data.name) })
             if(verify && verify.id !== data.id) {
+                log.warn('le nom de la famille existe déjà:', data.name);
                 return { success: false, error: 'Le nom de la famille existe déjà' }
             } else {
                 this.queries.update('families', 
@@ -109,7 +127,7 @@ export class FamilieController {
                 return { success: true}
             }
         } catch (error) {
-            Log.error('Error updating family:', error);
+            log.error('Error updating family:', error);
             return {
                 success: false,
                 error: error.message
@@ -122,7 +140,7 @@ export class FamilieController {
             this.queries.delete('families', { id: data.id })
             return { success: true}
         } catch (error) {
-            Log.error('Error deleting family:', error);
+            log.error('Error deleting family:', error);
             return {
                 success: false,
                 error: error.message
@@ -131,3 +149,5 @@ export class FamilieController {
     }
 
 }
+
+export const familleController = new FamilieController();

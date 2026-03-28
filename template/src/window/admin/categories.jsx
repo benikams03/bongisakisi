@@ -3,7 +3,7 @@ import { Tag, Plus, Edit, Trash2, Package, Lock, AlertCircle } from 'lucide-reac
 import { Bouton } from '../../components/ui/bouton'
 import { InputLabel } from '../../components/ui/input'
 import Modal from "@mui/material/Modal"
-import { famillieService } from '../../services/admin/famillie'
+import { famillieService } from '../../services/admin/famillie_service'
 import { useForm } from 'react-hook-form'
 
 
@@ -20,9 +20,7 @@ export default function Categories() {
         handleSubmit: handleSubmitAdd,
         formState: { errors: errorsAdd },
         reset: resetAdd
-    } = useForm({
-        defaultValues: { name: '' }
-    })
+    } = useForm()
     
     const [editData, setEditData] = useState({
         id: 0,

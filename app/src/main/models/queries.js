@@ -80,6 +80,7 @@ export class Queries {
     }
 
     // ---------- Jointures ----------
+    // join({ columns: "*", from: "table1", join: { table: "table2", on: "table1.id = table2.id" }, where: { id: 1 }, orderBy: "id", order: "ASC" })
     join(options) {
         const { columns = "*", from, join, where, orderBy = null, order = 'ASC' } = options;
         let sql = `SELECT ${columns} FROM ${from} JOIN ${join.table} ON ${join.on}`;

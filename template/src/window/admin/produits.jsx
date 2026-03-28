@@ -1,9 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Package, Plus, Edit, Trash2, Search, AlertTriangle, Eye } from 'lucide-react'
 import { Bouton } from '../../components/ui/bouton'
 import { Input, InputLabel } from '../../components/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from '../../components/ui/input/select-ui'
 import Modal from "@mui/material/Modal"
+import { famillieService } from '../../services/admin/famillie_service'
+import { useForm } from 'react-hook-form'
+import { Select as SelectCustom } from '../../components/ui/input/select'
+import { produitService } from '../../services/admin/produit_service'
 
 
 // Catégories par défaut (non supprimables)
@@ -60,8 +64,42 @@ const categories = [
 ]
 
 export default function Produits() {
-    const [products, setProducts] = useState(initialProducts)
+
+    const [loading, setLoading] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
+    const [families, setFamilies] = useState([])
+    const [medicaments, setMedicaments] = useState([])
+
+    useEffect(() => {
+        const res = async () => {
+            const data = await famillieService.get()
+            setFamilies(data)
+            const medicamentsData = await produitService.get()
+            setMedicaments(medicamentsData)
+        }
+        res()
+    }, [loading])
+
+
+    const {
+        register: registerAdd,
+        handleSubmit: handleSubmitAdd,
+        formState: { errors: errorsAdd },
+        reset: resetAdd,
+    } = useForm()
+
+    const handleAddProduct = async (data) => {
+        const success = await produitService.add(data)
+        if(success) { 
+            resetAdd()
+            setLoading(!loading)
+            setOpenModal(false)
+        }
+    }
+
+
+
+    const [products, setProducts] = useState(initialProducts)
     const [selectedCategory, setSelectedCategory] = useState('')
     const [openModal, setOpenModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
@@ -78,6 +116,8 @@ export default function Produits() {
         minStock: ''
     })
 
+    
+
     const filteredProducts = products.filter(product => {
         const matchesSearch = product.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
                              product.remarque.toLowerCase().includes(searchTerm.toLowerCase())
@@ -85,7 +125,7 @@ export default function Produits() {
         return matchesSearch && matchesCategory
     })
 
-    const handleAddProduct = () => {
+    const handleAddProducts = () => {
         const newProduct = {
             id: products.length + 1,
             ...formData,
@@ -180,7 +220,7 @@ export default function Produits() {
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 bg-gray-200 px-3 py-1 rounded-full">
                         <Package className="w-4 h-4 text-gray-600" />
-                        <span className="text-sm font-medium text-gray-700">{products.length} produits</span>
+                        <span className="text-sm font-medium text-gray-700">{medicaments?.data?.length} produits</span>
                     </div>
                     <Bouton 
                         onClick={() => {
@@ -204,27 +244,6 @@ export default function Produits() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <div className="w-64">
-                    <Select 
-                        items={categories.map(cat => ({ label: cat, value: cat }))} 
-                        value={selectedCategory}
-                        onValueChange={setSelectedCategory}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Toutes les catégories" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                <SelectItem value="">Toutes les catégories</SelectItem>
-                                {categories.map((category) => (
-                                    <SelectItem key={category} value={category}>
-                                        {category}
-                                    </SelectItem>
-                                ))}
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
-                </div>
             </div>
 
             {/* Tableau des produits */}
@@ -243,39 +262,39 @@ export default function Produits() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                            {filteredProducts.map((product) => {
-                                const stockStatus = getStockStatus(product)
-                                const expiringSoon = isExpiringSoon(product.dateExpiration)
-                                
+                            {medicaments?.data?.map((product, index) => {
+                                const view = product.medicament_name.toLowerCase().includes(searchTerm.toLowerCase())
                                 return (
-                                    <tr key={product.id} className="hover:bg-gray-50">
+                                    <tr key={index} className={`hover:bg-gray-50 ${ view ? '' : 'hidden' }`}>
                                         <td className="py-3 px-4">
                                             <div>
-                                                <h4 className="font-medium text-gray-900">{product.nom}</h4>
+                                                <h4 className="font-medium text-gray-900">{product.medicament_name}</h4>
                                             </div>
                                         </td>
                                         <td className="py-3 px-4">
-                                            <span className="text-sm text-gray-900">{product.categorie}</span>
+                                            <span className="text-sm text-gray-900">{product.family_name}</span>
                                         </td>
                                         <td className="py-3 px-4">
                                             <div className="flex items-center gap-2">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${stockStatus.color}`}>
-                                                    {product.quantite}
+                                                <span className={`px-2 py-1 rounded-full text-xs font-medium
+                                                    text-emerald-600 bg-emerald-100
+                                                    `}>
+                                                        {/* text-orange-600 bg-orange-100 */}
+                                                        {/* text-red-600 bg-red-100 */}
+                                                    {product.stock}
                                                 </span>
                                             </div>
                                         </td>
                                         <td className="py-3 px-4">
-                                            <span className="text-sm font-medium text-gray-900">{product.prixAchat} FC</span>
+                                            <span className="text-sm font-medium text-gray-900">{product.price_buy} FC</span>
                                         </td>
                                         <td className="py-3 px-4">
-                                            <span className="text-sm font-medium text-emerald-600">{product.prixVente} FC</span>
+                                            <span className="text-sm font-medium text-emerald-600">{product.price_sell} FC</span>
                                         </td>
                                         <td className="py-3 px-4">
                                             <div className="flex items-center gap-2">
-                                                <span className="text-sm text-gray-900">{product.dateExpiration}</span>
-                                                {expiringSoon && (
-                                                    <AlertTriangle className="w-4 h-4 text-orange-500" title="Expire bientôt" />
-                                                )}
+                                                <span className="text-sm text-gray-900">{product.date_expiration}</span>
+                                                <AlertTriangle className="w-4 h-4 text-orange-500" title="Expire bientôt" />
                                             </div>
                                         </td>
                                         <td className="py-3 px-4">
@@ -315,77 +334,100 @@ export default function Produits() {
 
             {/* Modal Ajout */}
             <Modal open={openModal} className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4">
-                <div className="bg-white border border-gray-300 w-full max-w-2xl p-6 rounded-lg shadow">
+                <form method='post' onSubmit={handleSubmitAdd(handleAddProduct)} className="bg-white border border-gray-300 w-full max-w-2xl p-6 rounded-lg shadow">
                     <h2 className="text-xl font-semibold mb-5">Ajouter un nouveau produit</h2>
                     <div className="grid grid-cols-2 gap-4">
                         <InputLabel 
                             type="text"
                             label="Nom du produit *"
                             placeholder="Ex: Paracétamol 500mg"
-                            value={formData.nom}
-                            onChange={(e) => setFormData({...formData, nom: e.target.value})}
+                            {...registerAdd('name', {
+                                required: 'Le nom du produit est obligatoire',
+                                minLength: {    
+                                    value: 2,
+                                    message: 'Le nom du produit doit contenir au moins 2 caractères'
+                                }
+                            })}
+                            error={!!errorsAdd.name}
+                            helperText={errorsAdd.name?.message}
                         />
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie *</label>
-                            <Select 
-                                items={categories.map(cat => ({ label: cat, value: cat }))} 
-                                value={selectedCategory}
-                                onValueChange={setSelectedCategory}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Toutes les catégories" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectItem value="">Toutes les catégories</SelectItem>
-                                        {categories.map((category) => (
-                                            <SelectItem key={category} value={category}>
-                                                {category}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
+                        <SelectCustom
+                            {...registerAdd('family', { 
+                                required: 'Veuillez choisir une catégorie'
+                            })}
+                            label="Catégorie *"
+                            placeholder="Choisir une catégorie"
+                            error={!!errorsAdd.family}
+                            helperText={errorsAdd.family?.message}
+                        >
+                            {families?.data?.map((category, index) => (
+                                <option key={index} value={category.id}>
+                                    {category.name}
+                                </option>
+                            ))}
+                        </SelectCustom>
                         <InputLabel 
                             type="number"
                             label="Quantité *"
                             placeholder="0"
-                            value={formData.quantite}
-                            onChange={(e) => setFormData({...formData, quantite: e.target.value})}
+                            {...registerAdd('quantite', {
+                                required: 'La quantité est obligatoire',
+                                min: {
+                                    value: 0,
+                                    message: 'La quantité doit être positive'
+                                }
+                            })}
+                            error={!!errorsAdd.quantite}
+                            helperText={errorsAdd.quantite?.message}
                         />
                         <InputLabel 
                             type="number"
                             label="Prix d'achat (FC) *"
                             placeholder="0"
-                            value={formData.prixAchat}
-                            onChange={(e) => setFormData({...formData, prixAchat: e.target.value})}
+                            {...registerAdd('prixAchat', {
+                                required: 'Le prix d\'achat est obligatoire',
+                                min: {
+                                    value: 0,
+                                    message: 'Le prix doit être positif'
+                                }
+                            })}
+                            error={!!errorsAdd.prixAchat}
+                            helperText={errorsAdd.prixAchat?.message}
                         />
                         <InputLabel 
                             type="number"
                             label="Prix de vente (FC) *"
                             placeholder="0"
-                            value={formData.prixVente}
-                            onChange={(e) => setFormData({...formData, prixVente: e.target.value})}
+                            {...registerAdd('prixVente', {
+                                required: 'Le prix de vente est obligatoire',
+                                min: {
+                                    value: 0,
+                                    message: 'Le prix doit être positif'
+                                }
+                            })}
+                            error={!!errorsAdd.prixVente}
+                            helperText={errorsAdd.prixVente?.message}
                         />
                         <InputLabel 
                             type="date"
                             label="Date d'expiration *"
-                            value={formData.dateExpiration}
-                            onChange={(e) => setFormData({...formData, dateExpiration: e.target.value})}
+                            {...registerAdd('dateExpiration', {
+                                required: 'La date d\'expiration est obligatoire'
+                            })}
+                            error={!!errorsAdd.dateExpiration}
+                            helperText={errorsAdd.dateExpiration?.message}
                         />
                     </div>
                     
                     <div className="flex gap-2 mt-6">
+                        <Bouton primary type="submit" className="flex-1">
+                            Ajouter le produit
+                        </Bouton>
                         <Bouton className="flex-1" outline onClick={() => setOpenModal(false)}>
                             Annuler
                         </Bouton>
-                        <Bouton primary className="flex-1" onClick={handleAddProduct}>
-                            Ajouter le produit
-                        </Bouton>
                     </div>
-                </div>
+                </form>
             </Modal>
 
             {/* Modal Modification */}
