@@ -137,8 +137,30 @@ class FamilieController {
 
     deleteCustom(data) {
         try {
-            this.queries.delete('families', { id: data.id })
-            return { success: true}
+
+            const is_null = this.queries.join(
+                {
+                    from: "families",
+                    columns: "families.id as ids",
+                    join: {
+                        table: "medicaments",
+                        on: "families.id = medicaments.family_id"
+                    },
+                    where : {
+                        ids : data.id
+                    }
+                }
+            )
+
+            if(is_null == 0) {
+                this.queries.delete('families', { id: data.id })
+                return { success: true}
+            } else {
+                return { 
+                    success: false,
+                    error: "Cette famille contient de produit, elle ne peut pas etre supprimée"
+                }
+            }
         } catch (error) {
             log.error('Error deleting family:', error);
             return {
