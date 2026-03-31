@@ -5,7 +5,7 @@ import { InputLabel } from '../../components/ui/input'
 import Modal from "@mui/material/Modal"
 import { famillieService } from '../../services/admin/famillie_service'
 import { useForm } from 'react-hook-form'
-
+import ConfirmModal from '../../components/common/modal/confirme'
 
 export default function Categories() {
 
@@ -14,6 +14,9 @@ export default function Categories() {
     const [customCategorie, setCustomCategorie] = useState([])
     const [openModal, setOpenModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [cache, setCache] = useState()
+ 
 
     const {
         register: registerAdd,
@@ -64,10 +67,8 @@ export default function Categories() {
     }
 
     const handleDeleteCategory = async (id) => {
-        const success = await famillieService.deleteCustom({ id: id })
-        if(success) { 
-            setLoading(!loading)
-        }
+        setCache(id)
+        setShowConfirmModal(true)
     }
 
     const openEditModal = (name, id) => {
@@ -262,6 +263,22 @@ export default function Categories() {
                     </div>
                 </form>
             </Modal>
+
+
+            {/* modal de confirmation */}
+            <ConfirmModal 
+                open={showConfirmModal}
+                onConfirm={async () => {
+                    const success = await famillieService.deleteCustom({ id: cache })
+                    if(success) { 
+                        setLoading(!loading)
+                    }
+                    setShowConfirmModal(false);
+                }}
+                onCancel={() => setShowConfirmModal(false)}
+                title="Supprimer la famille"
+                message="Êtes-vous sûr de vouloir supprimer cette famille ?"
+            />
         </div>
     )
 }

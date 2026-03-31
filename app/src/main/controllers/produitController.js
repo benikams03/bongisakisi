@@ -17,6 +17,7 @@ class ProduitController {
                         medicaments.id,
                         medicaments.name as medicament_name,
                         medicaments.stock,
+                        medicaments.last_stock,
                         medicaments.price_buy,
                         medicaments.price_sell,
                         medicaments.date_expiration,
@@ -56,6 +57,7 @@ class ProduitController {
                     name: Text.capitalize(data.name),
                     family_id: data.family,
                     stock: data.quantite,
+                    last_stock: data.quantite,
                     price_buy: data.prixAchat,
                     price_sell: data.prixVente,
                     date_expiration: data.dateExpiration
@@ -64,6 +66,45 @@ class ProduitController {
             }
         } catch (error) {
             log.error('Error adding family:', error);
+            return {
+                success: false,
+                error: error.message
+            }
+        }
+    }
+
+    update(data, id) {
+        try {
+            const verify = this.queries.findOne('medicaments', { name: Text.capitalize(data.name) })
+                if(verify && verify.id !== id) {
+                    log.warn('le nom du produit existe déjà:', data.name);
+                    return { success: false, error: 'Le nom du produit existe déjà' }
+                } else {
+                    this.queries.update('medicaments', 
+                    {
+                        name: Text.capitalize(data.name),
+                        family_id: data.family,
+                        price_buy: data.prixAchat,
+                        price_sell: data.prixVente
+                    }, { id: id })
+                    
+                    return { success: true}
+                }
+        } catch (error) {
+            log.error('Error updating product:', error);
+            return {
+                success: false,
+                error: error.message
+            }
+        }
+    }
+
+    delete(id) {
+        try {
+            this.queries.delete('medicaments', { id: id })
+            return { success: true}
+        } catch (error) {
+            log.error('Error deleting product:', error);
             return {
                 success: false,
                 error: error.message

@@ -18,3 +18,5 @@ ipcMain.handle('deleteCustomFamille', (_, data) => familleController.deleteCusto
 
 ipcMain.handle('getProduits', () => produitController.get())
 ipcMain.handle('addProduit', (_, data) => produitController.add(data))
+ipcMain.handle('updateProduit', (_, data, id) => produitController.update(data, id))
+ipcMain.handle('deleteProduit', (_, id) => produitController.delete(id))

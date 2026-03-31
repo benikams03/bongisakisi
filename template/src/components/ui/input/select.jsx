@@ -1,6 +1,6 @@
 import { cn } from "../../../lib/cn"
 
-export const Select = ({ label, placeholder, helperText, error,className,children,...props }) => {
+export const Select = ({ label, placeholder, defaultValue, helperText, error,className,children ,...props }) => {
     return(<>
     <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
@@ -10,9 +10,10 @@ export const Select = ({ label, placeholder, helperText, error,className,childre
                 ( error ? '!border-red-500 focus:ring-red-500 focus:ring-1' : null),
                 className
             )}
+            defaultValue={defaultValue}
             {...props}
         >
-            <option value="">{placeholder}</option>
+            { defaultValue ? null : <option value="">{placeholder}</option>}
             {children}
         </select>
         <p className="text-xs pl-2 text-red-500">{helperText}</p>

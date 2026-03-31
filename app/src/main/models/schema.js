@@ -13,6 +13,7 @@ export class Schema {
                 family_id INTEGER NOT NULL,
                 name TEXT NOT NULL UNIQUE,
                 stock INTEGER DEFAULT 0,
+                last_stock INTEGER DEFAULT 0,
                 price_buy REAL DEFAULT 0,
                 price_sell REAL DEFAULT 0,
                 date_expiration DATE NOT NULL,
