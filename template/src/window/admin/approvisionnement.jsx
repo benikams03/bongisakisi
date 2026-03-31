@@ -1,15 +1,22 @@
 import { useState } from 'react'
-import { Building2, ChevronDown,User, MapPin, ChevronUp, Plus, CheckCircle, Clock, AlertCircle, Package, Edit, Eye } from 'lucide-react'
+import { Building2, ChevronDown,User, MapPin, ChevronUp, Plus, CheckCircle, Clock, AlertCircle, Package, Edit, Eye, Trash2 } from 'lucide-react'
 import { Bouton } from '../../components/ui/bouton'
 import { InputLabel } from '../../components/ui/input'
 import Modal from "@mui/material/Modal"
 
 export default function Approvisionnement() {
+
+    
+
+
+
     const [expandedSuppliers, setExpandedSuppliers] = useState([])
     const [openModal, setOpenModal] = useState(false)
     const [selectedOrder, setSelectedOrder] = useState(null)
     const [modalMode, setModalMode] = useState('purchase') // 'purchase' or 'edit'
     const [openM, setOpenM] = useState(false)
+    const [editSupplierModal, setEditSupplierModal] = useState(false)
+    const [selectedSupplier, setSelectedSupplier] = useState(null)
     
     // Données simulées pour les fournisseurs et leurs commandes
     const [suppliers, setSuppliers] = useState([
@@ -109,6 +116,28 @@ export default function Approvisionnement() {
         setFormData({ quantite: '', prixAchat: '', prixVente: '' })
     }
 
+    const handleEditSupplier = (supplier) => {
+        setSelectedSupplier(supplier)
+        setEditSupplierModal(true)
+    }
+
+    const handleDeleteSupplier = (supplierId) => {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce fournisseur ?')) {
+            setSuppliers(prev => prev.filter(supplier => supplier.id !== supplierId))
+        }
+    }
+
+    const handleUpdateSupplier = () => {
+        // Logique pour mettre à jour le fournisseur
+        setSuppliers(prev => prev.map(supplier => 
+            supplier.id === selectedSupplier.id 
+                ? { ...supplier, ...selectedSupplier }
+                : supplier
+        ))
+        setEditSupplierModal(false)
+        setSelectedSupplier(null)
+    }
+
     return (
         <div className="flex-1 p-2.5 h-full overflow-auto">
             {/* Header */}
@@ -145,11 +174,35 @@ export default function Approvisionnement() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-4">
                                 <div className="text-right">
                                     <p className="text-sm text-gray-600">
                                         {supplier.commandes.length} commande{supplier.commandes.length > 1 ? 's' : ''}
                                     </p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Bouton 
+                                        outline 
+                                        className="text-sm p-2"
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleEditSupplier(supplier)
+                                        }}
+                                        title="Modifier le fournisseur"
+                                    >
+                                        <Edit className="w-4 h-4" />
+                                    </Bouton>
+                                    <Bouton 
+                                        outline 
+                                        className="text-sm p-2 text-red-600 border-red-300 hover:bg-red-50"
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleDeleteSupplier(supplier.id)
+                                        }}
+                                        title="Supprimer le fournisseur"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </Bouton>
                                 </div>
                                 {expandedSuppliers.includes(supplier.id) ? (
                                     <ChevronUp className="w-5 h-5 text-gray-400" />
@@ -286,6 +339,47 @@ export default function Approvisionnement() {
                             onClick={() => setOpenM(false)} 
                             className="w-full">
                             Confirmation
+                        </Bouton>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Modal pour modifier le fournisseur */}
+            <Modal open={editSupplierModal} className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4">
+                <div className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
+                    <h2 className="text-xl font-semibold mb-4">Modifier le fournisseur</h2>
+                    
+                    {selectedSupplier && (
+                        <div className="space-y-4">
+                            <InputLabel 
+                                label="Nom du fournisseur"
+                                value={selectedSupplier.nom}
+                                onChange={(e) => setSelectedSupplier({...selectedSupplier, nom: e.target.value})}
+                            />
+                            <InputLabel 
+                                label="Email"
+                                value={selectedSupplier.email}
+                                onChange={(e) => setSelectedSupplier({...selectedSupplier, email: e.target.value})}
+                            />
+                            <InputLabel 
+                                label="Téléphone"
+                                value={selectedSupplier.telephone}
+                                onChange={(e) => setSelectedSupplier({...selectedSupplier, telephone: e.target.value})}
+                            />
+                            <InputLabel 
+                                label="Adresse"
+                                value={selectedSupplier.adresse}
+                                onChange={(e) => setSelectedSupplier({...selectedSupplier, adresse: e.target.value})}
+                            />
+                        </div>
+                    )}
+                    
+                    <div className="flex gap-2 mt-6">
+                        <Bouton outline className="flex-1" onClick={() => setEditSupplierModal(false)}>
+                            Annuler
+                        </Bouton>
+                        <Bouton primary className="flex-1" onClick={handleUpdateSupplier}>
+                            Mettre à jour
                         </Bouton>
                     </div>
                 </div>

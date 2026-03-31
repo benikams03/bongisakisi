@@ -299,6 +299,11 @@ export default function Ravitaillement() {
                             ))}
                         </tbody>
                     </table>
+                    { filteredMedicaments?.length === 0 &&
+                    (<div className='flex items-center justify-center flex-col text-center w-full h-40'>
+                        <Package className="w-12 h-12 text-gray-400 mb-3" />
+                        <p className="text-gray-600">Aucun produit trouvé</p>
+                    </div>) }
                 </div>
             </div>
 

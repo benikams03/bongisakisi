@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Package, Plus, Building2, ChevronDown,XCircle, User, MapPin } from 'lucide-react'
+import { Package, Plus, Building2, ChevronDown, XCircle, User, MapPin, Edit, Trash2 } from 'lucide-react'
 import { Bouton } from '../../components/ui/bouton'
 import { InputLabel } from '../../components/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from './../../components/ui/input/select-ui'
@@ -19,6 +19,8 @@ export default function Acquisition() {
     const [selectedSupplier, setSelectedSupplier] = useState(null)
     const [openM, setOpenM] = useState(false)
     const [openC, setOpenC] = useState(false)
+    const [editSupplierModal, setEditSupplierModal] = useState(false)
+    const [selectedSupplierToEdit, setSelectedSupplierToEdit] = useState(null)
 
     // Données de test pour les approvisionnements
     const suppliers = [
@@ -81,6 +83,25 @@ export default function Acquisition() {
         }
     ]
 
+    const handleEditSupplier = (supplier) => {
+        setSelectedSupplierToEdit(supplier)
+        setEditSupplierModal(true)
+    }
+
+    const handleDeleteSupplier = (supplierId) => {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce fournisseur ?')) {
+            // Logique de suppression ici
+            console.log('Supprimer fournisseur:', supplierId)
+        }
+    }
+
+    const handleUpdateSupplier = () => {
+        // Logique de mise à jour ici
+        console.log('Mettre à jour fournisseur:', selectedSupplierToEdit)
+        setEditSupplierModal(false)
+        setSelectedSupplierToEdit(null)
+    }
+
     return (<>
     <div className="flex-1 p-2.5 h-full overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
@@ -122,6 +143,30 @@ export default function Acquisition() {
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className="text-sm text-gray-500">{supplier.products.length} produits</span>
+                                <div className="flex items-center gap-1">
+                                    <Bouton 
+                                        outline 
+                                        className="text-sm p-2"
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleEditSupplier(supplier)
+                                        }}
+                                        title="Modifier le fournisseur"
+                                    >
+                                        <Edit className="w-4 h-4" />
+                                    </Bouton>
+                                    <Bouton 
+                                        outline 
+                                        className="text-sm p-2 text-red-600 border-red-300 hover:bg-red-50"
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleDeleteSupplier(supplier.id)
+                                        }}
+                                        title="Supprimer le fournisseur"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </Bouton>
+                                </div>
                                 <div className={`transform transition-transform duration-200 ${selectedSupplier === supplier.id ? 'rotate-180' : ''}`}>
                                     <ChevronDown className="w-4 h-4 text-gray-600" />
                                 </div>
@@ -253,5 +298,46 @@ export default function Acquisition() {
         </div>
     </Modal>
 
-</>);
+    {/* Modal pour modifier le fournisseur */}
+    <Modal open={editSupplierModal} className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4">
+        <div className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
+            <h2 className="text-xl font-semibold mb-4">Modifier le fournisseur</h2>
+            
+            {selectedSupplierToEdit && (
+                <div className="space-y-4">
+                    <InputLabel 
+                        label="Nom du fournisseur"
+                        value={selectedSupplierToEdit.name}
+                        onChange={(e) => setSelectedSupplierToEdit({...selectedSupplierToEdit, name: e.target.value})}
+                    />
+                    <InputLabel 
+                        label="Email"
+                        value={selectedSupplierToEdit.email}
+                        onChange={(e) => setSelectedSupplierToEdit({...selectedSupplierToEdit, email: e.target.value})}
+                    />
+                    <InputLabel 
+                        label="Téléphone"
+                        value={selectedSupplierToEdit.phone}
+                        onChange={(e) => setSelectedSupplierToEdit({...selectedSupplierToEdit, phone: e.target.value})}
+                    />
+                    <InputLabel 
+                        label="Adresse"
+                        value={selectedSupplierToEdit.address}
+                        onChange={(e) => setSelectedSupplierToEdit({...selectedSupplierToEdit, address: e.target.value})}
+                    />
+                </div>
+            )}
+            
+            <div className="flex gap-2 mt-6">
+                <Bouton outline className="flex-1" onClick={() => setEditSupplierModal(false)}>
+                    Annuler
+                </Bouton>
+                <Bouton primary className="flex-1" onClick={handleUpdateSupplier}>
+                    Mettre à jour
+                </Bouton>
+            </div>
+        </div>
+    </Modal>
+
+    </>);
 }
