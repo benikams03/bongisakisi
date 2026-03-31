@@ -112,6 +112,44 @@ class ProduitController {
         }
     }
 
+    addStock(data) {
+        try {
+            const old = this.queries.findOne('medicaments', { id: data.id })
+            const newStock = Number(old.stock) + Number(data.quantite)
+
+            this.queries.update('medicaments', 
+            {
+                stock: newStock,
+                last_stock: newStock
+            }, { id: data.id })
+            
+            return { success: true}
+        } catch (error) {
+            log.error('Error adding stock:', error);
+            return {
+                success: false,
+                error: error.message
+            }
+        }
+    }
+
+    updateExpiry(data) {
+        try {
+            this.queries.update('medicaments', 
+            {
+                date_expiration: data.nouvelleDate
+            }, { id: data.id })
+            
+            return { success: true}
+        } catch (error) {
+            log.error('Error updating expiry:', error);
+            return {
+                success: false,
+                error: error.message
+            }
+        }
+    }
+
 }
 
 export const produitController = new ProduitController();

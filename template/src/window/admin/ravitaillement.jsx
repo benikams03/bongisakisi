@@ -1,142 +1,92 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Package, Plus, AlertTriangle, Calendar, Search, Filter } from 'lucide-react'
 import { Bouton } from '../../components/ui/bouton'
 import { InputLabel } from '../../components/ui/input'
 import Modal from "@mui/material/Modal"
+import { produitService } from '../../services/admin/produit_service'
+import { calculateStockStatus } from '../../hooks/calcul'
+import { formatDateToDMY, isExpiringSoon, isExpired } from '../../hooks/format_date'
+import { useForm } from 'react-hook-form'
 
 export default function Ravitaillement() {
+
+    const [medicament, setMedicament] = useState([])
     const [filter, setFilter] = useState('all') // 'all', 'low_stock', 'expired'
-    const [searchTerm, setSearchTerm] = useState('')
+    const [searchTerm, setSearchTerm] = useState("")
+    const [loading, setLoading] = useState(false)
+
     const [openStockModal, setOpenStockModal] = useState(false)
-    const [openExpiryModal, setOpenExpiryModal] = useState(false)
+     const [openExpiryModal, setOpenExpiryModal] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState(null)
+
+    useEffect(()=> {
+        (async()=> {
+            const res = await produitService.get()
+            setMedicament(res.data)
+        })()
+    },[loading])
     
-    // Données simulées pour les médicaments
-    const [medicaments, setMedicaments] = useState([
-        {
-            id: 1,
-            nom: 'Amoxicilline 1g',
-            categorie: 'Antibiotiques',
-            quantite: 8,
-            stockMin: 20,
-            prixUnitaire: 1200,
-            dateExpiration: '2024-06-15',
-            statut: 'low_stock'
-        },
-        {
-            id: 2,
-            nom: 'Paracétamol 500mg',
-            categorie: 'Antalgiques',
-            quantite: 150,
-            stockMin: 50,
-            prixUnitaire: 150,
-            dateExpiration: '2025-12-31',
-            statut: 'normal'
-        },
-        {
-            id: 3,
-            nom: 'Ibuprofène 400mg',
-            categorie: 'Anti-inflammatoires',
-            quantite: 12,
-            stockMin: 15,
-            prixUnitaire: 350,
-            dateExpiration: '2024-03-20',
-            statut: 'expired'
-        },
-        {
-            id: 4,
-            nom: 'Vitamine C 500mg',
-            categorie: 'Vitamines',
-            quantite: 200,
-            stockMin: 100,
-            prixUnitaire: 200,
-            dateExpiration: '2025-08-15',
-            statut: 'normal'
-        },
-        {
-            id: 5,
-            nom: 'Doliprane 1000mg',
-            categorie: 'Antalgiques',
-            quantite: 5,
-            stockMin: 20,
-            prixUnitaire: 320,
-            dateExpiration: '2024-04-10',
-            statut: 'low_stock'
+    const {
+        register: registerStock,
+        handleSubmit: handleSubmitStock,
+        formState: { errors: errorsStock },
+        reset: resetStock,
+    } = useForm()
+
+    const handleAddStock = async (data) => {
+        const newData = {
+            ...data,
+            id: selectedProduct.id
         }
-    ])
+        const success = await produitService.addStock(newData)
+        if(success) { 
+            resetStock()
+            setLoading(!loading)
+            setOpenStockModal(false)
+        }
+    }
 
-    const [stockForm, setStockForm] = useState({
-        quantite: '',
-        raison: ''
-    })
 
-    const [expiryForm, setExpiryForm] = useState({
-        nouvelleDate: '',
-        raison: ''
-    })
+    const {
+        register: registerDate,
+        handleSubmit: handleSubmitDate,
+        formState: { errors: errorsDate },
+        reset: resetDate,
+    } = useForm()
+
+    const handleAddDate = async (data) => {
+        const newData = {
+            ...data,
+            id: selectedProduct.id
+        }
+        const success = await produitService.updateExpiry(newData)
+        if(success) { 
+            resetDate()
+            setLoading(!loading)
+            setOpenExpiryModal(false)
+        }
+    }
 
     // Filtrer les médicaments selon le filtre sélectionné et la recherche
-    const filteredMedicaments = medicaments.filter(medicament => {
+    const filteredMedicaments = medicament?.filter(item => {
         const matchesFilter = filter === 'all' || 
-            (filter === 'low_stock' && medicament.statut === 'low_stock') ||
-            (filter === 'expired' && medicament.statut === 'expired')
+            (filter === 'low_stock' && ((item.stock / item.last_stock) * 100) <= 45) ||
+            (filter === 'expired' && isExpiringSoon(item.date_expiration))
         
         const matchesSearch = searchTerm === '' || 
-            medicament.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            medicament.categorie.toLowerCase().includes(searchTerm.toLowerCase())
+            item.medicament_name.toLowerCase().includes(searchTerm.toLowerCase())
         
         return matchesFilter && matchesSearch
     })
 
-    const handleAddStock = (medicament) => {
-        setSelectedProduct(medicament)
-        setStockForm({
-            quantite: '',
-            raison: ''
-        })
-        setOpenStockModal(true)
-    }
+    const getStatutBadge = (value) => {
 
-    const handleUpdateExpiry = (medicament) => {
-        setSelectedProduct(medicament)
-        setExpiryForm({
-            nouvelleDate: medicament.dateExpiration,
-            raison: ''
-        })
-        setOpenExpiryModal(true)
-    }
+        const stock = ((value.stock / value.last_stock) * 100) <= 45;
+        const expired = isExpiringSoon(value.date_expiration);
 
-    const confirmAddStock = () => {
-        setMedicaments(prev => prev.map(med => 
-            med.id === selectedProduct.id 
-                ? { 
-                    ...med, 
-                    quantite: med.quantite + parseInt(stockForm.quantite),
-                    statut: med.quantite + parseInt(stockForm.quantite) > med.stockMin ? 'normal' : med.statut
-                  }
-                : med
-        ))
-        setOpenStockModal(false)
-        setSelectedProduct(null)
-        setStockForm({ quantite: '', raison: '' })
-    }
+        const statut = stock ? 'low_stock' : expired ? 'expired' : 'normal';
 
-    const confirmUpdateExpiry = () => {
-        setMedicaments(prev => prev.map(med => 
-            med.id === selectedProduct.id 
-                ? { 
-                    ...med, 
-                    dateExpiration: expiryForm.nouvelleDate,
-                    statut: new Date(expiryForm.nouvelleDate) > new Date() && med.quantite > med.stockMin ? 'normal' : med.statut
-                  }
-                : med
-        ))
-        setOpenExpiryModal(false)
-        setSelectedProduct(null)
-        setExpiryForm({ nouvelleDate: '', raison: '' })
-    }
 
-    const getStatutBadge = (statut) => {
         const statusClasses = {
             'normal': 'bg-green-100 text-green-800',
             'low_stock': 'bg-orange-100 text-orange-800',
@@ -145,7 +95,7 @@ export default function Ravitaillement() {
         
         const statusLabels = {
             'normal': 'En stock',
-            'low_stock': 'Stock faible',
+            'low_stock': 'Faible',
             'expired': 'Expiré'
         }
         
@@ -154,14 +104,6 @@ export default function Ravitaillement() {
                 {statusLabels[statut]}
             </span>
         )
-    }
-
-    const isExpired = (date) => {
-        return new Date(date) < new Date()
-    }
-
-    const isLowStock = (quantite, stockMin) => {
-        return quantite <= stockMin
     }
 
     return (
@@ -232,7 +174,7 @@ export default function Ravitaillement() {
                         <div>
                             <p className="text-sm text-gray-600">En stock</p>
                             <p className="text-xl font-bold text-gray-900">
-                                {medicaments.filter(m => m.statut === 'normal').length}
+                                {medicament.filter(m => ((m.stock / m.last_stock) * 100) > 45).length}
                             </p>
                         </div>
                     </div>
@@ -245,7 +187,7 @@ export default function Ravitaillement() {
                         <div>
                             <p className="text-sm text-gray-600">Stock faible</p>
                             <p className="text-xl font-bold text-gray-900">
-                                {medicaments.filter(m => m.statut === 'low_stock').length}
+                                {medicament.filter(m => ((m.stock / m.last_stock) * 100) <= 45).length}
                             </p>
                         </div>
                     </div>
@@ -258,7 +200,7 @@ export default function Ravitaillement() {
                         <div>
                             <p className="text-sm text-gray-600">Expirés</p>
                             <p className="text-xl font-bold text-gray-900">
-                                {medicaments.filter(m => m.statut === 'expired').length}
+                                {medicament.filter(m => isExpiringSoon(m.date_expiration)).length}
                             </p>
                         </div>
                     </div>
@@ -283,9 +225,7 @@ export default function Ravitaillement() {
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Médicament
                                 </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Catégorie
-                                </th>
+                                
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Stock actuel
                                 </th>
@@ -301,54 +241,56 @@ export default function Ravitaillement() {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {filteredMedicaments.map((medicament) => (
-                                <tr key={medicament.id} className="hover:bg-gray-50">
-                                    <td className="px-4 py-4">
+                            {filteredMedicaments?.map((item, index) => (
+                                <tr key={index} className="hover:bg-gray-50">
+                                    <td className="px-4 py-2">
                                         <div>
-                                            <p className="font-medium text-gray-900">{medicament.nom}</p>
+                                            <p className="font-medium text-gray-900">{item.medicament_name}</p>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-4">
-                                        <span className="text-sm text-gray-600">{medicament.categorie}</span>
+                                    <td className="px-4 py-2">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium
+                                            ${calculateStockStatus(item.stock, item.last_stock).color}
+                                            ${calculateStockStatus(item.stock, item.last_stock).bgColor}`}>
+                                            {item.stock}
+                                        </span>
                                     </td>
-                                    <td className="px-4 py-4">
-                                        <div>
-                                            <p className="font-medium text-gray-900">{medicament.quantite}</p>
-                                        </div>
-                                    </td>
-                                    <td className="px-4 py-4">
+                                    <td className="px-4 py-2">
                                         <div className="flex items-center gap-2">
                                             <Calendar className="w-4 h-4 text-gray-400" />
-                                            <span className={`text-sm ${
-                                                isExpired(medicament.dateExpiration) 
-                                                    ? 'text-red-600' 
-                                                    : 'text-gray-900'
-                                            }`}>
-                                                {medicament.dateExpiration}
-                                            </span>
+                                            <span className={`
+                                                text-sm ${isExpiringSoon(item.date_expiration) == "expirer" ? 'text-red-500' : 'text-gray-900'} `}>{formatDateToDMY(item.date_expiration)}</span>
+                                            { isExpiringSoon(item.date_expiration) == "bientot" && <AlertTriangle className="w-4 h-4 text-orange-500" title="Expire bientôt" /> }
+                                            { isExpiringSoon(item.date_expiration) == "expirer" && <AlertTriangle className="w-4 h-4 text-red-500" title="Expire bientôt" /> }
                                         </div>
                                     </td>
-                                    <td className="px-4 py-4">
-                                        {getStatutBadge(medicament.statut)}
+                                    <td className="px-4 py-2">
+                                        {getStatutBadge(item)}
                                     </td>
-                                    <td className="px-4 py-4">
+                                    <td className="px-4 py-2">
                                         <div className="flex items-center gap-2">
                                             <Bouton 
                                                 primary 
                                                 className="text-sm"
-                                                onClick={() => handleAddStock(medicament)}
+                                                onClick={() => {
+                                                    setOpenStockModal(true)
+                                                    setSelectedProduct(item)
+                                                }}
                                             >
                                                 <Plus className="w-3 h-3" />
-                                                Ajouter stock
+                                                Ajouter
                                             </Bouton>
-                                            {isExpired(medicament.dateExpiration) && (
+                                            {isExpired(item.date_expiration) && (
                                                 <Bouton 
                                                     outline 
                                                     className="text-sm"
-                                                    onClick={() => handleUpdateExpiry(medicament)}
+                                                    onClick={() => {
+                                                        setOpenExpiryModal(true)
+                                                        setSelectedProduct(item)
+                                                    }}
                                                 >
                                                     <Calendar className="w-3 h-3" />
-                                                    Modifier date
+                                                    Màj
                                                 </Bouton>
                                             )}
                                         </div>
@@ -362,15 +304,15 @@ export default function Ravitaillement() {
 
             {/* Modal pour ajouter du stock */}
             <Modal open={openStockModal} className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4">
-                <div className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
+                <form method='post' onSubmit={handleSubmitStock(handleAddStock)} className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
                     <h2 className="text-xl font-semibold mb-4">Ajouter du stock</h2>
                     
                     {selectedProduct && (
                         <div className="mb-4">
                             <div className="p-3 bg-gray-50 rounded-lg">
-                                <p className="font-medium text-gray-900">{selectedProduct.nom}</p>
+                                <p className="font-medium text-gray-900">{selectedProduct.medicament_name}</p>
                                 <p className="text-sm text-gray-600">
-                                    Stock actuel: {selectedProduct.quantite} | Stock minimum: {selectedProduct.stockMin}
+                                    Stock actuel: {selectedProduct.stock}
                                 </p>
                             </div>
                         </div>
@@ -381,33 +323,40 @@ export default function Ravitaillement() {
                             type="number"
                             label="Quantité à ajouter"
                             placeholder="0"
-                            value={stockForm.quantite}
-                            onChange={(e) => setStockForm({...stockForm, quantite: e.target.value})}
+                            {...registerStock('quantite', {
+                                required: 'La quantité est obligatoire',
+                                min: {
+                                    value: 0,
+                                    message: 'La quantité doit être positive'
+                                }
+                            })}
+                            error={!!errorsStock.quantite}
+                            helperText={errorsStock.quantite?.message}
                         />
                     </div>
                     
                     <div className="flex gap-2 mt-6">
+                        <Bouton type='submit' primary className="flex-1">
+                            Confirmer
+                        </Bouton>
                         <Bouton outline className="flex-1" onClick={() => setOpenStockModal(false)}>
                             Annuler
                         </Bouton>
-                        <Bouton primary className="flex-1" onClick={confirmAddStock}>
-                            Confirmer
-                        </Bouton>
                     </div>
-                </div>
+                </form>
             </Modal>
 
             {/* Modal pour modifier la date d'expiration */}
             <Modal open={openExpiryModal} className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4">
-                <div className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
+                <form method='post' onSubmit={handleSubmitDate(handleAddDate)} className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
                     <h2 className="text-xl font-semibold mb-4">Modifier la date d'expiration</h2>
                     
                     {selectedProduct && (
                         <div className="mb-4">
                             <div className="p-3 bg-gray-50 rounded-lg">
-                                <p className="font-medium text-gray-900">{selectedProduct.nom}</p>
-                                <p className="text-sm text-gray-600">
-                                    Date actuelle: {selectedProduct.dateExpiration}
+                                <p className="font-medium text-gray-900">{selectedProduct.medicament_name}</p>
+                                <p className="text-sm text-red-600">
+                                    Date actuelle: {formatDateToDMY(selectedProduct.date_expiration)}
                                 </p>
                             </div>
                         </div>
@@ -417,20 +366,27 @@ export default function Ravitaillement() {
                         <InputLabel 
                             type="date"
                             label="Nouvelle date d'expiration"
-                            value={expiryForm.nouvelleDate}
-                            onChange={(e) => setExpiryForm({...expiryForm, nouvelleDate: e.target.value})}
+                            {...registerDate('nouvelleDate', {
+                                required: 'La date est obligatoire',
+                                min: {
+                                    value: new Date().toISOString().split('T')[0],
+                                    message: 'La date doit être dans le futur'
+                                }
+                            })}
+                            error={!!errorsDate.nouvelleDate}
+                            helperText={errorsDate.nouvelleDate?.message}
                         />
                     </div>
                     
                     <div className="flex gap-2 mt-6">
+                        <Bouton type="submit" primary className="flex-1">
+                            Confirmer
+                        </Bouton>
                         <Bouton outline className="flex-1" onClick={() => setOpenExpiryModal(false)}>
                             Annuler
                         </Bouton>
-                        <Bouton primary className="flex-1" onClick={confirmUpdateExpiry}>
-                            Confirmer
-                        </Bouton>
                     </div>
-                </div>
+                </form>
             </Modal>
         </div>
     )

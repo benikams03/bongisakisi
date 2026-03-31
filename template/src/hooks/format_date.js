@@ -45,3 +45,7 @@ export function isExpiringSoon(dateExpiration) {
         return false;         // Plus de 30 jours
     }
 }
+
+export const isExpired = (date) => {
+    return new Date(date) < new Date()
+}

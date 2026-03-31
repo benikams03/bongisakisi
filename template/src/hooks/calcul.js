@@ -16,7 +16,7 @@ export function calculateStockStatus(currentStock, initialStock) {
 
     const percentage = ((currentStock / initialStock) * 100);
     
-    if (percentage <= 15) {
+    if (percentage <= 20) {
         return {
             status: 'critique',
             percentage: percentage,

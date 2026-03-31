@@ -60,5 +60,39 @@ export const produitService = {
             return false
         }
     },
+
+    addStock : async (data) => {
+        try{ 
+            const result = await window.localApi.invoke('addStock', data)
+            if(result.success) {
+                toast.success('Stock ajouté avec succès')
+                return true
+            }else{
+                toast.error(result.error || 'Erreur lors de l\'ajout du stock')
+                return false
+            }
+        }
+        catch {
+            toast.error('Erreur lors de l\'ajout du stock')
+            return false
+        }
+    },
+
+    updateExpiry : async (data) => {
+        try{ 
+            const result = await window.localApi.invoke('updateExpiry', data)
+            if(result.success) {
+                toast.success('Date d\'expiration modifiée avec succès')
+                return true
+            }else{
+                toast.error(result.error || 'Erreur lors de la modification de la date d\'expiration')
+                return false
+            }
+        }
+        catch {
+            toast.error('Erreur lors de la modification de la date d\'expiration')
+            return false
+        }
+    },
     
 }
