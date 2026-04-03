@@ -28,8 +28,8 @@ class ProduitController {
                         table: "families",
                         on: "medicaments.family_id = families.id"
                     },
-                    orderBy: 'medicaments.id',
-                    order: 'DESC'
+                    orderBy: 'medicaments.name',
+                    order: 'ASC'
                 }
             );
             return {

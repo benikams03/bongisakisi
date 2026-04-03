@@ -61,8 +61,6 @@ export class Schema {
             CREATE TABLE IF NOT EXISTS fournisseurs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL UNIQUE,
-                phone TEXT NOT NULL UNIQUE,
-                address TEXT NOT NULL UNIQUE,
                 date_creation DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `).run();
@@ -76,8 +74,8 @@ export class Schema {
                 status TEXT NOT NULL,
                 datecreate DATETIME DEFAULT CURRENT_TIMESTAMP,
 
-                FOREIGN KEY (id_fournisseur) REFERENCES fournisseurs(id),
-                FOREIGN KEY (id_family) REFERENCES families(id)
+                FOREIGN KEY (id_fournisseur) REFERENCES fournisseurs(id) ON DELETE CASCADE,
+                FOREIGN KEY (id_family) REFERENCES families(id) ON DELETE CASCADE
             )
         `).run();
 

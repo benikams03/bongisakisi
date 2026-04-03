@@ -1,85 +1,92 @@
-import { useState } from 'react'
-import { Building2, ChevronDown,User, MapPin, ChevronUp, Plus, CheckCircle, Clock, AlertCircle, Package, Edit, Eye, Trash2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Building2, ChevronDown,User, ChevronUp, Plus, CheckCircle, Package, Edit, Trash2 } from 'lucide-react'
 import { Bouton } from '../../components/ui/bouton'
 import { InputLabel } from '../../components/ui/input'
 import Modal from "@mui/material/Modal"
+import { useForm } from 'react-hook-form'
+import { fournisseurService } from '../../services/admin/fourniseur_service'
+import { famillieService } from '../../services/admin/famillie_service'
+import { produitService } from '../../services/admin/produit_service'
+import ConfirmModal from '../../components/common/modal/confirme'
+import { aquisitionService } from '../../services/admin/aquivistion_service'
 
 export default function Approvisionnement() {
 
+    const [fournisseurs, setFournisseurs] = useState([])
+    const [familles, setFamilles] = useState([])
+    const [load, setLoad] = useState(false)
+
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [cache, setCache] = useState()
     
+    // ============================================================================
+    useEffect(() => {
+        (async () => {
+            const response = await fournisseurService.get()
+            setFournisseurs(response)
+            const data = await famillieService.get()
+            setFamilles(data)
+        })()
+    }, [load])
+    // ============================================================================
 
+    const {
+        register: registerAddFournisseur,
+        handleSubmit: handleSubmitAddFournisseur,
+        formState: { errors: errorsAddFournisseur },
+        reset: resetAddFournisseur
+    } = useForm()
 
+    const handleAddFournisseur = async (data) => {
+        const success = await fournisseurService.add(data)
+        if(success) { 
+            setLoad(!load)
+            resetAddFournisseur()
+            setOpenM(false)
+        }
+    }
+    // ============================================================================
+
+    const [editFournisseur, setEditFournisseur] = useState(null)
+    const {
+        register: registerUpdateFournisseur,
+        handleSubmit: handleSubmitUpdateFournisseur,
+        formState: { errors: errorsUpdateFournisseur },
+        reset: resetUpdateFournisseur
+    } = useForm()
+
+    const handleEditSupplier = (item) => {
+        setEditSupplierModal(true)
+        setEditFournisseur(item)
+        resetUpdateFournisseur({
+            name: item.name
+        })
+    }
+
+    const handleUpdateFournisseur = async (data) => {
+        const success = await fournisseurService.update({
+            id: editFournisseur.id,
+            name: data.name
+        })
+        if(success) { 
+            setLoad(!load)
+            setEditFournisseur(null)
+            setEditSupplierModal(false)
+        }
+    }
+    
+    // ============================================================================
+    // suppression
+    const handleDeleteFournisseur = async (id) => {
+        setCache(id)
+        setShowConfirmModal(true)
+    }
+    // ============================================================================
 
     const [expandedSuppliers, setExpandedSuppliers] = useState([])
-    const [openModal, setOpenModal] = useState(false)
-    const [selectedOrder, setSelectedOrder] = useState(null)
-    const [modalMode, setModalMode] = useState('purchase') // 'purchase' or 'edit'
     const [openM, setOpenM] = useState(false)
     const [editSupplierModal, setEditSupplierModal] = useState(false)
-    const [selectedSupplier, setSelectedSupplier] = useState(null)
     
-    // Données simulées pour les fournisseurs et leurs commandes
-    const [suppliers, setSuppliers] = useState([
-        {
-            id: 1,
-            nom: 'PharmaCentrale',
-            email: 'contact@pharmacentrale.cd',
-            telephone: '+243 812 345 678',
-            adresse: 'Av. de la Paix, Kinshasa',
-            statut: 'actif',
-            commandes: [
-                {
-                    id: 1,
-                    produit: 'Amoxicilline 1g',
-                    quantite: 50,
-                    prixUnitaire: 1200,
-                    statut: 'en_attente',
-                    dateCommande: '2024-03-15'
-                },
-                {
-                    id: 2,
-                    produit: 'Ibuprofène 400mg',
-                    quantite: 100,
-                    prixUnitaire: 350,
-                    statut: 'en_attente',
-                    dateCommande: '2024-03-15'
-                }
-            ]
-        },
-        {
-            id: 2,
-            nom: 'MediSupply',
-            email: 'info@medisupply.cd',
-            telephone: '+243 823 456 789',
-            adresse: 'Boulevard du 30 Juin, Kinshasa',
-            statut: 'actif',
-            commandes: [
-                {
-                    id: 3,
-                    produit: 'Paracétamol 500mg',
-                    quantite: 200,
-                    prixUnitaire: 150,
-                    statut: 'en_attente',
-                    dateCommande: '2024-03-14'
-                }
-            ]
-        },
-        {
-            id: 3,
-            nom: 'LaboPlus',
-            email: 'service@laboplus.cd',
-            telephone: '+243 834 567 890',
-            adresse: 'Limbete, Kinshasa',
-            statut: 'inactif',
-            commandes: []
-        }
-    ])
-
-    const [formData, setFormData] = useState({
-        quantite: '',
-        prixAchat: '',
-        prixVente: ''
-    })
 
     const toggleSupplier = (supplierId) => {
         setExpandedSuppliers(prev => 
@@ -89,54 +96,37 @@ export default function Approvisionnement() {
         )
     }
 
-    const handlePurchase = (order) => {
-        setSelectedOrder(order)
-        setModalMode('purchase')
-        setFormData({
-            quantite: order.quantite,
-            prixAchat: order.prixUnitaire,
-            prixVente: ''
+    // =========================================================
+    
+    const [selectedOrder, setSelectedOrder] = useState(null)
+    const [openModal, setOpenModal] = useState(false)
+
+    const {
+        register: registerAddProduit,
+        handleSubmit: handleSubmitAddProduit,
+        formState: { errors: errorsAddProduit },
+        reset: resetAddProduit
+    } = useForm()
+
+    const handleAddProduit = async (data) => {
+        const success = await produitService.add({
+            name: selectedOrder.name_medoc,
+            family: selectedOrder.id_family,
+            quantite: data.quantite,
+            prixAchat: data.prixAchat,
+            prixVente: data.prixVente,
+            dateExpiration: data.dateExpiration
         })
-        setOpenModal(true)
-    }
 
-    const handleConfirmPurchase = () => {
-        // Mettre à jour le statut de la commande
-        setSuppliers(prev => prev.map(supplier => ({
-            ...supplier,
-            commandes: supplier.commandes.map(commande => 
-                commande.id === selectedOrder.id 
-                    ? { ...commande, statut: 'achete', prixAchat: formData.prixAchat, prixVente: formData.prixVente }
-                    : commande
-            )
-        })))
-        
-        setOpenModal(false)
-        setSelectedOrder(null)
-        setFormData({ quantite: '', prixAchat: '', prixVente: '' })
-    }
+        await aquisitionService.validate(selectedOrder.id)
 
-    const handleEditSupplier = (supplier) => {
-        setSelectedSupplier(supplier)
-        setEditSupplierModal(true)
-    }
-
-    const handleDeleteSupplier = (supplierId) => {
-        if (confirm('Êtes-vous sûr de vouloir supprimer ce fournisseur ?')) {
-            setSuppliers(prev => prev.filter(supplier => supplier.id !== supplierId))
+        if(success) { 
+            setLoad(!load)
+            resetAddProduit()
+            setOpenModal(false)
         }
     }
 
-    const handleUpdateSupplier = () => {
-        // Logique pour mettre à jour le fournisseur
-        setSuppliers(prev => prev.map(supplier => 
-            supplier.id === selectedSupplier.id 
-                ? { ...supplier, ...selectedSupplier }
-                : supplier
-        ))
-        setEditSupplierModal(false)
-        setSelectedSupplier(null)
-    }
 
     return (
         <div className="flex-1 p-2.5 h-full overflow-auto">
@@ -155,29 +145,25 @@ export default function Approvisionnement() {
 
             {/* Liste des fournisseurs */}
             <div className="space-y-4">
-                {suppliers.map((supplier) => (
-                    <div key={supplier.id} className="bg-white border border-gray-200 rounded-lg">
+                {fournisseurs?.map((items, index) => (
+                    <div key={index} className="bg-white border border-gray-200 rounded-lg">
                         {/* En-tête du fournisseur */}
                         <div 
-                            className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50"
-                            onClick={() => toggleSupplier(supplier.id)}
+                            className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50"
+                            onClick={() => toggleSupplier(items.id)}
                         >
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                    <Building2 className="w-6 h-6 text-blue-600" />
+                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <Building2 className="w-4 h-4 text-blue-600" />
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-gray-900">{supplier.nom}</h3>
-                                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                                        <span>{supplier.email}</span>
-                                        <span>{supplier.telephone}</span>
-                                    </div>
+                                    <h3 className="font-semibold text-gray-900">{items.name}</h3>
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
                                 <div className="text-right">
                                     <p className="text-sm text-gray-600">
-                                        {supplier.commandes.length} commande{supplier.commandes.length > 1 ? 's' : ''}
+                                        {items.data?.length} commande{items.data?.length > 1 ? 's' : ''}
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -186,7 +172,7 @@ export default function Approvisionnement() {
                                         className="text-sm p-2"
                                         onClick={(e) => {
                                             e.stopPropagation()
-                                            handleEditSupplier(supplier)
+                                            handleEditSupplier(items)
                                         }}
                                         title="Modifier le fournisseur"
                                     >
@@ -195,16 +181,12 @@ export default function Approvisionnement() {
                                     <Bouton 
                                         outline 
                                         className="text-sm p-2 text-red-600 border-red-300 hover:bg-red-50"
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            handleDeleteSupplier(supplier.id)
-                                        }}
-                                        title="Supprimer le fournisseur"
-                                    >
+                                        onClick={() => handleDeleteFournisseur(items.id)}
+                                        title="Supprimer le fournisseur">
                                         <Trash2 className="w-4 h-4" />
                                     </Bouton>
                                 </div>
-                                {expandedSuppliers.includes(supplier.id) ? (
+                                {expandedSuppliers.includes(items.id) ? (
                                     <ChevronUp className="w-5 h-5 text-gray-400" />
                                 ) : (
                                     <ChevronDown className="w-5 h-5 text-gray-400" />
@@ -213,39 +195,38 @@ export default function Approvisionnement() {
                         </div>
 
                         {/* Commandes du fournisseur (déroulant) */}
-                        {expandedSuppliers.includes(supplier.id) && (
+                        {expandedSuppliers.includes(items.id) && (
                             <div className="border-t border-gray-200">
-                                {supplier.commandes.length > 0 ? (
+                                {items.data?.length > 0 ? (
                                     <div className="p-4">
                                         <h4 className="font-medium text-gray-900 mb-3">Commandes</h4>
                                         <div className="grid grid-cols-2 gap-3">
-                                            {supplier.commandes.map((commande) => (
-                                                <div key={commande.id} className="flex items-center justify-between p-3 border border-gray-200 bg-gray-50 rounded-lg">
+                                            {items.data.map((value, index) => (
+                                                <div key={index} className="flex items-center justify-between p-3 border border-gray-200 bg-gray-50 rounded-lg">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
                                                             <Package className="w-4 h-4 text-gray-600" />
                                                         </div>
                                                         <div>
-                                                            <p className="font-medium text-gray-900">{commande.produit}</p>
+                                                            <p className="font-medium text-gray-900">{value.name_medoc}</p>
                                                             <p className="text-xs text-gray-500">
-                                                                Commandé le: {commande.dateCommande}
+                                                                Type de famille: {familles?.data?.find(f => f.id === value.id_family)?.name}
                                                             </p>
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-3">
-                                                        {commande.statut === 'en_attente' && (
-                                                            <Bouton 
-                                                                primary 
-                                                                className="text-sm"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation()
-                                                                    handlePurchase(commande)
-                                                                }}
-                                                            >
-                                                                <CheckCircle className="w-4 h-4" />
-                                                                Acheter
-                                                            </Bouton>
-                                                        )}
+                                                        <Bouton 
+                                                            primary 
+                                                            className="text-sm"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                setSelectedOrder(value)
+                                                                setOpenModal(true)
+                                                            }}
+                                                        >
+                                                            <CheckCircle className="w-4 h-4" />
+                                                            Acheter
+                                                        </Bouton>
                                                     </div>
                                                 </div>
                                             ))}
@@ -261,18 +242,28 @@ export default function Approvisionnement() {
                         )}
                     </div>
                 ))}
+
+                {fournisseurs.length === 0 && (
+                    <div className="text-center py-18">
+                        <Package className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                        <p className="text-gray-600">Aucun fournisseur trouvé</p>
+                    </div>
+                )}
             </div>
+
+
+
 
             {/* Modal pour confirmer l'achat */}
             <Modal open={openModal} className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4">
-                <div className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
+                <form method='post' onSubmit={handleSubmitAddProduit(handleAddProduit)} className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
                     <h2 className="text-xl font-semibold mb-4">Confirmer l'achat</h2>
                     
                     {selectedOrder && (
                         <div className="mb-4">
                             <div className="p-3 bg-gray-50 rounded-lg">
-                                <p className="font-medium text-gray-900">{selectedOrder.produit}</p>
-                                <p className="text-sm text-gray-600">Quantité demandée: {selectedOrder.quantite}</p>
+                                <p className="font-medium text-gray-900">{selectedOrder.name_medoc}</p>
+                                <p className="text-sm text-gray-600">Type de famille : {familles?.data?.find(f => f.id === selectedOrder.id_family)?.name}</p>
                             </div>
                         </div>
                     )}
@@ -280,36 +271,66 @@ export default function Approvisionnement() {
                     <div className="space-y-4">
                         <InputLabel 
                             type="number"
-                            label="Quantité achetée"
-                            placeholder="Quantité"
-                            value={formData.quantite}
-                            onChange={(e) => setFormData({...formData, quantite: e.target.value})}
+                            label="Quantité *"
+                            placeholder="0"
+                            {...registerAddProduit('quantite', {
+                                required: 'La quantité est obligatoire',
+                                min: {
+                                    value: 0,
+                                    message: 'La quantité doit être positive'
+                                }
+                            })}
+                            error={!!errorsAddProduit.quantite}
+                            helperText={errorsAddProduit.quantite?.message}
                         />
                         <InputLabel 
                             type="number"
-                            label="Prix d'achat unitaire (FC)"
+                            label="Prix d'achat (FC) *"
                             placeholder="0"
-                            value={formData.prixAchat}
-                            onChange={(e) => setFormData({...formData, prixAchat: e.target.value})}
+                            {...registerAddProduit('prixAchat', {
+                                required: 'Le prix d\'achat est obligatoire',
+                                min: {
+                                    value: 0,
+                                    message: 'Le prix doit être positif'
+                                }
+                            })}
+                            error={!!errorsAddProduit.prixAchat}
+                            helperText={errorsAddProduit.prixAchat?.message}
                         />
                         <InputLabel 
                             type="number"
-                            label="Prix de vente unitaire (FC)"
+                            label="Prix de vente (FC) *"
                             placeholder="0"
-                            value={formData.prixVente}
-                            onChange={(e) => setFormData({...formData, prixVente: e.target.value})}
+                            {...registerAddProduit('prixVente', {
+                                required: 'Le prix de vente est obligatoire',
+                                min: {
+                                    value: 0,
+                                    message: 'Le prix doit être positif'
+                                }
+                            })}
+                            error={!!errorsAddProduit.prixVente}
+                            helperText={errorsAddProduit.prixVente?.message}
+                        />
+                        <InputLabel 
+                            type="date"
+                            label="Date d'expiration *"
+                            {...registerAddProduit('dateExpiration', {
+                                required: 'La date d\'expiration est obligatoire'
+                            })}
+                            error={!!errorsAddProduit.dateExpiration}
+                            helperText={errorsAddProduit.dateExpiration?.message}
                         />
                     </div>
                     
                     <div className="flex gap-2 mt-6">
+                        <Bouton primary className="flex-1" type="submit">
+                            Confirmer l'achat
+                        </Bouton>
                         <Bouton outline className="flex-1" onClick={() => setOpenModal(false)}>
                             Annuler
                         </Bouton>
-                        <Bouton primary className="flex-1" onClick={handleConfirmPurchase}>
-                            Confirmer l'achat
-                        </Bouton>
                     </div>
-                </div>
+                </form>
             </Modal>
 
             {/* MODAL ADD FOURNISSEUR */}
@@ -318,72 +339,87 @@ export default function Approvisionnement() {
                 // onClose={handleClose}
                 className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4"
                 >
-                <div id="print-area" className="bg-white border border-gray-300 w-1/3 p-4 rounded-lg shadow animate-fadeIn">
+                <form method='post' onSubmit={handleSubmitAddFournisseur(handleAddFournisseur)} id="print-area" className="bg-white border border-gray-300 w-1/3 p-4 rounded-lg shadow animate-fadeIn">
                     <h2 className="text-xl font-semibold mb-5">Ajouter un fournisseur</h2>
 
                     <div className='space-y-2'>
                         <InputLabel label="Nom du fournisseur"
                             icons={User} 
-                            type="text" />
-                        <InputLabel label="Adresse du fournisseur"
-                            icons={MapPin} 
-                            type="text" />
+                            type="text" 
+                            placeholder="Jean Dupont"
+                            {...registerAddFournisseur('name', {
+                                required: 'Le nom du fournisseur est obligatoire',
+                                minLength: {
+                                    value: 2,
+                                    message: 'Le nom du fournisseur doit contenir au moins 2 caractères'
+                                }
+                            })}
+                            error={!!errorsAddFournisseur.name}
+                            helperText={errorsAddFournisseur.name?.message}
+                            />
                     </div>
                     
                     <div className="flex gap-2 mt-6">
+                        <Bouton primary type="submit"
+                            className="w-full">
+                            Confirmation
+                        </Bouton>
                         <Bouton className="w-full" outline
                             onClick={() => setOpenM(false)}>
                             Annuler
                         </Bouton>
-                        <Bouton primary
-                            onClick={() => setOpenM(false)} 
-                            className="w-full">
-                            Confirmation
-                        </Bouton>
                     </div>
-                </div>
+                </form>
             </Modal>
 
             {/* Modal pour modifier le fournisseur */}
             <Modal open={editSupplierModal} className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4">
-                <div className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
+                <form method='post' onSubmit={handleSubmitUpdateFournisseur(handleUpdateFournisseur)} className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
                     <h2 className="text-xl font-semibold mb-4">Modifier le fournisseur</h2>
                     
-                    {selectedSupplier && (
-                        <div className="space-y-4">
-                            <InputLabel 
-                                label="Nom du fournisseur"
-                                value={selectedSupplier.nom}
-                                onChange={(e) => setSelectedSupplier({...selectedSupplier, nom: e.target.value})}
-                            />
-                            <InputLabel 
-                                label="Email"
-                                value={selectedSupplier.email}
-                                onChange={(e) => setSelectedSupplier({...selectedSupplier, email: e.target.value})}
-                            />
-                            <InputLabel 
-                                label="Téléphone"
-                                value={selectedSupplier.telephone}
-                                onChange={(e) => setSelectedSupplier({...selectedSupplier, telephone: e.target.value})}
-                            />
-                            <InputLabel 
-                                label="Adresse"
-                                value={selectedSupplier.adresse}
-                                onChange={(e) => setSelectedSupplier({...selectedSupplier, adresse: e.target.value})}
-                            />
-                        </div>
-                    )}
+                    <InputLabel label="Nom du fournisseur"
+                        icons={User} 
+                        type="text" 
+                        {...registerUpdateFournisseur('name', {
+                            required: 'Le nom du fournisseur est obligatoire',
+                            minLength: {
+                                value: 2,
+                                message: 'Le nom du fournisseur doit contenir au moins 2 caractères'
+                            }
+                        })}
+                        error={!!errorsUpdateFournisseur.name}
+                        helperText={errorsUpdateFournisseur.name?.message}
+                        />
                     
                     <div className="flex gap-2 mt-6">
-                        <Bouton outline className="flex-1" onClick={() => setEditSupplierModal(false)}>
-                            Annuler
-                        </Bouton>
-                        <Bouton primary className="flex-1" onClick={handleUpdateSupplier}>
+                        <Bouton primary className="flex-1" type="submit">
                             Mettre à jour
                         </Bouton>
+                        <Bouton outline className="flex-1" onClick={() => {
+                                setEditSupplierModal(false)
+                                setEditFournisseur(null)
+                            }}>
+                            Annuler
+                        </Bouton>
                     </div>
-                </div>
+                </form>
             </Modal>
+
+
+            {/* modal de confirmation */}
+            <ConfirmModal 
+                open={showConfirmModal}
+                onConfirm={async () => {
+                    const success = await fournisseurService.delete(cache)
+                    if(success) { 
+                        setLoad(!load)
+                    }
+                    setShowConfirmModal(false);
+                }}
+                onCancel={() => setShowConfirmModal(false)}
+                title="Supprimer le fournisseur"
+                message="Êtes-vous sûr de vouloir supprimer ce fournisseur ?, Toutes les commandes liées à ce fournisseur seront également supprimées"
+            />
         </div>
     )
 }

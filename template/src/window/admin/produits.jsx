@@ -134,13 +134,13 @@ export default function Produits() {
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b border-gray-200">
                             <tr>
-                                <th className="text-left py-3 px-4 font-medium text-gray-700">Produit</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-700">Catégorie</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-700">Stock</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-700">Prix d'achat</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-700">Prix de vente</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-700">Expiration</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
+                                <th className="text-left py-3 px-4 font-medium text-gray-500">Produit</th>
+                                <th className="text-left py-3 px-4 font-medium text-gray-500">Catégorie</th>
+                                <th className="text-left py-3 px-4 font-medium text-gray-500">Stock</th>
+                                <th className="text-left py-3 px-4 font-medium text-gray-500">Prix d'achat</th>
+                                <th className="text-left py-3 px-4 font-medium text-gray-500">Prix de vente</th>
+                                <th className="text-left py-3 px-4 font-medium text-gray-500">Expiration</th>
+                                <th className="text-left py-3 px-4 font-medium text-gray-500">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">

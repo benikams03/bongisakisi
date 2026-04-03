@@ -82,21 +82,24 @@ export default function Ravitaillement() {
     const getStatutBadge = (value) => {
 
         const stock = ((value.stock / value.last_stock) * 100) <= 45;
-        const expired = isExpiringSoon(value.date_expiration);
+        const expired_before = isExpiringSoon(value.date_expiration);
+        const expired = isExpired(value.date_expiration);
 
-        const statut = stock ? 'low_stock' : expired ? 'expired' : 'normal';
+        const statut = stock ? 'low_stock' : ( expired ? 'expired' : expired_before ? 'expiring_soon' : 'normal');
 
 
         const statusClasses = {
             'normal': 'bg-green-100 text-green-800',
             'low_stock': 'bg-orange-100 text-orange-800',
-            'expired': 'bg-red-100 text-red-800'
+            'expired': 'bg-red-100 text-red-800',
+            'expiring_soon': 'bg-yellow-100 text-yellow-800'
         }
         
         const statusLabels = {
             'normal': 'En stock',
             'low_stock': 'Faible',
-            'expired': 'Expiré'
+            'expired': 'Expiré',
+            'expiring_soon': 'Expire bientôt'
         }
         
         return (
@@ -147,7 +150,7 @@ export default function Ravitaillement() {
                                 className="text-sm"
                                 onClick={() => setFilter('expired')}
                             >
-                                Expirés
+                                Expirés ou expire bientôt
                             </Bouton>
                         </div>
                     </div>
@@ -198,7 +201,7 @@ export default function Ravitaillement() {
                             <Calendar className="w-5 h-5 text-red-600" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-600">Expirés</p>
+                            <p className="text-sm text-gray-600">Expirés ou expire bientôt</p>
                             <p className="text-xl font-bold text-gray-900">
                                 {medicament.filter(m => isExpiringSoon(m.date_expiration)).length}
                             </p>
@@ -280,7 +283,7 @@ export default function Ravitaillement() {
                                                 <Plus className="w-3 h-3" />
                                                 Ajouter
                                             </Bouton>
-                                            {isExpired(item.date_expiration) && (
+                                            {isExpiringSoon(item.date_expiration) && (
                                                 <Bouton 
                                                     outline 
                                                     className="text-sm"

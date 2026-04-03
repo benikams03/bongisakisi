@@ -2,6 +2,8 @@ import { ipcMain } from 'electron'
 import { settingsController } from './controllers/settingsController.js'
 import { familleController } from './controllers/familieController.js'
 import { produitController } from './controllers/produitController.js'
+import { fournisseurController } from './controllers/fournisseurController.js'
+import { acquisitionController } from './controllers/acquisitionController.js'
 
 // Test de base
 ipcMain.handle('test', () => 'BongisaKisi API fonctionne!')
@@ -22,3 +24,12 @@ ipcMain.handle('updateProduit', (_, data, id) => produitController.update(data, 
 ipcMain.handle('deleteProduit', (_, id) => produitController.delete(id))
 ipcMain.handle('addStock', (_, data) => produitController.addStock(data))
 ipcMain.handle('updateExpiry', (_, data) => produitController.updateExpiry(data))
+
+ipcMain.handle('getFournisseurs', () => fournisseurController.get())
+ipcMain.handle('addFournisseur', (_, data) => fournisseurController.add(data))
+ipcMain.handle('updateFournisseur', (_, data) => fournisseurController.update(data))
+ipcMain.handle('deleteFournisseur', (_, id) => fournisseurController.delete(id))
+
+ipcMain.handle('addAcquisition', (_, data) => acquisitionController.add(data))
+ipcMain.handle('validateAcquisition', (_, id) => acquisitionController.validate(id))
+ipcMain.handle('deleteAcquisition', (_, id) => acquisitionController.delete(id))

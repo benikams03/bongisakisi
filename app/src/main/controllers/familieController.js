@@ -120,9 +120,8 @@ class FamilieController {
                 return { success: false, error: 'Le nom de la famille existe déjà' }
             } else {
                 this.queries.update('families', 
-                {
-                    name: Text.capitalize(data.name)
-                }, { id: data.id })
+                { name: Text.capitalize(data.name) }, 
+                { id: data.id })
                 
                 return { success: true}
             }
