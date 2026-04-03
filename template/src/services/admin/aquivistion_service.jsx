@@ -51,6 +51,20 @@ export const aquisitionService = {
             toast.error('Erreur lors de la suppression de l\'acquisition')
             return false
         }
+    },
+    
+    getCount : async () => {
+        try{ 
+            const result = await window.localApi.invoke('getAcquisitionCount')
+            if(result.success) {
+                return result.count
+            }else{
+                return 0
+            }
+        }
+        catch {
+            return 0
+        }
     }
     
 }

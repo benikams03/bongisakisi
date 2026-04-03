@@ -61,6 +61,19 @@ class AcquisitionController {
             };
         }
     }
+
+    getCount() {
+        try {
+            const count = this.queries.count('acquisition', { status: 'waiting' });
+            return { success: true, count };
+        } catch (error) {
+            log.error(Text.ERROR_GET_COUNT_ACQUISITION, error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
 }
 
 export const acquisitionController = new AcquisitionController();

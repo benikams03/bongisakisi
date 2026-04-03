@@ -1,15 +1,17 @@
 import { Outlet, useLocation, Link } from 'react-router-dom';
-import { useState } from 'react';
-import { LayoutDashboard, Package, Tag, FileText, Users, Settings, LogOut, User, Bell, Search, Truck } from 'lucide-react';
-import { Bouton } from './../../ui/bouton/index';
+import { useState, useEffect } from 'react';
+import { LayoutDashboard, Package, Tag, FileText, Settings, LogOut, User, Bell, Truck } from 'lucide-react';
 import FeatureNotAvailableModal from '../modal/FeatureNotAvailableModal';
+import { aquisitionService } from '../../../services/admin/aquivistion_service';
+import { produitService } from '../../../services/admin/produit_service';
+import { isExpiringSoon } from '../../../hooks/format_date';
 
 const menuItems = [
     { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
     { id: 'produits', label: 'Produits', icon: Package },
     { id: 'categories', label: 'Catégories', icon: Tag },
-    { id: 'approvisionnement', label: 'Commandes', icon: Truck },
-    { id: 'ravitaillement', label: 'Ravitaillement', icon: Package },
+    { id: 'approvisionnement', label: 'Commandes', icon: Truck, notif : 1 },
+    { id: 'ravitaillement', label: 'Ravitaillement', icon: Package, notif : 2 },
     { id: 'rapports', label: 'Rapports', icon: FileText },
     { id: 'settings', label: 'Paramètres', icon: Settings },
 ]
@@ -19,8 +21,26 @@ export default function LayoutAdmin() {
 
     const activeSection = useLocation().pathname
 
+    // ======================================================================
+    const [acquisitionCount, setAcquisitionCount] = useState(0)
+    const [produitsCount, setProduitsCount] = useState(0)
+
+    useEffect(()=>{
+        (async () => {
+            const count = await aquisitionService.getCount()
+            setAcquisitionCount(count)
+            const produitCount = await produitService.get()
+            const expiredProducts = produitCount?.data?.filter(p => isExpiringSoon(p.date_expiration)).length || 0
+            const stockLow = produitCount?.data?.filter(p => ((p.stock / p.last_stock) * 100) <= 45).length || 0
+            setProduitsCount(expiredProducts + stockLow)
+        })()
+    },[activeSection])
+    
+    
+    // ======================================================================
+
     return (<div className='h-screen flex'>
-        <div className='w-[18%] bg-slate-900 flex flex-col justify-between text-white sticky right-0 h-full border-r border-gray-200 p-3'>
+        <div className='w-[20%] bg-slate-900 flex flex-col justify-between text-white sticky right-0 h-full border-r border-gray-200 p-3'>
             <div>
                 <h2 className="text-xl font-semibold mb-4 p-2 border-b border-gray-50/20 mx-2">Menu Admin</h2>
                 <nav className='flex flex-col gap-1'>
@@ -40,6 +60,17 @@ export default function LayoutAdmin() {
                         >
                             <Icon className="w-5 h-5" />
                             <span className="font-medium">{item.label}</span>
+
+                            {item.notif == 1 && (
+                                <div className='bg-red-500 text-white px-2 py-1 rounded-full text-[10px]'>
+                                    <span>{acquisitionCount}</span>
+                                </div>
+                            )}
+                            {item.notif == 2 && (
+                                <div className='bg-red-500 text-white px-2 py-1 rounded-full text-[10px]'>
+                                    <span>{produitsCount}</span>
+                                </div>
+                            )}
                         </Link>)
                     })}
                 </nav>

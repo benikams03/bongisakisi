@@ -1,7 +1,6 @@
 import { Outlet, useLocation, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { ShoppingCart, Package, History, FileText, LogOut, User, Bell } from 'lucide-react';
-import { Bouton } from './../../ui/bouton/index';
 import FeatureNotAvailableModal from '../modal/FeatureNotAvailableModal';
 
 const menuItems = [
