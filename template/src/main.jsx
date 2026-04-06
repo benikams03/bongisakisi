@@ -7,7 +7,7 @@ import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react'
 
 // Configuration personnalisée du toaster
 const toasterConfig = {
-  position: 'top-right',
+  position: 'top-center',
   duration: 4000,
   style: {
     background: 'white',

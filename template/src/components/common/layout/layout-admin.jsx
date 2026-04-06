@@ -63,12 +63,12 @@ export default function LayoutAdmin() {
 
                             {item.notif == 1 && (
                                 <div className='bg-red-500 text-white px-2 py-1 rounded-full text-[10px]'>
-                                    <span>{acquisitionCount}</span>
+                                    <span>{acquisitionCount > 9 ? '9+' : acquisitionCount}</span>
                                 </div>
                             )}
                             {item.notif == 2 && (
                                 <div className='bg-red-500 text-white px-2 py-1 rounded-full text-[10px]'>
-                                    <span>{produitsCount}</span>
+                                    <span>{produitsCount > 9 ? '9+' : produitsCount}</span>
                                 </div>
                             )}
                         </Link>)

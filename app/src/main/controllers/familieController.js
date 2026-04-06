@@ -27,7 +27,7 @@ class FamilieController {
     getDefault() {
         try {
             // Requête SQL directe pour LEFT JOIN avec COUNT
-            const sql = `
+            const data = this.queries.raw(`
                 SELECT 
                     f.id,
                     f.name,
@@ -39,9 +39,7 @@ class FamilieController {
                 WHERE f.defaults = 1
                 GROUP BY f.id, f.name, f.date_creation, f.defaults
                 ORDER BY f.name ASC
-            `;
-            
-            const data = this.queries.db.prepare(sql).all();
+            `)
             
             return {
                 success: true,
@@ -59,7 +57,7 @@ class FamilieController {
     getCustom() {
         try {
 
-            const sql = `
+            const data = this.queries.raw(`
                 SELECT 
                     f.id,
                     f.name,
@@ -71,9 +69,7 @@ class FamilieController {
                 WHERE f.defaults = 0
                 GROUP BY f.id, f.name, f.date_creation, f.defaults
                 ORDER BY f.name ASC
-            `;
-            
-            const data = this.queries.db.prepare(sql).all();
+            `)
             
             return {
                 success: true,

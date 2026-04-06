@@ -4,6 +4,7 @@ import { familleController } from './controllers/familieController.js'
 import { produitController } from './controllers/produitController.js'
 import { fournisseurController } from './controllers/fournisseurController.js'
 import { acquisitionController } from './controllers/acquisitionController.js'
+import { orderController } from './controllers/orderController.js'
 
 // Test de base
 ipcMain.handle('test', () => 'BongisaKisi API fonctionne!')
@@ -34,3 +35,9 @@ ipcMain.handle('addAcquisition', (_, data) => acquisitionController.add(data))
 ipcMain.handle('validateAcquisition', (_, id) => acquisitionController.validate(id))
 ipcMain.handle('deleteAcquisition', (_, id) => acquisitionController.delete(id))
 ipcMain.handle('getAcquisitionCount', () => acquisitionController.getCount())
+
+ipcMain.handle('getPanier', () => orderController.getPanier())
+ipcMain.handle('addPanier', (_, data) => orderController.addPanier(data))
+ipcMain.handle('removePanier', (_, data) => orderController.removePanier(data))
+ipcMain.handle('removePanierDirect', (_, data) => orderController.removePanierDirect(data))
+ipcMain.handle('confirmPanier', () => orderController.confirmPanier())

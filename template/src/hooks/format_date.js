@@ -49,3 +49,25 @@ export function isExpiringSoon(dateExpiration) {
 export const isExpired = (date) => {
     return new Date(date) < new Date()
 }
+
+/**
+ * Formate une date au format "DD / MM / YYYY à HH : MM"
+ * @param {string} dateString - Date au format ISO string ou YYYY-MM-DD
+ * @returns {string} Date au format "DD / MM / YYYY à HH : MM"
+ */
+export function formatDateToDMYWithTime(dateString) {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    
+    // Vérifier si la date est valide
+    if (isNaN(date.getTime())) return dateString;
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${day} / ${month} / ${year} à ${hours} : ${minutes}`;
+}
