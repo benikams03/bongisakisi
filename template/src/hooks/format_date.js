@@ -50,6 +50,7 @@ export const isExpired = (date) => {
     return new Date(date) < new Date()
 }
 
+
 /**
  * Formate une date au format "DD / MM / YYYY à HH : MM"
  * @param {string} dateString - Date au format ISO string ou YYYY-MM-DD
@@ -70,4 +71,19 @@ export function formatDateToDMYWithTime(dateString) {
     const minutes = String(date.getMinutes()).padStart(2, '0');
     
     return `${day} / ${month} / ${year} à ${hours} : ${minutes}`;
+}
+
+
+export function formatTimeOnly(dateString) {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    
+    // Vérifier si la date est valide
+    if (isNaN(date.getTime())) return dateString;
+ 
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${hours} : ${minutes}`;
 }

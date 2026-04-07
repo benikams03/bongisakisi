@@ -90,7 +90,7 @@ class OrderController {
                     const is_last_panier = this.queries.raw(`
                         SELECT MAX(panier) AS lastPanier
                         FROM orders
-                        WHERE status = 'confirmed'
+                        WHERE status != 'pending'
                     `)
 
                     this.queries.insert('orders', {
@@ -251,6 +251,107 @@ class OrderController {
             return {
                 success: false,
                 error: 'Erreur lors de la confirmation du panier'
+            };
+        }
+    }
+
+    getPanierToday() {
+        try {
+            // Récupérer tous les paniers uniques sans pagination
+            const paniersQuery = this.queries.raw(`
+                SELECT DISTINCT panier
+                FROM orders
+                WHERE status != 'pending' 
+                AND DATE(datecreate) = DATE('now')
+                ORDER BY panier DESC
+            `);
+
+            // Pour chaque panier, récupérer tous les médicaments
+            const panierItems = [];
+            
+            for (const panierRow of paniersQuery) {
+                const medicaments = this.queries.raw(`
+                    SELECT 
+                        orders.id as id,
+                        orders.id_medoc,
+                        orders.quantity,
+                        orders.price_total,
+                        orders.panier,
+                        orders.datecreate,
+                        orders.status as status,
+                        medicaments.name as name
+                    FROM orders
+                    LEFT JOIN medicaments ON orders.id_medoc = medicaments.id
+                    WHERE orders.status != 'pending' 
+                    AND DATE(orders.datecreate) = DATE('now')
+                    AND orders.panier = ${panierRow.panier}
+                    ORDER BY orders.datecreate DESC
+                `);
+
+                // Calculer le total pour ce panier
+                const totalPanier = medicaments.reduce((sum, item) => sum + item.price_total, 0);
+
+                panierItems.push({
+                    panier: panierRow.panier,
+                    datecreate: medicaments[0]?.datecreate,
+                    medicaments: medicaments,
+                    totalPanier: totalPanier,
+                    nombreMedicaments: medicaments.length
+                });
+            }
+
+            return {
+                success: true,
+                data: panierItems
+            };
+
+        } catch (error) {
+            log.error('Error getting panier today:', error);
+            return {
+                success: false,
+                error: 'Erreur lors de la récupération du panier d\'aujourd\'hui'
+            };
+        }
+    }
+
+    annulerCommande(id) {
+        try {
+
+            const panierItems = this.queries.find('orders', { 
+                panier: id 
+            });
+
+            panierItems.forEach(item => {
+                
+                this.queries.update('orders', {
+                    status: 'cancelled'
+                }, { 
+                    id: item.id 
+                });
+
+                // recuperation du medoc
+                const medoc = this.queries.findOne('medicaments', { 
+                    id: item.id_medoc 
+                });
+
+                // Remettre le stock
+                this.queries.update('medicaments', {
+                    stock: medoc.stock + item.quantity
+                }, { 
+                    id: item.id_medoc 
+                });
+            });
+
+            return {
+                success: true,
+                message: 'Commande annulée avec succès'
+            };
+
+        } catch (error) {
+            log.error('Error cancelling command:', error);
+            return {
+                success: false,
+                error: 'Erreur lors de l\'annulation de la commande'
             };
         }
     }

@@ -18,6 +18,7 @@ export default function ConfirmModal({
     onCancel, 
     title = "Confirmation requise", 
     message = "Êtes-vous sûr de vouloir continuer ?", 
+    btn
 }) {
     const [userResponse, setUserResponse] = useState('');
 
@@ -45,7 +46,7 @@ export default function ConfirmModal({
                         delet
                         className="flex-1"
                     >
-                        Supprimer
+                        {btn ? btn : "Supprimer"}
                     </Bouton>
                     
                     <Bouton 

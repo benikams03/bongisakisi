@@ -76,6 +76,39 @@ export const ordersService = {
             toast.error('Erreur lors de l\'ajout du panier')
             return false
         }
+    },
+
+    getPanierToday : async () => {
+        try{ 
+            const result = await window.localApi.invoke('getPanierToday')
+            if(result.success) {
+                return result
+            }else{
+                toast.error(result.error || 'Erreur lors de la récupération du panier')
+                return []
+            }
+        }
+        catch(e) {
+            toast.error('Erreur lors de la récupération du panier')
+            return []
+        }
+    },
+
+    annulerCommande : async (id) => {
+        try{ 
+            const result = await window.localApi.invoke('annulerCommande', id)
+            if(result.success) {
+                toast.success('Commande annulée avec succès')
+                return true
+            }else{
+                toast.error(result.error || 'Erreur lors de l\'annulation de la commande')
+                return false
+            }
+        }
+        catch(e) {
+            toast.error('Erreur lors de l\'annulation de la commande')
+            return false
+        }
     }
 
 }
