@@ -1,6 +1,5 @@
 import { queries } from './../models/index.js'
 import log from 'electron-log';
-import { Text } from '../utils/text.js';
 
 
 class OrderController {

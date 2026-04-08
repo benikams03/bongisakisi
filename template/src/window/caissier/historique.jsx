@@ -76,16 +76,18 @@ export default function Historique() {
                                     </td>
                                     <td className="py-3 px-4">
                                         <div className="flex items-center gap-2">
-                                            <button 
-                                                className="p-1 hover:bg-red-100 rounded transition-colors"
-                                                title="Annuler la vente"
-                                                onClick={()=>{
-                                                    setCache(panier.panier);
-                                                    setShowConfirmModal(true)
-                                                }}
-                                            >
-                                                <XCircle className="w-4 h-4 text-red-600" />
-                                            </button>
+                                            { panier.medicaments[0].status !== 'cancelled' && (
+                                                <button 
+                                                    className="p-1 hover:bg-red-100 rounded transition-colors"
+                                                    title="Annuler la vente"
+                                                    onClick={()=>{
+                                                        setCache(panier.panier);
+                                                        setShowConfirmModal(true)
+                                                    }}
+                                                >
+                                                    <XCircle className="w-4 h-4 text-red-600" />
+                                                </button>
+                                            )}
                                             <button  
                                                 onClick={() => {
                                                     setViewOrder(panier?.medicaments)
@@ -134,7 +136,7 @@ export default function Historique() {
                     <div className="border-t border-gray-400/50 my-2" />
                     <div className="flex justify-between items-center text-xl font-bold">
                         <h2 className="">Total</h2>
-                        <p className="font-semibold text-green-600">{viewOrder?.reduce((sum, item) => sum + item.price_total, 0)} Fc</p>
+                        <p className="font-semibold text-green-600">{number.format(Number(viewOrder?.reduce((sum, item) => sum + item.price_total, 0)))} Fc</p>
                     </div>
                 </div>
                 

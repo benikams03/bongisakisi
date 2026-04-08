@@ -5,6 +5,7 @@ import { produitController } from './controllers/produitController.js'
 import { fournisseurController } from './controllers/fournisseurController.js'
 import { acquisitionController } from './controllers/acquisitionController.js'
 import { orderController } from './controllers/orderController.js'
+import { rapportController } from './controllers/rapportController.js'
 
 // Test de base
 ipcMain.handle('test', () => 'BongisaKisi API fonctionne!')
@@ -43,3 +44,5 @@ ipcMain.handle('removePanierDirect', (_, data) => orderController.removePanierDi
 ipcMain.handle('confirmPanier', () => orderController.confirmPanier())  
 ipcMain.handle('getPanierToday', () => orderController.getPanierToday())
 ipcMain.handle('annulerCommande', (_, id) => orderController.annulerCommande(id))
+
+ipcMain.handle('getStatCaissier', () => rapportController.getStatCaissier())
