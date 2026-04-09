@@ -12,35 +12,33 @@ export default function Rapport() {
             setRapport(result);
         })()
     },[])
-
-    const pourcentage = (a, b) => (((a - b) * 100) / b).toFixed(1)
     
     return (<>
     
     <div className="flex-1 p-2.5 h-full overflow-auto">
         <div className="flex justify-between items-center mb-6">
-            <h3 className="text-2xl font-bold text-gray-900">Rapports</h3>
+            <h3 className="text-2xl font-bold text-gray-900">Rapports du jour</h3>
         </div>
         
         <div className="grid grid-cols-3 gap-3 mb-4">
             {[
                 { 
                     label: 'Ventes du jour', 
-                    value: number.format(Number(rapport?.stats?.ventesDay)) + ' Fc', 
-                    change: pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) + '%', 
-                    positive: pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) >= 0 ? true : false 
+                    value: number.format(Number(rapport?.stats?.ventesDay)) + ' FC', 
+                    change: number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) + '%', 
+                    positive: number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) >= 0 ? true : false 
                 },
                 { 
                     label: 'Commandes validées', 
                     value: number.format(Number(rapport?.stats?.commandeDay)), 
-                    change: pourcentage(rapport?.stats?.commandeDay , rapport?.stats_old?.commandeDay) + '%', 
-                    positive: pourcentage(rapport?.stats?.commandeDay , rapport?.stats_old?.commandeDay) >= 0 ? true : false
+                    change: number.pourcentage(rapport?.stats?.commandeDay , rapport?.stats_old?.commandeDay) + '%', 
+                    positive: number.pourcentage(rapport?.stats?.commandeDay , rapport?.stats_old?.commandeDay) >= 0 ? true : false
                 },
                 { 
                     label: 'Articles vendus', 
                     value: number.format(Number(rapport?.stats?.produitDay)), 
-                    change: pourcentage(rapport?.stats?.produitDay , rapport?.stats_old?.produitDay) + '%', 
-                    positive: pourcentage(rapport?.stats?.produitDay , rapport?.stats_old?.produitDay) >= 0 ? true : false 
+                    change: number.pourcentage(rapport?.stats?.produitDay , rapport?.stats_old?.produitDay) + '%', 
+                    positive: number.pourcentage(rapport?.stats?.produitDay , rapport?.stats_old?.produitDay) >= 0 ? true : false 
                 },
             ].map((stat, index) => (
                 <div key={index} className="bg-white border border-gray-200 rounded-lg p-6">

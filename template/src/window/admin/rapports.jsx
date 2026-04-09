@@ -4,8 +4,16 @@ import { Bouton } from '../../components/ui/bouton'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from '../../components/ui/input/select-ui'
 
 export default function Rapports() {
-    const [selectedPeriod, setSelectedPeriod] = useState('week')
+    const [selectedPeriod, setSelectedPeriod] = useState('day')
     const [selectedReport, setSelectedReport] = useState('sales') // 'sales', 'acquisition', 'profit'
+
+    const topProductss = [
+        { name: 'Paracétamol 500mg', sales: 234, revenue: '351,000 FC', stock: 156 },
+        { name: 'Amoxicilline 1g', sales: 189, revenue: '226,800 FC', stock: 89 },
+        { name: 'Ibuprofène 400mg', sales: 156, revenue: '109,200 FC', stock: 234 },
+        { name: 'Vitamine C 500mg', sales: 145, revenue: '11,600 FC', stock: 445 },
+        { name: 'Doliprane 1000mg', sales: 123, revenue: '39,360 FC', stock: 67 }
+    ]
 
     // Données simulées pour les rapports
     const revenueStats = {
@@ -109,7 +117,7 @@ export default function Rapports() {
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1">
-                        {['week', 'month', 'quarter', 'year'].map((period) => (
+                        {['day','week', 'month', 'year'].map((period) => (
                             <button
                                 key={period}
                                 onClick={() => setSelectedPeriod(period)}
@@ -119,9 +127,9 @@ export default function Rapports() {
                                         : 'text-gray-600 hover:text-gray-900'
                                 }`}
                             >
-                                {period === 'week' ? 'Semaine' : 
-                                 period === 'month' ? 'Mois' : 
-                                 period === 'quarter' ? 'Trimestre' : 'Année'}
+                                {period === 'day' ? 'Aujourd\'hui' : 
+                                 period === 'week' ? 'Semaine' :
+                                 period === 'month' ? 'Mois' : 'Année'}
                             </button>
                         ))}
                     </div>
@@ -208,15 +216,12 @@ export default function Rapports() {
                 {/* Top produits */}
                 <div className="bg-white border border-gray-200 rounded-xl p-6">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900">Top produits du mois</h3>
-                        <Bouton outline className="text-sm">
-                            <Filter className="w-4 h-4" />
-                        </Bouton>
+                        <h3 className="text-lg font-semibold text-gray-900">Top produits vendus</h3>
                     </div>
                     <div className="space-y-4">
-                        {topProducts.map((product, index) => (
-                            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <div className="flex items-center gap-3">
+                        {topProductss.map((product, index) => (
+                            <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                <div className="flex items-center gap-4">
                                     <div className="w-8 h-8 bg-slate-800 text-white rounded-lg flex items-center justify-center font-semibold text-sm">
                                         {index + 1}
                                     </div>
@@ -226,21 +231,22 @@ export default function Rapports() {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-semibold text-gray-900">{(product.revenue / 1000).toFixed(0)}K FC</p>
-                                    <p className={`text-sm font-medium ${
-                                        product.growth.startsWith('+') ? 'text-emerald-600' : 'text-red-600'
+                                    <p className="font-semibold text-gray-900">{product.revenue}</p>
+                                    <p className={`text-sm ${
+                                        product.stock < 20 ? 'text-red-600' : 'text-gray-600'
                                     }`}>
-                                        {product.growth}
+                                        Stock: {product.stock}
                                     </p>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
+                
             </div>
 
             {/* Rapports disponibles */}
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
+            {/* <div className="bg-white border border-gray-200 rounded-xl p-6">
                 <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-semibold text-gray-900">Rapports disponibles</h3>
                     <div className="flex items-center gap-2">
@@ -278,7 +284,7 @@ export default function Rapports() {
                         )
                     })}
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 }

@@ -33,10 +33,6 @@ export function isExpiringSoon(dateExpiration) {
     const diffTime = expDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    console.log('Date expiration:', dateExpiration);
-    console.log('Date actuelle:', today.toISOString().split('T')[0]);
-    console.log('Jours restants:', diffDays);
-    
     if (diffDays < 0) {
         return "expirer";  // Déjà expiré
     } else if (diffDays <= 30) {

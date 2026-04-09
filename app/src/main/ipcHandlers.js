@@ -46,3 +46,6 @@ ipcMain.handle('getPanierToday', () => orderController.getPanierToday())
 ipcMain.handle('annulerCommande', (_, id) => orderController.annulerCommande(id))
 
 ipcMain.handle('getStatCaissier', () => rapportController.getStatCaissier())
+ipcMain.handle('getStatDashbord', (_, choix) => rapportController.getStatDashbord(choix) )
+ipcMain.handle('getLowStockItems', () => rapportController.getLowStockItems())
+ipcMain.handle('getExpiredItems', () => rapportController.getExpiredItems())

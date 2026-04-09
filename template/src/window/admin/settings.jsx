@@ -57,9 +57,9 @@ export default function SettingsPage() {
 
     const tabs = [
         { id: 'general', label: 'Général', icon: Settings },
-        { id: 'notifications', label: 'Notifications', icon: Bell },
+        // { id: 'notifications', label: 'Notifications', icon: Bell },
         { id: 'license', label: 'Licence', icon: Shield },
-        { id: 'backup', label: 'Sauvegarde', icon: Database },
+        // { id: 'backup', label: 'Sauvegarde', icon: Database },
     ]
 
     const handleSave = () => {

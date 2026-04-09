@@ -95,6 +95,143 @@ class RapportController {
 
     }
 
+
+    getStatDashbord(choix) {
+        try {
+            const paniersQuery = this.queries.raw(`
+                SELECT DISTINCT panier as total
+                FROM orders
+                WHERE status = 'confirmed' 
+                ${ choix === 'day' ? 
+                    'AND DATE(datecreate) = DATE(\'now\')' : 
+                    choix === 'week' ? 
+                    'AND DATE(datecreate) BETWEEN DATE(\'now\', \'weekday 0\', \'-6 days\') AND DATE(\'now\', \'weekday 0\')' : ''}
+            `);
+            const paniersQuery_old = this.queries.raw(`
+                SELECT DISTINCT panier as total
+                FROM orders
+                WHERE status = 'confirmed' 
+                ${ choix === 'day' ? 
+                    'AND DATE(datecreate) = DATE(\'now\', \'-1 day\')' : 
+                    choix === 'week' ? 
+                    'AND DATE(datecreate) BETWEEN DATE(\'now\', \'weekday 0\', \'-13 days\') AND DATE(\'now\', \'weekday 0\', \'-7 days\')' : ''}
+            `);
+            
+            const ventesDay = this.queries.raw(`
+                SELECT SUM(price_total) as total
+                FROM orders
+                WHERE status = 'confirmed' 
+                ${ choix === 'day' ? 
+                    'AND DATE(datecreate) = DATE(\'now\')' : 
+                    choix === 'week' ? 
+                    'AND DATE(datecreate) BETWEEN DATE(\'now\', \'weekday 0\', \'-6 days\') AND DATE(\'now\', \'weekday 0\')' : ''}
+            `);
+            const ventesDay_old = this.queries.raw(`
+                SELECT SUM(price_total) as total
+                FROM orders
+                WHERE status = 'confirmed' 
+                ${ choix === 'day' ? 
+                    'AND DATE(datecreate) = DATE(\'now\', \'-1 day\')' : 
+                    choix === 'week' ? 
+                    'AND DATE(datecreate) BETWEEN DATE(\'now\', \'weekday 0\', \'-13 days\') AND DATE(\'now\', \'weekday 0\', \'-7 days\')' : ''}
+            `);
+            
+            const produitsDay = this.queries.raw(`
+                SELECT SUM(quantity) as total
+                FROM orders
+                WHERE status = 'confirmed' 
+                ${ choix === 'day' ? 
+                    'AND DATE(datecreate) = DATE(\'now\')' : 
+                    choix === 'week' ? 
+                    'AND DATE(datecreate) BETWEEN DATE(\'now\', \'weekday 0\', \'-6 days\') AND DATE(\'now\', \'weekday 0\')' : ''}
+            `);
+            const produitsDay_old = this.queries.raw(`
+                SELECT SUM(quantity) as total
+                FROM orders
+                WHERE status = 'confirmed' 
+                ${ choix === 'day' ? 
+                    'AND DATE(datecreate) = DATE(\'now\', \'-1 day\')' : 
+                    choix === 'week' ? 
+                    'AND DATE(datecreate) BETWEEN DATE(\'now\', \'weekday 0\', \'-13 days\') AND DATE(\'now\', \'weekday 0\', \'-7 days\')' : ''}
+            `);
+
+            
+            return {
+                success: true,
+                data: {
+                    stats: {
+                        commandeDay: paniersQuery.length,
+                        produitDay: produitsDay[0].total || 0,
+                        ventesDay: ventesDay[0].total || 0,
+                    },
+                    stats_old : {
+                        commandeDay: paniersQuery_old.length,
+                        produitDay: produitsDay_old[0].total || 0,
+                        ventesDay: ventesDay_old[0].total || 0,
+                    }
+                }
+            }
+
+        } catch (error) {
+            log.error('Error getting rapport:', error);
+            return {
+                success: false,
+                error: 'Erreur lors de la récupération du rapport'
+            };
+        }
+    }
+
+
+    getLowStockItems() {
+        try {
+            const lowStockItems = this.queries.raw(`
+                SELECT *
+                FROM medicaments
+                WHERE stock < 10
+            `)
+            return {
+                success: true,
+                data: lowStockItems
+            };
+        } catch (error) {
+            log.error('Error getting low stock items:', error);
+            return {
+                success: false,
+                error: 'Erreur lors de la récupération des stocks faibles'
+            };
+        }
+    }
+
+    getExpiredItems() {
+        try {
+            const expiredItems = this.queries.raw(`
+                SELECT *
+                FROM medicaments
+                WHERE date_expiration < DATE('now')
+            `)
+
+            const expiringSoonItems = this.queries.raw(`
+                SELECT *
+                FROM medicaments
+                WHERE date_expiration BETWEEN DATE('now') AND DATE('now', '+30 days')
+            `)
+
+            return {
+                success: true,
+                data: {
+                    expired: expiredItems,
+                    expiringSoon: expiringSoonItems
+                }
+            };
+        } catch (error) {
+            log.error('Error getting expired items:', error);
+            return {
+                success: false,
+                error: 'Erreur lors de la récupération des médicaments expirés'
+            };
+        }
+    }
+
 }
 
 export const rapportController = new RapportController()

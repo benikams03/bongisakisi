@@ -1,79 +1,65 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { TrendingUp, TrendingDown, Package, DollarSign, ShoppingCart, Users, AlertTriangle, ArrowUpRight, ArrowDownRight, Calendar, Filter } from 'lucide-react'
 import { Bouton } from '../../components/ui/bouton'
+import { rapportService } from "../../services/caissier/rapport_service";
+import { number } from "./../../hooks/number"
+import { formatDateToDMY } from "../../hooks/format_date"
 
 export default function Dashboard() {
+    
     const [selectedPeriod, setSelectedPeriod] = useState('day')
+    const [rapport, setRapport] = useState([])
+    const [lowStockItems, setLowStockItems] = useState([])
+    const [expiredItems, setExpiredItems] = useState([])
+    const [expiringSoonItems, setExpiringSoonItems] = useState([])
+
+    useEffect(()=>{ 
+        (async() => {
+            const result = await rapportService.getStatDashbord(selectedPeriod);
+            setRapport(result.data);
+        })()
+    },[selectedPeriod])
+
+    useEffect(() => {
+        (async() => {
+            // Récupérer les stocks faibles
+            const lowStockResponse = await rapportService.getLowStockItems();
+            setLowStockItems(lowStockResponse);
+
+            // Récupérer les médicaments expirés
+            const expiredResponse = await rapportService.getExpiredItems();
+            setExpiredItems(expiredResponse?.expired);
+            setExpiringSoonItems(expiredResponse?.expiringSoon); 
+        })()
+    }, [])
 
     // Données simulées pour le dashboard
     const stats = [
         {
             title: 'Chiffre d\'affaires',
-            value: '2,450,000 FC',
-            change: '+12.5%',
-            positive: true,
+            value: number.format(Number(rapport?.stats?.ventesDay)) + ' FC',
+            change: number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) + '%',
+            positive: number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) >= 0 ? true : false ,
             icon: DollarSign,
             color: 'from-blue-500 to-blue-600'
         },
         {
             title: 'Produits vendus',
-            value: '1,234',
-            change: '+8.2%',
-            positive: true,
+            value: number.format(Number(rapport?.stats?.produitDay)),
+            change: number.pourcentage(rapport?.stats?.produitDay , rapport?.stats_old?.produitDay) + '%',
+            positive: number.pourcentage(rapport?.stats?.produitDay , rapport?.stats_old?.produitDay) >= 0 ? true : false ,
             icon: Package,
             color: 'from-emerald-500 to-emerald-600'
         },
         {
             title: 'Commandes',
-            value: '456',
-            change: '-3.1%',
-            positive: false,
+            value: number.format(Number(rapport?.stats?.commandeDay)),
+            change: number.pourcentage(rapport?.stats?.commandeDay , rapport?.stats_old?.commandeDay) + '%',
+            positive: number.pourcentage(rapport?.stats?.commandeDay , rapport?.stats_old?.commandeDay) >= 0 ? true : false ,
             icon: ShoppingCart,
             color: 'from-purple-500 to-purple-600'
         },
     ]
-
-    const topProducts = [
-        { name: 'Paracétamol 500mg', sales: 234, revenue: '351,000 FC', stock: 156 },
-        { name: 'Amoxicilline 1g', sales: 189, revenue: '226,800 FC', stock: 89 },
-        { name: 'Ibuprofène 400mg', sales: 156, revenue: '109,200 FC', stock: 234 },
-        { name: 'Vitamine C 500mg', sales: 145, revenue: '11,600 FC', stock: 445 },
-        { name: 'Doliprane 1000mg', sales: 123, revenue: '39,360 FC', stock: 67 }
-    ]
-
-    const recentActivities = [
-        { id: 1, type: 'sale', description: 'Vente de Paracétamol 500mg', time: 'Il y a 2 minutes', amount: '3,000 FC' },
-        { id: 2, type: 'stock', description: 'Rupture de stock: Amoxicilline 1g', time: 'Il y a 15 minutes', amount: '' },
-        { id: 3, type: 'purchase', description: 'Nouvelle commande fournisseur', time: 'Il y a 1 heure', amount: '450,000 FC' },
-        { id: 4, type: 'sale', description: 'Vente de Vitamine C 500mg', time: 'Il y a 2 heures', amount: '800 FC' },
-        { id: 5, type: 'alert', description: 'Produit expirant dans 7 jours', time: 'Il y a 3 heures', amount: '' }
-    ]
-
-    const lowStockProducts = [
-        { name: 'Amoxicilline 1g', stock: 12, minStock: 20 },
-        { name: 'Doliprane 1000mg', stock: 8, minStock: 15 },
-        { name: 'Arthotec 50mg', stock: 5, minStock: 10 }
-    ]
-
-    const getActivityIcon = (type) => {
-        switch(type) {
-            case 'sale': return <ShoppingCart className="w-4 h-4" />
-            case 'stock': return <Package className="w-4 h-4" />
-            case 'purchase': return <DollarSign className="w-4 h-4" />
-            case 'alert': return <AlertTriangle className="w-4 h-4" />
-            default: return <Package className="w-4 h-4" />
-        }
-    }
-
-    const getActivityColor = (type) => {
-        switch(type) {
-            case 'sale': return 'bg-emerald-100 text-emerald-600'
-            case 'stock': return 'bg-red-100 text-red-600'
-            case 'purchase': return 'bg-blue-100 text-blue-600'
-            case 'alert': return 'bg-orange-100 text-orange-600'
-            default: return 'bg-gray-100 text-gray-600'
-        }
-    }
 
     return (
         <div className="flex-1 p-2.5 h-full overflow-auto">
@@ -85,19 +71,18 @@ export default function Dashboard() {
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1">
-                        {['day', 'week', 'month', 'year'].map((period) => (
+                        {['day', 'week'].map((period) => (
                             <button
                                 key={period}
                                 onClick={() => setSelectedPeriod(period)}
-                                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                                     selectedPeriod === period
                                         ? 'bg-slate-800 text-white'
                                         : 'text-gray-600 hover:text-gray-900'
                                 }`}
                             >
                                 {period === 'day' ? 'Aujourd\'hui' : 
-                                 period === 'week' ? 'Semaine' : 
-                                 period === 'month' ? 'Mois' : 'Année'}
+                                 period === 'week' ? 'Semaine' : ''}
                             </button>
                         ))}
                     </div>
@@ -105,7 +90,7 @@ export default function Dashboard() {
             </div>
 
             {/* Statistiques */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-3 gap-4 mb-5">
                 {stats.map((stat, index) => {
                     const Icon = stat.icon
                     return (
@@ -128,88 +113,85 @@ export default function Dashboard() {
                 })}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Top produits */}
-                <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900">Top produits vendus</h3>
+            <div className="grid grid-cols-2 gap-5">
+ 
+                {/* Stocks faibles */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-semibold text-gray-900">Stocks faibles</h3>
+                        <AlertTriangle className="w-5 h-5 text-amber-500" />
                     </div>
-                    <div className="space-y-4">
-                        {topProducts.map((product, index) => (
-                            <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-8 h-8 bg-slate-800 text-white rounded-lg flex items-center justify-center font-semibold text-sm">
-                                        {index + 1}
-                                    </div>
-                                    <div>
-                                        <h4 className="font-medium text-gray-900">{product.name}</h4>
-                                        <p className="text-sm text-gray-600">{product.sales} ventes</p>
-                                    </div>
+                    <div className="space-y-3">
+                        {lowStockItems.map((item, index) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-amber-50/50 rounded-lg border border-amber-200">
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium text-gray-900">{item.name}</p>
+                                    <p className="text-xs text-gray-500">Stock: {item.stock}</p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-semibold text-gray-900">{product.revenue}</p>
-                                    <p className={`text-sm ${
-                                        product.stock < 20 ? 'text-red-600' : 'text-gray-600'
-                                    }`}>
-                                        Stock: {product.stock}
-                                    </p>
+                                    { item.stock === 0 ? (
+                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            Épuisé
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                            Faible
+                                        </span>
+                                    ) }
                                 </div>
                             </div>
                         ))}
+                        {lowStockItems.length === 0 && (
+                            <div className="text-center py-8">
+                                <Package className="w-12 h-22 text-gray-300 mx-auto mb-3" />
+                                <p className="text-sm text-gray-500">Tous les stocks sont suffisants</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                {/* Activités récentes */}
+                {/* Médicaments expirés */}
                 <div className="bg-white border border-gray-200 rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900">Activités récentes</h3>
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-semibold text-gray-900">Médicaments expirés</h3>
+                        <Calendar className="w-5 h-5 text-red-500" />
                     </div>
-                    <div className="space-y-4">
-                        {recentActivities.map((activity) => (
-                            <div key={activity.id} className="flex items-start gap-3">
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${getActivityColor(activity.type)}`}>
-                                    {getActivityIcon(activity.type)}
+                    <div className="space-y-3">
+                        {expiredItems.map((item) => (
+                            <div key={item.id} className="flex items-center justify-between p-3 bg-red-50/50 rounded-lg border border-red-200">
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium text-gray-900">{item.name}</p>
+                                    <p className="text-xs text-gray-500">Expire le: {formatDateToDMY(item.date_expiration)}</p>
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm text-gray-900 truncate">{activity.description}</p>
-                                    <p className="text-xs text-gray-500">{activity.time}</p>
+                                <div className="text-right">
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        Expiré
+                                    </span>
                                 </div>
-                                {activity.amount && (
-                                    <p className="text-sm font-medium text-gray-900">{activity.amount}</p>
-                                )}
                             </div>
                         ))}
+                        {expiringSoonItems.map((item) => (
+                            <div key={item.id} className="flex items-center justify-between p-3 bg-orange-50/50 rounded-lg border border-orange-200">
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium text-gray-900">{item.name}</p>
+                                    <p className="text-xs text-gray-500">Expire le: {formatDateToDMY(item.date_expiration)}</p>
+                                </div>
+                                <div className="text-right">
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                        Bientôt
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                        {expiredItems.length === 0 && expiringSoonItems.length === 0 && (
+                            <div className="text-center py-8">
+                                <Calendar className="w-12 h-22 text-gray-300 mx-auto mb-3" />
+                                <p className="text-sm text-gray-500">Aucun médicament expiré</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
-
-            {/* Alertes stock faible */}
-            {lowStockProducts.length > 0 && (
-                <div className="mt-6 bg-red-50 border border-red-200 rounded-xl p-6">
-                    <div className="flex items-center gap-2 mb-4">
-                        <AlertTriangle className="w-5 h-5 text-red-600" />
-                        <h3 className="text-lg font-semibold text-red-900">Alertes de stock faible</h3>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {lowStockProducts.map((product, index) => (
-                            <div key={index} className="bg-white border border-red-200 rounded-lg p-4">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h4 className="font-medium text-gray-900">{product.name}</h4>
-                                    <span className="text-sm font-medium text-red-600">
-                                        {product.stock} / {product.minStock}
-                                    </span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div 
-                                        className="bg-red-600 h-2 rounded-full"
-                                        style={{ width: `${(product.stock / product.minStock) * 100}%` }}
-                                    ></div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
         </div>
     )
 }
