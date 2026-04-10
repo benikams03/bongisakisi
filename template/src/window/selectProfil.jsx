@@ -7,6 +7,7 @@ import Drawer from "@mui/material/Drawer";
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import FeatureNotAvailableModal from '../components/common/modal/FeatureNotAvailableModal';
+import { updateService } from '../services/update';
 
 export default function SelectProfil() {
     const [selectedProfile, setSelectedProfile] = useState(null)
@@ -29,6 +30,15 @@ export default function SelectProfil() {
 
         checkFirstTimeUser()
     }, [])
+
+    // const [check, setCheck] = useState()
+    // useEffect(()=>{
+    //     (async () => {
+    //         const res = await updateService.check()
+    //         setCheck(res)
+    //     })()
+    // },[])
+    
 
     const profiles = [
         {
@@ -172,16 +182,16 @@ export default function SelectProfil() {
                 <div className="mt-12 text-center text-sm text-gray-500">
                     <div className="flex items-center justify-center gap-2 mb-2">
                         <Package className="w-4 h-4 text-gray-400" />
-                        <span>Version 2.1.0</span>
+                        <span>Version 1.0.0</span>
                         <span className="text-gray-400">•</span>
-                        <span>Build 2024.03.19</span>
+                        <span>Build 2026.03.19</span>
                     </div>
                     <p>&copy; 2026 BongisaKisi - Solution de gestion pharmacetique</p>
                     <div className="mt-4 flex justify-center">
                         <Bouton outline
                             onClick={() => setOpen(true)}>
                             <Download className="w-4 h-4 text-gray-600" />
-                            <span className="">Mise à jour</span>
+                            <span>Mise à jour</span>
                         </Bouton>
                     </div>
                 </div>

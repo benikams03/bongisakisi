@@ -6,6 +6,7 @@ import { fournisseurController } from './controllers/fournisseurController.js'
 import { acquisitionController } from './controllers/acquisitionController.js'
 import { orderController } from './controllers/orderController.js'
 import { rapportController } from './controllers/rapportController.js'
+// import { autoUpdater } from "electron-updater"
 
 // Test de base
 ipcMain.handle('test', () => 'BongisaKisi API fonctionne!')
@@ -51,3 +52,29 @@ ipcMain.handle('getStatDashbord', (_, choix) => rapportController.getStatDashbor
 ipcMain.handle('getLowStockItems', () => rapportController.getLowStockItems())
 ipcMain.handle('getExpiredItems', () => rapportController.getExpiredItems())
 ipcMain.handle('getStatAdmin', (_, choix) => rapportController.getStatAdmin(choix))
+
+
+// ipcMain.handle("check-update", async () => {
+//   const result = await autoUpdater.checkForUpdates()
+//   return result?.updateInfo
+// })
+
+// ipcMain.handle("start-update", () => {
+//   autoUpdater.downloadUpdate()
+// })
+
+// // progression
+// autoUpdater.on("download-progress", (progress) => {
+//   win.webContents.send("update-progress", {
+//     percent: progress.percent,
+//     speed: progress.bytesPerSecond
+//   })
+// })
+
+// autoUpdater.on("update-downloaded", () => {
+//   win.webContents.send("update-downloaded")
+// })
+
+// ipcMain.handle("install-update", () => {
+//   autoUpdater.quitAndInstall()
+// })

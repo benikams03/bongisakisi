@@ -11,6 +11,14 @@
     "build": {
         "appId": "com.bongisakisi.app",
         "productName": "Bongisakisi",
+        "publish": [
+            {
+            "provider": "github",
+            "owner": "kams-benikams03",
+            "repo": "bongisakisi",
+            "private": true
+            }
+        ],
         "asar": true,
         "compression": "maximum",
         "copyright": "© 2026 Bongisakisi",
@@ -62,6 +70,7 @@
     "dependencies": {
         "better-sqlite3": "^12.8.0",
         "electron-log": "^5.4.3",
-        "electron-store": "^11.0.2"
+        "electron-store": "^11.0.2",
+        "electron-updater": "^6.8.3"
     }
 }

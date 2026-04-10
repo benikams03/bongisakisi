@@ -9,6 +9,14 @@ const createUniversalApi = () => {
                 throw new Error('Channel must be a string');
             }
             return ipcRenderer.invoke(channel, ...args);
+        },
+
+        on: (channel, callback) => {
+            ipcRenderer.on(channel, (_, data) => callback(data));
+        },
+
+        remove: (channel) => {
+            ipcRenderer.removeAllListeners(channel);
         }
     };
 };

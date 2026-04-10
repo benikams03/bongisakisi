@@ -1,12 +1,18 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'path';
 import { fileURLToPath } from 'url';
+// import { autoUpdater } from "electron-updater"
+// import log from "electron-log"
+
 import './ipcHandlers.js'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.setName("bongisakisi")
+
+// autoUpdater.logger = log
+// autoUpdater.autoDownload = false
 
 function createWindow () {
     // Create splash screen
