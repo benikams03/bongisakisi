@@ -6,7 +6,7 @@
     "type": "module",
     "scripts": {
         "dev": "electron ./src/main/index.js",
-        "build": "electron-builder"
+        "build": "npx electron-builder"
     },
     "build": {
         "appId": "com.bongisakisi.app",
