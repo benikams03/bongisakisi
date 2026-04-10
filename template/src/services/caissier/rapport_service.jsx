@@ -34,4 +34,12 @@ export const rapportService = {
         }
     },
 
+    getRapportAdmin : async (choix) => {
+        try{ return (await window.localApi.invoke('getStatAdmin', choix)) }
+        catch {
+            toast.error('Erreur lors de la récupération des statistiques')
+            return null
+        }
+    },
+
 }

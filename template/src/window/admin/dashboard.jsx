@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import { TrendingUp, TrendingDown, Package, DollarSign, ShoppingCart, Users, AlertTriangle, ArrowUpRight, ArrowDownRight, Calendar, Filter } from 'lucide-react'
-import { Bouton } from '../../components/ui/bouton'
+import { Package, DollarSign, ShoppingCart, AlertTriangle, ArrowUpRight, ArrowDownRight, Calendar } from 'lucide-react'
 import { rapportService } from "../../services/caissier/rapport_service";
 import { number } from "./../../hooks/number"
 import { formatDateToDMY } from "../../hooks/format_date"

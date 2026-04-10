@@ -1,111 +1,22 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FileText, Download, TrendingUp, TrendingDown, DollarSign, Package, ShoppingCart, Calendar, Filter, BarChart3, PieChart, LineChart, ArrowUpRight, ArrowDownRight, Printer, Mail } from 'lucide-react'
 import { Bouton } from '../../components/ui/bouton'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from '../../components/ui/input/select-ui'
+import { rapportService } from "../../services/caissier/rapport_service";
+import { number } from "./../../hooks/number"
 
 export default function Rapports() {
+    
     const [selectedPeriod, setSelectedPeriod] = useState('day')
-    const [selectedReport, setSelectedReport] = useState('sales') // 'sales', 'acquisition', 'profit'
+    const [rapport, setRapport] = useState([])
 
-    const topProductss = [
-        { name: 'Paracétamol 500mg', sales: 234, revenue: '351,000 FC', stock: 156 },
-        { name: 'Amoxicilline 1g', sales: 189, revenue: '226,800 FC', stock: 89 },
-        { name: 'Ibuprofène 400mg', sales: 156, revenue: '109,200 FC', stock: 234 },
-        { name: 'Vitamine C 500mg', sales: 145, revenue: '11,600 FC', stock: 445 },
-        { name: 'Doliprane 1000mg', sales: 123, revenue: '39,360 FC', stock: 67 }
-    ]
+    useEffect(()=>{ 
+        (async() => {
+            const result = await rapportService.getRapportAdmin(selectedPeriod);
+            setRapport(result.data);
+            
+        })()
+    },[selectedPeriod])
 
-    // Données simulées pour les rapports
-    const revenueStats = {
-        total: '2,450,000 FC',
-        change: '+12.5%',
-        positive: true,
-        monthly: [
-            { month: 'Jan', revenue: 1800000 },
-            { month: 'Fev', revenue: 2100000 },
-            { month: 'Mar', revenue: 1950000 },
-            { month: 'Avr', revenue: 2300000 },
-            { month: 'Mai', revenue: 2450000 },
-            { month: 'Jun', revenue: 2200000 }
-        ]
-    }
-
-    const acquisitionStats = {
-        total: '1,850,000 FC',
-        change: '+8.3%',
-        positive: true,
-        totalAcquisitions: 156,
-        monthly: [
-            { month: 'Jan', acquisitions: 25, amount: 280000 },
-            { month: 'Fev', acquisitions: 32, amount: 320000 },
-            { month: 'Mar', acquisitions: 28, amount: 295000 },
-            { month: 'Avr', acquisitions: 35, amount: 340000 },
-            { month: 'Mai', acquisitions: 30, amount: 315000 },
-            { month: 'Jun', acquisitions: 26, amount: 300000 }
-        ]
-    }
-
-    const profitStats = {
-        total: '487,500 FC',
-        margin: '19.9%',
-        change: '+8.2%',
-        positive: true,
-        monthly: [
-            { month: 'Jan', profit: 320000 },
-            { month: 'Fev', profit: 380000 },
-            { month: 'Mar', profit: 350000 },
-            { month: 'Avr', profit: 420000 },
-            { month: 'Mai', profit: 487500 },
-            { month: 'Jun', profit: 410000 }
-        ]
-    }
-
-    const topProducts = [
-        { name: 'Paracétamol 500mg', sales: 234, revenue: 468000, profit: 93600, growth: '+15%' },
-        { name: 'Amoxicilline 1g', sales: 189, revenue: 226800, profit: 45360, growth: '+8%' },
-        { name: 'Ibuprofène 400mg', sales: 156, revenue: 54600, profit: 10920, growth: '-3%' },
-        { name: 'Vitamine C 500mg', sales: 145, revenue: 29000, profit: 5800, growth: '+22%' },
-        { name: 'Doliprane 1000mg', sales: 123, revenue: 39360, profit: 7872, growth: '+5%' }
-    ]
-
-
-    const availableReports = [
-        { name: 'Rapport des ventes journalières', description: 'Détail des ventes par jour', icon: FileText, type: 'daily' },
-        { name: 'Rapport des ventes mensuelles', description: 'Synthèse mensuelle des ventes', icon: Calendar, type: 'monthly' },
-        { name: 'Rapport de rentabilité', description: 'Analyse des bénéfices', icon: DollarSign, type: 'profit' },
-        { name: 'Rapport des acquisitions', description: 'Analyse des acquisitions et achats', icon: ShoppingCart, type: 'acquisition' },
-        { name: 'Rapport des stocks', description: 'État des stocks actuels', icon: Package, type: 'stock' }
-    ]
-
-    const renderBarChart = (data, height = 200) => {
-        const maxValue = Math.max(...data.map(d => d.revenue || d.profit))
-        
-        return (
-            <div className="relative" style={{ height: `${height}px` }}>
-                <div className="absolute inset-0 flex items-end justify-between gap-2">
-                    {data.map((item, index) => {
-                        const value = item.revenue || item.profit
-                        const percentage = (value / maxValue) * 100
-                        return (
-                            <div key={index} className="flex-1 flex flex-col items-center">
-                                <div className="w-full bg-slate-200 rounded-t relative group cursor-pointer">
-                                    <div 
-                                        className="w-full bg-gradient-to-t from-slate-600 to-slate-400 rounded-t transition-all duration-300 group-hover:from-slate-700 group-hover:to-slate-500"
-                                        style={{ height: `${percentage}%` }}
-                                    >
-                                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                            {(value / 1000).toFixed(0)}K FC
-                                        </div>
-                                    </div>
-                                </div>
-                                <span className="text-xs text-gray-600 mt-2">{item.month}</span>
-                            </div>
-                        )
-                    })}
-                </div>
-            </div>
-        )
-    }
 
     return (
         <div className="flex-1 p-2.5 h-full overflow-auto">
@@ -121,7 +32,7 @@ export default function Rapports() {
                             <button
                                 key={period}
                                 onClick={() => setSelectedPeriod(period)}
-                                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                                     selectedPeriod === period
                                         ? 'bg-slate-800 text-white'
                                         : 'text-gray-600 hover:text-gray-900'
@@ -137,20 +48,20 @@ export default function Rapports() {
             </div>
 
             {/* Statistiques principales */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
                 <div className="bg-white border border-gray-200 rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                             <DollarSign className="w-6 h-6 text-white" />
                         </div>
                         <div className={`flex items-center gap-1 text-sm font-medium ${
-                            revenueStats.positive ? 'text-emerald-600' : 'text-red-600'
+                            number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) >= 0 ? 'text-emerald-600' : 'text-red-600'
                         }`}>
-                            {revenueStats.positive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                            {revenueStats.change}
+                            {number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                            {number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay)}
                         </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{revenueStats.total}</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{number.format(Number(rapport?.stats?.ventesDay))} FC</h3>
                     <p className="text-sm text-gray-600">Chiffre d'affaires</p>
                 </div>
 
@@ -160,14 +71,15 @@ export default function Rapports() {
                             <ShoppingCart className="w-6 h-6 text-white" />
                         </div>
                         <div className={`flex items-center gap-1 text-sm font-medium ${
-                            acquisitionStats.positive ? 'text-emerald-600' : 'text-red-600'
+                            number.pourcentage(Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay) , Number(rapport?.stats_old?.ventesDay) - Number(rapport?.stats_old?.gainDay)) >= 0 ? 'text-emerald-600' : 'text-red-600'
                         }`}>
-                            {acquisitionStats.positive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                            {acquisitionStats.change}
+                            {number.pourcentage(Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay) , Number(rapport?.stats_old?.ventesDay) - Number(rapport?.stats_old?.gainDay)) >= 0
+                                ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                            {number.pourcentage(Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay) , Number(rapport?.stats_old?.ventesDay) - Number(rapport?.stats_old?.gainDay))}
                         </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{acquisitionStats.total}</h3>
-                    <p className="text-sm text-gray-600">Acquisitions ({acquisitionStats.totalAcquisitions})</p>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{number.format( Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay))} FC</h3>
+                    <p className="text-sm text-gray-600">Fonds de roulement</p>
                 </div>
 
                 <div className="bg-white border border-gray-200 rounded-xl p-6">
@@ -176,14 +88,14 @@ export default function Rapports() {
                             <TrendingUp className="w-6 h-6 text-white" />
                         </div>
                         <div className={`flex items-center gap-1 text-sm font-medium ${
-                            profitStats.positive ? 'text-emerald-600' : 'text-red-600'
+                            number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay) >= 0 ? 'text-emerald-600' : 'text-red-600'
                         }`}>
-                            {profitStats.positive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                            {profitStats.change}
+                            {number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay) >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                            {number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay)}
                         </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{profitStats.total}</h3>
-                    <p className="text-sm text-gray-600">Bénéfice net ({profitStats.margin} marge)</p>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{number.format(Number(rapport?.stats?.gainDay))} FC</h3>
+                    <p className="text-sm text-gray-600">Bénéfice</p>
                 </div>
 
                 <div className="bg-white border border-gray-200 rounded-xl p-6">
@@ -192,48 +104,49 @@ export default function Rapports() {
                             <ShoppingCart className="w-6 h-6 text-white" />
                         </div>
                         <div className="text-sm font-medium text-gray-600">
-                            {topProducts.reduce((sum, p) => sum + p.sales, 0)} ventes
+                            {number.format(Number(rapport?.stats?.commandeDay))} ventes
                         </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{topProducts.length}</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{number.format(Number(rapport?.stats?.produitDay))}</h3>
                     <p className="text-sm text-gray-600">Produits actifs</p>
                 </div>
             </div>
 
-            {/* Graphiques */}
-            <div className="grid grid-cols-2 gap-3 mb-8">
-                {/* Graphique des revenus mensuels */}
+            {/* Graphique par mois */}
+            {/* <div className='mb-5'>
                 <div className="bg-white border border-gray-200 rounded-xl p-6">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900">Évolution des revenus</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">Évolution des revenus mensuels</h3>
                         <Bouton outline className="text-sm">
                             <BarChart3 className="w-4 h-4" />
                         </Bouton>
                     </div>
-                    {renderBarChart(revenueStats.monthly)}
                 </div>
+            </div> */}
 
-                {/* Top produits */}
+            {/* Graphiques */}
+            <div className="grid grid-cols-1 gap-3">
+                
                 <div className="bg-white border border-gray-200 rounded-xl p-6">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900">Top produits vendus</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">Top 10 de produits vendus</h3>
                     </div>
-                    <div className="space-y-4">
-                        {topProductss.map((product, index) => (
-                            <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="space-y-3">
+                        {rapport?.topVentes?.map((product, index) => (
+                            <div key={index} className="flex items-center border border-gray-300 justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                                 <div className="flex items-center gap-4">
                                     <div className="w-8 h-8 bg-slate-800 text-white rounded-lg flex items-center justify-center font-semibold text-sm">
                                         {index + 1}
                                     </div>
                                     <div>
                                         <h4 className="font-medium text-gray-900">{product.name}</h4>
-                                        <p className="text-sm text-gray-600">{product.sales} ventes</p>
+                                        <p className="text-sm text-gray-600">{product.quantiteTotale} ventes</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-semibold text-gray-900">{product.revenue}</p>
+                                    <p className="font-semibold text-gray-900">{number.format(Number(product.totalVentes))} FC</p>
                                     <p className={`text-sm ${
-                                        product.stock < 20 ? 'text-red-600' : 'text-gray-600'
+                                        product.stock < 10 ? 'text-red-600' : 'text-gray-600'
                                     }`}>
                                         Stock: {product.stock}
                                     </p>
