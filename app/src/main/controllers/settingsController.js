@@ -41,6 +41,25 @@ class SettingsController {
         }
     }
 
+    update(settings) {
+        try{
+            const currentSettings = this.store.get('settings');
+            this.store.set('settings', {
+                name: Text.capitalizeWords(settings.name || currentSettings.name),
+                phone: settings.phone.trim() || currentSettings.phone,
+                email: Text.toLowerCase(settings.email || currentSettings.email),
+                address: Text.capitalizeWords(settings.address || currentSettings.address)
+            });
+            return { success: true }
+        } catch (error) {
+            Log.error('Error updating settings:', error);
+            return {
+                success: false,
+                error: error.message
+            }
+        }
+    }
+
 }
 
 export const settingsController = new SettingsController();

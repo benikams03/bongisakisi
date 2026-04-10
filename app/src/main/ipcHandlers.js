@@ -12,6 +12,7 @@ ipcMain.handle('test', () => 'BongisaKisi API fonctionne!')
 
 ipcMain.handle('getSettings', () => settingsController.get())
 ipcMain.handle('setSettings', (_, settings) => settingsController.set(settings))
+ipcMain.handle('updateSettings', (_, settings) => settingsController.update(settings))
 
 ipcMain.handle('getFamilles', () => familleController.get())
 ipcMain.handle('getDefaultFamille', () => familleController.getDefault())

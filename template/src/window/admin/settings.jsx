@@ -4,21 +4,46 @@ import { Bouton } from '../../components/ui/bouton'
 import { InputLabel } from '../../components/ui/input'
 import Modal from "@mui/material/Modal"
 import { parametreService } from '../../services/admin/parametre_service'
+import { useForm } from 'react-hook-form'
 
 export default function SettingsPage() {
+    
+    const [load, setLoad] = useState(false)
+
+    const {
+        register: registerUpdate,
+        handleSubmit: handleSubmitUpdate,
+        formState: { errors: errorsUpdate },
+        reset: resetUpdate,
+    } = useForm()
+
+    
+    useEffect(() => {
+        (async () => {
+            const res = (await parametreService.getSettings()).data
+            resetUpdate({
+                name: res?.name,
+                email: res?.email,
+                phone: res?.phone,
+                address: res?.address,
+            })
+        })()
+    },[load])
+
+    const handleUpdateSettings = async (data) => {
+        const success = await parametreService.updateSettings(data)
+        if(success) { 
+            setLoad(!load)
+        }
+    }
+
+
 
     const [activeTab, setActiveTab] = useState('general')
     const [openLicenseModal, setOpenLicenseModal] = useState(false)
     const [licenseForm, setLicenseForm] = useState({
         newLicenseKey: ''
     })
-
-    const [dataGeneral, setDataGeneral] = useState([])
-
-    useEffect(() => {
-        const res = async () => setDataGeneral((await parametreService.getSettings()).data)
-        res()
-    },[])
 
     // Données de licence simulées
     const [licenseInfo] = useState({
@@ -58,14 +83,11 @@ export default function SettingsPage() {
     const tabs = [
         { id: 'general', label: 'Général', icon: Settings },
         // { id: 'notifications', label: 'Notifications', icon: Bell },
-        { id: 'license', label: 'Licence', icon: Shield },
+        // { id: 'license', label: 'Licence', icon: Shield },
         // { id: 'backup', label: 'Sauvegarde', icon: Database },
     ]
 
-    const handleSave = () => {
-        // Logique de sauvegarde
-        alert('Paramètres sauvegardés avec succès!')
-    }
+
 
     const handleBackup = () => {
         // Logique de sauvegarde
@@ -140,33 +162,62 @@ export default function SettingsPage() {
 
     const renderGeneralSettings = () => (
         <div className="space-y-6">
-            <div>
+            <form method='post' onSubmit={handleSubmitUpdate(handleUpdateSettings)}>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations de la pharmacie</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <InputLabel 
                         label="Nom de la pharmacie"
                         type='text'
-                        value={dataGeneral?.name}
+                        {...registerUpdate('name', {
+                            required: 'Le nom du produit est obligatoire',
+                            minLength: {    
+                                value: 2,
+                                message: 'Le nom du produit doit contenir au moins 2 caractères'
+                            }
+                        })}
+                        error={!!errorsUpdate.name}
+                        helperText={errorsUpdate.name?.message}
                     />
                     <InputLabel 
                         label="Email"
                         type="email"
-                        value={dataGeneral?.email}
+                        {...registerUpdate('email', {
+                            required: 'L\'email est obligatoire',
+                            pattern: {
+                                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                message: 'Email invalide'
+                            }
+                        })}
+                        error={!!errorsUpdate.email}
+                        helperText={errorsUpdate.email?.message}
                     />
                     <InputLabel 
                         label="Téléphone"
                         type="tel"
-                        value={dataGeneral?.phone}
+                        {...registerUpdate('phone', {
+                            required: 'Le téléphone est obligatoire',
+                        })}
+                        error={!!errorsUpdate.phone}
+                        helperText={errorsUpdate.phone?.message}
                     />
                     <div className="md:col-span-2">
                         <InputLabel 
                             label="Adresse"
                             type="text"
-                            value={dataGeneral?.address}
+                            {...registerUpdate('address', {
+                                required: 'L\'adresse est obligatoire',
+                            })}
+                            error={!!errorsUpdate.address}
+                            helperText={errorsUpdate.address?.message}
                         />
                     </div>
+                    
+                    <Bouton primary type='submit'>
+                        <Save className="w-4 h-4" />
+                        Sauvegarder
+                    </Bouton>
                 </div>
-            </div>
+            </form>
         </div>
     )
 
@@ -279,10 +330,6 @@ export default function SettingsPage() {
                     <h2 className="text-2xl font-bold text-gray-900">Paramètres</h2>
                     <p className="text-sm text-gray-600 mt-1">Configurez votre système</p>
                 </div>
-                <Bouton primary onClick={handleSave}>
-                    <Save className="w-4 h-4" />
-                    Sauvegarder
-                </Bouton>
             </div>
 
             <div className="flex gap-6">
