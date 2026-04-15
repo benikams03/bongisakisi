@@ -1,30 +1,31 @@
 {
     "name": "bongisakisi",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "description": "Application de gestion d'une pharmacie",
     "main": "./src/main/index.js",
     "type": "module",
     "scripts": {
         "dev": "electron ./src/main/index.js",
-        "build": "npx electron-builder"
+        "build": "npx electron-builder --win --publish always",
+        "dist": "npm run build",
+        "postinstall": "electron-builder install-app-deps"
     },
     "build": {
         "appId": "com.bongisakisi.app",
         "productName": "Bongisakisi",
-        "publish": [
-            {
+        "publish": {
             "provider": "github",
-            "owner": "kams-benikams03",
-            "repo": "bongisakisi",
-            "private": true
-            }
-        ],
+            "releaseType": "release",
+            "owner": "benikams03",
+            "repo": "bongisakisi"
+        },
         "asar": true,
         "compression": "maximum",
         "copyright": "© 2026 Bongisakisi",
         "files": [
             "dist/**/*",
             "src/**/*",
+            "resources/**/*",
             "node_modules/**/*",
             "package.json",
             "!node_modules/*/{test,__tests__,tests}",
@@ -42,10 +43,8 @@
                     "arch": [
                         "x64"
                     ]
-                },
-                "zip"
+                }
             ],
-            "publisherName": "Bongisakisi SARL",
             "icon": "resources/logo.ico"
         },
         "forceCodeSigning": false,

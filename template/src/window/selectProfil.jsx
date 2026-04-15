@@ -7,7 +7,6 @@ import Drawer from "@mui/material/Drawer";
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import FeatureNotAvailableModal from '../components/common/modal/FeatureNotAvailableModal';
-import { updateService } from '../services/update';
 
 export default function SelectProfil() {
     const [selectedProfile, setSelectedProfile] = useState(null)
@@ -30,15 +29,6 @@ export default function SelectProfil() {
 
         checkFirstTimeUser()
     }, [])
-
-    // const [check, setCheck] = useState()
-    // useEffect(()=>{
-    //     (async () => {
-    //         const res = await updateService.check()
-    //         setCheck(res)
-    //     })()
-    // },[])
-    
 
     const profiles = [
         {

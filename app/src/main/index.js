@@ -1,8 +1,8 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'path';
 import { fileURLToPath } from 'url';
-// import { autoUpdater } from "electron-updater"
-// import log from "electron-log"
+import updater from "electron-updater";
+import log from "electron-log"
 
 import './ipcHandlers.js'
 
@@ -11,8 +11,11 @@ const __dirname = path.dirname(__filename);
 
 app.setName("bongisakisi")
 
-// autoUpdater.logger = log
-// autoUpdater.autoDownload = false
+const { autoUpdater } = updater;
+autoUpdater.logger = log
+autoUpdater.autoDownload = false
+// autoUpdater.forceDevUpdateConfig = true;
+// autoUpdater.checkForUpdates();
 
 function createWindow () {
     // Create splash screen
@@ -53,6 +56,7 @@ function createWindow () {
 
     mainWindow.setMenu(null)
     mainWindow.loadURL('http://localhost:5173')
+    // mainWindow.loadFile(path.join(__dirname, '..', '..', 'resources', 'dist', 'index.html'))
 
     // Show main window after 3 seconds and close splash
     setTimeout(() => {
