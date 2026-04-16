@@ -1,7 +1,9 @@
 import { Outlet, useLocation, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ShoppingCart, Package, History, FileText, LogOut, User, Bell } from 'lucide-react';
 import FeatureNotAvailableModal from '../modal/FeatureNotAvailableModal';
+import { ActivateKeyService } from './../../../services/activate-key';
+import ActivateKey from './../activate_key';
 
 const menuItems = [
     { id: 'home', label: 'Caisse', icon: ShoppingCart },
@@ -13,8 +15,25 @@ const menuItems = [
 export default function LayoutCaissier() {
 
     const [showFeatureModal, setShowFeatureModal] = useState(false)
+    const [openKey, setOpenKey] = useState(false)
+    const [isExpired, setExpired] = useState(false)
 
     const activeSection = useLocation().pathname
+
+    useEffect(()=>{
+        (async () => {
+            const activateKey = await ActivateKeyService.get()
+            if(!activateKey.data){
+                setOpenKey(true)
+            }
+            // check license
+            const isExpired = await ActivateKeyService.check()
+            if(isExpired){
+                setExpired(true)
+                setOpenKey(true)
+            }
+        })()
+    }, [])
 
     return (<div className='h-screen flex'>
         <div className='w-[19%] bg-emerald-800 flex flex-col justify-between text-white sticky right-0 h-full border-r border-gray-200 p-3'>
@@ -81,6 +100,13 @@ export default function LayoutCaissier() {
             isOpen={showFeatureModal}
             onClose={() => setShowFeatureModal(false)}
             featureName="les notifications"
+        />
+
+        {/* Modal pour activer la licence ou utiliser le mode essaie */}
+        <ActivateKey 
+            open={openKey}
+            setOpen={(value) => setOpenKey(value)}
+            isExpired={isExpired}
         />
     </div>)
 }

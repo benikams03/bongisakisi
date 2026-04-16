@@ -7,12 +7,16 @@ import Drawer from "@mui/material/Drawer";
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import FeatureNotAvailableModal from '../components/common/modal/FeatureNotAvailableModal';
+import ActivateKey from '../components/common/activate_key';
+import { ActivateKeyService } from '../services/activate-key';
 
 export default function SelectProfil() {
     const [selectedProfile, setSelectedProfile] = useState(null)
     const [showFeatureModal, setShowFeatureModal] = useState(false)
     const [open, setOpen] = useState(false)
     const [showOnboarding, setShowOnboarding] = useState(false)
+    const [openKey, setOpenKey] = useState(false)
+    const [isExpired, setExpired] = useState(false)
 
     // Vérifier si c'est un nouvel utilisateur au chargement du composant
     useEffect(() => {
@@ -23,6 +27,17 @@ export default function SelectProfil() {
                     setTimeout(() => {
                         setShowOnboarding(true)
                     }, 1000)
+                }else {
+                    const activateKey = await ActivateKeyService.get()
+                    if(!activateKey.data){
+                        setOpenKey(true)
+                    }
+                    // check license
+                    const isExpired = await ActivateKeyService.check()
+                    if(isExpired){
+                        setExpired(true)
+                        setOpenKey(true)
+                    }
                 }
             }
         }
@@ -59,6 +74,7 @@ export default function SelectProfil() {
             if(res.success) {
                 toast.success('Pharmacie configurée avec succès')
                 setShowOnboarding(false)
+                setOpenKey(true)
             }else {
                 toast.error('Erreur lors de la configuration de la pharmacie')
             }
@@ -211,6 +227,13 @@ export default function SelectProfil() {
             isOpen={showFeatureModal}
             onClose={() => setShowFeatureModal(false)}
             featureName="Creation du nouveau profil"
+        />
+
+        {/* Modal pour activer la licence ou utiliser le mode essaie */}
+        <ActivateKey 
+            open={openKey}
+            setOpen={(value) => setOpenKey(value)}
+            isExpired={isExpired}
         />
     </>)
 }

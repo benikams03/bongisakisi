@@ -7,6 +7,7 @@ import { fournisseurController } from './controllers/fournisseurController.js'
 import { acquisitionController } from './controllers/acquisitionController.js'
 import { orderController } from './controllers/orderController.js'
 import { rapportController } from './controllers/rapportController.js'
+import { activateKeyController } from './controllers/activateKey.js';
 import updater from "electron-updater";
 const { autoUpdater } = updater;
 
@@ -63,49 +64,53 @@ ipcMain.handle('getLowStockItems', () => rapportController.getLowStockItems())
 ipcMain.handle('getExpiredItems', () => rapportController.getExpiredItems())
 ipcMain.handle('getStatAdmin', (_, choix) => rapportController.getStatAdmin(choix))
 
+ipcMain.handle('getActivate', () => activateKeyController.get())
+ipcMain.handle('createActive', (_, data) => activateKeyController.set(data))
+ipcMain.handle('updateActive', (_, data) => activateKeyController.update(data))
+
 
 ipcMain.handle("check-update", async () => {
-  const result = await autoUpdater.checkForUpdates()
-  Log.info('Update check result:', result)
-  return {
-    ...result?.updateInfo,
-    isUpdateAvailable: result?.updateInfo && result?.updateInfo.version ? true : false
-  }
+    const result = await autoUpdater.checkForUpdates()
+    Log.info('Update check result:', result)
+    return {
+        ...result?.updateInfo,
+        isUpdateAvailable: result?.updateInfo && result?.updateInfo.version ? true : false
+    }
 })
 
 ipcMain.handle("start-update", async () => {
-  try {
-    // Vérifier d'abord si une mise à jour est disponible
-    const checkResult = await autoUpdater.checkForUpdates()
-    if (!checkResult || !checkResult.updateInfo || !checkResult.updateInfo.version) {
-      return { success: false, error: "Aucune mise à jour disponible" }
+    try {
+        // Vérifier d'abord si une mise à jour est disponible
+        const checkResult = await autoUpdater.checkForUpdates()
+        if (!checkResult || !checkResult.updateInfo || !checkResult.updateInfo.version) {
+        return { success: false, error: "Aucune mise à jour disponible" }
+        }
+        
+        // Démarrer le téléchargement
+        await autoUpdater.downloadUpdate()
+        return { success: true }
+    } catch (error) {
+        Log.error('Error starting download:', error)
+        return { success: false, error: error.message }
     }
-    
-    // Démarrer le téléchargement
-    await autoUpdater.downloadUpdate()
-    return { success: true }
-  } catch (error) {
-    Log.error('Error starting download:', error)
-    return { success: false, error: error.message }
-  }
 })
 
 // progression
 autoUpdater.on("download-progress", (progress) => {
-  if (mainWindow) {
-    mainWindow.webContents.send("update-progress", {
-      percent: progress.percent,
-      speed: progress.bytesPerSecond
-    })
-  }
+    if (mainWindow) {
+        mainWindow.webContents.send("update-progress", {
+        percent: progress.percent,
+        speed: progress.bytesPerSecond
+        })
+    }
 })
 
 autoUpdater.on("update-downloaded", () => {
-  if (mainWindow) {
-    mainWindow.webContents.send("update-downloaded")
-  }
+    if (mainWindow) {
+        mainWindow.webContents.send("update-downloaded")
+    }
 })
 
 ipcMain.handle("install-update", () => {
-  autoUpdater.quitAndInstall()
+    autoUpdater.quitAndInstall()
 })

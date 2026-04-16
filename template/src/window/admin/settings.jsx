@@ -5,9 +5,12 @@ import { InputLabel } from '../../components/ui/input'
 import Modal from "@mui/material/Modal"
 import { parametreService } from '../../services/admin/parametre_service'
 import { useForm } from 'react-hook-form'
+import { ActivateKeyService } from '../../services/activate-key';
+import { getDaysRemaining } from '../../hooks/format_date'
 
 export default function SettingsPage() {
     
+    // GESTION INFORMATION GENERAL
     const [load, setLoad] = useState(false)
 
     const {
@@ -29,7 +32,7 @@ export default function SettingsPage() {
             })
         })()
     },[load])
-
+    
     const handleUpdateSettings = async (data) => {
         const success = await parametreService.updateSettings(data)
         if(success) { 
@@ -37,23 +40,43 @@ export default function SettingsPage() {
         }
     }
 
+    // ==============================================================
+    // GESTION DES LICENSES
+    const [licenseInfos, setLicenseInfos] = useState([])
+    const [laodLicense, setLaodLicense] = useState(false)
+    useEffect(()=>{
+        (async ()=>{
+            const res_key = (await ActivateKeyService.get()).data
+            setLicenseInfos(res_key)
+        })()
+    },[laodLicense])
 
+    
+    const {
+        register: registerKey,
+        handleSubmit: handleSubmitKey,
+        formState: { errors: errorsKey },
+        reset: resetKey,
+        setValue: setValueKey,
+    } = useForm()
+    
+    const handleChange = (e) => {
+        let v = e.target.value.replace(/-/g, "").toUpperCase();
+        let formatted = v.match(/.{1,4}/g)?.join("-") || "";
+        setValueKey("key",formatted);
+    };
+
+    const handleKey = async (data) => {
+        resetKey()
+        setLaodLicense(!laodLicense)
+        ///
+    }
+
+    // ==============================================================
 
     const [activeTab, setActiveTab] = useState('general')
     const [openLicenseModal, setOpenLicenseModal] = useState(false)
-    const [licenseForm, setLicenseForm] = useState({
-        newLicenseKey: ''
-    })
 
-    // Données de licence simulées
-    const [licenseInfo] = useState({
-        key: 'PHARMA-2024-DEMO-12345',
-        status: 'active',
-        expiryDate: '2024-12-31',
-        daysRemaining: 256,
-        plan: 'Premium',
-        features: ['Gestion des stocks', 'Rapports avancés', 'Support prioritaire']
-    })
 
     const [formData, setFormData] = useState({
         // Paramètres généraux
@@ -83,7 +106,7 @@ export default function SettingsPage() {
     const tabs = [
         { id: 'general', label: 'Général', icon: Settings },
         // { id: 'notifications', label: 'Notifications', icon: Bell },
-        // { id: 'license', label: 'Licence', icon: Shield },
+        { id: 'license', label: 'Licence', icon: Shield },
         // { id: 'backup', label: 'Sauvegarde', icon: Database },
     ]
 
@@ -94,22 +117,7 @@ export default function SettingsPage() {
         alert('Sauvegarde créée avec succès!')
     }
 
-    const handleActivateLicense = () => {
-        // Logique d'activation de licence
-        alert('Licence activée avec succès!')
-        setOpenLicenseModal(false)
-        setLicenseForm({ newLicenseKey: '' })
-    }
 
-    const getLicenseStatus = () => {
-        if (licenseInfo.status === 'expired') {
-            return { color: 'text-red-600 bg-red-100', text: 'Expirée', icon: AlertTriangle }
-        } else if (licenseInfo.daysRemaining <= 30) {
-            return { color: 'text-orange-600 bg-orange-100', text: 'Expirée bientôt', icon: AlertTriangle }
-        } else {
-            return { color: 'text-green-600 bg-green-100', text: 'Active', icon: Shield }
-        }
-    }
 
     const renderLicenseSettings = () => (
         <div className="space-y-6">
@@ -119,42 +127,47 @@ export default function SettingsPage() {
                     <div className="flex items-start justify-between">
                         <div>
                             <div className="flex items-center gap-2 mb-2">
-                                {(() => {
-                                    const StatusIcon = getLicenseStatus().icon
-                                    return <StatusIcon className="w-5 h-5" />
-                                })()}
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getLicenseStatus().color}`}>
-                                    {getLicenseStatus().text}
-                                </span>
+                                { licenseInfos?.expired?.isInfinity ?
+                                    <>
+                                        <Shield className="w-5 h-5" />
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium text-green-600 bg-green-100`}>
+                                            Active
+                                        </span>
+                                    </>: 
+                                    <>
+                                        <AlertTriangle className="w-5 h-5" />
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium text-red-600 bg-red-100`}>
+                                            Non active
+                                        </span>
+                                    </>
+                                }
                             </div>
-                            <h4 className="text-xl font-bold text-gray-900">{licenseInfo.plan}</h4>
-                            <p className="text-sm text-gray-600">Clé: {licenseInfo.key}</p>
+                            <h4 className="text-xl font-bold text-gray-900">
+                                {licenseInfos?.expired?.isInfinity ? 'Premium' : 'Trial'}
+                            </h4>
+                            <p className="text-sm text-gray-600">Clé: {licenseInfos?.key || 'XXXX-XXXX-XXXX-XXXX'}</p>
                         </div>
                         <div className="text-right">
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                                <Calendar className="w-4 h-4" />
-                                <span>Expire le: {licenseInfo.expiryDate}</span>
-                            </div>
+                            { licenseInfos?.expired?.isInfinity &&
+                                <div className="flex items-center gap-2 text-sm text-gray-600">
+                                    <Calendar className="w-4 h-4" />
+                                        <span>Expire le: {licenseInfos?.expired?.date}</span>
+                                </div>
+                            }
                             <p className="text-2xl font-bold text-gray-900 mt-1">
-                                {licenseInfo.daysRemaining} jours
+                                { licenseInfos?.expired?.isInfinity ? 'Illimitée' : `${getDaysRemaining(licenseInfos?.expired?.date)} jours`}
                             </p>
                         </div>
                     </div>
                     
-                    <div className="mt-4">
-                        {licenseInfo.status == 'expired' && (
+                    { !licenseInfos?.expired?.isInfinity && (
+                        <div className="mt-4">
                             <Bouton primary onClick={() => setOpenLicenseModal(true)}>
                                 <Key className="w-4 h-4" />
                                 Activer une nouvelle licence
                             </Bouton>
-                        )}
-                        {licenseInfo.daysRemaining <= 30 && licenseInfo.status !== 'expired' && (
-                            <Bouton outline onClick={() => setOpenLicenseModal(true)}>
-                                <Key className="w-4 h-4" />
-                                Renouveler la licence
-                            </Bouton>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
@@ -364,36 +377,49 @@ export default function SettingsPage() {
                 </div>
             </div>
 
+            
+
             {/* Modal pour activer la licence */}
             <Modal open={openLicenseModal} className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4">
-                <div className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
+                <form method='post' onSubmit={handleSubmitKey(handleKey)} className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
                     <h2 className="text-xl font-semibold mb-4">Activer une nouvelle licence</h2>
                     
                     <div className="space-y-4">
                         <InputLabel 
                             label="Code de licence"
                             placeholder="Entrez votre code de licence..."
-                            value={licenseForm.newLicenseKey}
-                            onChange={(e) => setLicenseForm({...licenseForm, newLicenseKey: e.target.value})}
+                            maxLength={19}
+                            {...registerKey("key", { 
+                                required: 'Le code de licence est requis',
+                                onChange: handleChange
+                            })}
+                            error={!!errorsKey.key} 
+                            helperText={errorsKey.key?.message}
                         />
                         <div className="p-3 bg-gray-50 rounded-lg">
                             <p className="text-sm text-gray-600">
-                                Le code de licence se trouve dans l'email de confirmation d'achat.
+                                Veuillez entrer votre code de licence.
+                                <br />
                                 Format attendu: XXXX-XXXX-XXXX-XXXX
                             </p>
                         </div>
                     </div>
                     
                     <div className="flex gap-2 mt-6">
-                        <Bouton outline className="flex-1" onClick={() => setOpenLicenseModal(false)}>
-                            Annuler
-                        </Bouton>
-                        <Bouton primary className="flex-1" onClick={handleActivateLicense}>
+                        <Bouton primary className="flex-1" type="submit">
                             <Key className="w-4 h-4" />
                             Activer
                         </Bouton>
+                        <Bouton outline className="flex-1" 
+                            onClick={() => {
+                                setOpenLicenseModal(false)
+                                resetKey()
+                            }} 
+                            type='cancel'>
+                            Annuler
+                        </Bouton>
                     </div>
-                </div>
+                </form>
             </Modal>
         </div>
     )

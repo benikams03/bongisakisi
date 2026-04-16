@@ -83,3 +83,26 @@ export function formatTimeOnly(dateString) {
     
     return `${hours} : ${minutes}`;
 }
+
+export function getDaysRemaining(targetDate) {
+    if (!targetDate) return null;
+    
+    const target = new Date(targetDate);
+    const today = new Date();
+    
+    // Vérifier si la date est valide
+    if (isNaN(target.getTime())) return null;
+    
+    // Remettre les heures à minuit pour comparer uniquement les jours
+    today.setHours(0, 0, 0, 0);
+    target.setHours(0, 0, 0, 0);
+    
+    // Calculer la différence en millisecondes
+    const diffMs = target - today;
+    
+    // Convertir en jours
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+}
+

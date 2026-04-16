@@ -5,6 +5,8 @@ import FeatureNotAvailableModal from '../modal/FeatureNotAvailableModal';
 import { aquisitionService } from '../../../services/admin/aquivistion_service';
 import { produitService } from '../../../services/admin/produit_service';
 import { isExpiringSoon } from '../../../hooks/format_date';
+import { ActivateKeyService } from './../../../services/activate-key';
+import ActivateKey from './../activate_key';
 
 const menuItems = [
     { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
@@ -25,6 +27,9 @@ export default function LayoutAdmin() {
     const [acquisitionCount, setAcquisitionCount] = useState(0)
     const [produitsCount, setProduitsCount] = useState(0)
 
+    const [openKey, setOpenKey] = useState(false)
+    const [isExpired, setExpired] = useState(false)
+
     useEffect(()=>{
         (async () => {
             const count = await aquisitionService.getCount()
@@ -33,6 +38,17 @@ export default function LayoutAdmin() {
             const expiredProducts = produitCount?.data?.filter(p => isExpiringSoon(p.date_expiration)).length || 0
             const stockLow = produitCount?.data?.filter(p => ((p.stock / p.last_stock) * 100) <= 45).length || 0
             setProduitsCount(expiredProducts + stockLow)
+
+            const activateKey = await ActivateKeyService.get()
+            if(!activateKey.data){
+                setOpenKey(true)
+            }
+            // check license
+            const isExpired = await ActivateKeyService.check()
+            if(isExpired){
+                setExpired(true)
+                setOpenKey(true)
+            }
         })()
     },[activeSection])
     
@@ -116,6 +132,13 @@ export default function LayoutAdmin() {
             isOpen={showFeatureModal}
             onClose={() => setShowFeatureModal(false)}
             featureName="les notifications"
+        />
+
+        {/* Modal pour activer la licence ou utiliser le mode essaie */}
+        <ActivateKey 
+            open={openKey}
+            setOpen={(value) => setOpenKey(value)}
+            isExpired={isExpired}
         />
     </div>)
 }
