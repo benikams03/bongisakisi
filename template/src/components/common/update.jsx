@@ -14,7 +14,7 @@ export default function Update({ after }) {
             const result = await updateService.check()
             if (result && result.offline) {
                 setState('offline')
-            } else if (result && result.version) {
+            } else if (result && result.version !== '1.2.0') {
                 setUpdateInfo(result)
                 setState('available')
             } else {
@@ -49,7 +49,10 @@ export default function Update({ after }) {
     const startDownload = async () => {
         setState('downloading')
         try {
-            await updateService.start_update()
+            const result = await updateService.start_update()
+            if (result && result.error) {
+                setState('error')
+            }
         } catch (error) {
             console.error('Error starting download:', error)
             setState('error')
@@ -100,9 +103,12 @@ export default function Update({ after }) {
                     <p className="text-gray-900 font-medium mb-2">
                         Version {updateInfo.version} disponible
                     </p>
-                    <p className="text-sm text-gray-600 mb-6">
-                        {updateInfo.releaseNotes || 'Nouvelles fonctionnalités et corrections de bugs'}
-                    </p>
+                    <p 
+                        className="text-sm text-gray-600 mb-6"
+                        dangerouslySetInnerHTML={{ 
+                            __html: updateInfo.releaseNotes || 'Nouvelles fonctionnalités et corrections de bugs' 
+                        }}
+                    />
                     
                     <div className="flex gap-3">
                         <Bouton outline

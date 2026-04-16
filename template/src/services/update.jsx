@@ -28,7 +28,12 @@ export const updateService = {
                 toast.error('Aucune connexion internet')
                 return { offline: true }
             }
-            return await window.localApi.invoke('start-update')
+            const result = await window.localApi.invoke('start-update')
+            if (result && !result.success) {
+                toast.error(result.error || 'Erreur lors du téléchargement')
+                return { error: true, message: result.error }
+            }
+            return result
         }
         catch (error) {
             if (error.message && error.message.includes('network')) {

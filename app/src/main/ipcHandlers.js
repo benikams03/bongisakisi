@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron'
+import Log from 'electron-log';
 import { settingsController } from './controllers/settingsController.js'
 import { familleController } from './controllers/familieController.js'
 import { produitController } from './controllers/produitController.js'
@@ -8,6 +9,14 @@ import { orderController } from './controllers/orderController.js'
 import { rapportController } from './controllers/rapportController.js'
 import updater from "electron-updater";
 const { autoUpdater } = updater;
+
+// Variable pour stocker la fenêtre principale
+let mainWindow = null;
+
+// Fonction pour définir la fenêtre principale
+export const setMainWindow = (window) => {
+    mainWindow = window;
+};
 
 // Test de base
 ipcMain.handle('test', () => 'BongisaKisi API fonctionne!')
@@ -57,23 +66,44 @@ ipcMain.handle('getStatAdmin', (_, choix) => rapportController.getStatAdmin(choi
 
 ipcMain.handle("check-update", async () => {
   const result = await autoUpdater.checkForUpdates()
-  return result?.updateInfo
+  Log.info('Update check result:', result)
+  return {
+    ...result?.updateInfo,
+    isUpdateAvailable: result?.updateInfo && result?.updateInfo.version ? true : false
+  }
 })
 
-ipcMain.handle("start-update", () => {
-  autoUpdater.downloadUpdate()
+ipcMain.handle("start-update", async () => {
+  try {
+    // Vérifier d'abord si une mise à jour est disponible
+    const checkResult = await autoUpdater.checkForUpdates()
+    if (!checkResult || !checkResult.updateInfo || !checkResult.updateInfo.version) {
+      return { success: false, error: "Aucune mise à jour disponible" }
+    }
+    
+    // Démarrer le téléchargement
+    await autoUpdater.downloadUpdate()
+    return { success: true }
+  } catch (error) {
+    Log.error('Error starting download:', error)
+    return { success: false, error: error.message }
+  }
 })
 
 // progression
 autoUpdater.on("download-progress", (progress) => {
-  win.webContents.send("update-progress", {
-    percent: progress.percent,
-    speed: progress.bytesPerSecond
-  })
+  if (mainWindow) {
+    mainWindow.webContents.send("update-progress", {
+      percent: progress.percent,
+      speed: progress.bytesPerSecond
+    })
+  }
 })
 
 autoUpdater.on("update-downloaded", () => {
-  win.webContents.send("update-downloaded")
+  if (mainWindow) {
+    mainWindow.webContents.send("update-downloaded")
+  }
 })
 
 ipcMain.handle("install-update", () => {

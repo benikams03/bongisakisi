@@ -5,6 +5,7 @@ import updater from "electron-updater";
 import log from "electron-log"
 
 import './ipcHandlers.js'
+import { setMainWindow } from './ipcHandlers.js'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,10 +13,15 @@ const __dirname = path.dirname(__filename);
 app.setName("bongisakisi")
 
 const { autoUpdater } = updater;
+// autoUpdater.requestHeaders = {
+//   Authorization: `token ${process.env.GH_TOKEN}`
+// };
+
 autoUpdater.logger = log
 autoUpdater.autoDownload = false
+autoUpdater.checkForUpdatesAndNotify();
 // autoUpdater.forceDevUpdateConfig = true;
-// autoUpdater.checkForUpdates();
+autoUpdater.checkForUpdates();
 
 function createWindow () {
     // Create splash screen
@@ -50,15 +56,18 @@ function createWindow () {
     })
 
     // Ouvrir DevTools en développement
-    if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
-        mainWindow.webContents.openDevTools()
-    }
+    // if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
+    //     mainWindow.webContents.openDevTools()
+    // }
 
     mainWindow.setMenu(null)
-    mainWindow.loadURL('http://localhost:5173')
-    // mainWindow.loadFile(path.join(__dirname, '..', '..', 'resources', 'dist', 'index.html'))
+    // mainWindow.loadURL('http://localhost:5173')
+    mainWindow.loadFile(path.join(__dirname, '..', '..', 'resources', 'dist', 'index.html'))
 
-    // Show main window after 3 seconds and close splash
+    // Définir la fenêtre principale pour les handlers IPC
+    setMainWindow(mainWindow)
+
+    // Show main window after 5 seconds and close splash
     setTimeout(() => {
         splash.close()
         mainWindow.maximize()
