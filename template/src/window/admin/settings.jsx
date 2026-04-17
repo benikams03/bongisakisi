@@ -7,6 +7,8 @@ import { parametreService } from '../../services/admin/parametre_service'
 import { useForm } from 'react-hook-form'
 import { ActivateKeyService } from '../../services/activate-key';
 import { getDaysRemaining } from '../../hooks/format_date'
+import axios from 'axios'
+import toast from 'react-hot-toast'
 
 export default function SettingsPage() {
     
@@ -67,9 +69,34 @@ export default function SettingsPage() {
     };
 
     const handleKey = async (data) => {
-        resetKey()
-        setLaodLicense(!laodLicense)
-        ///
+        try {
+            const getInfo = (await parametreService.getSettings()).data
+            const hostname = await window.localApi.invoke('getOsInfo')
+
+            const res = await axios.post("http://localhost:5050/api/v1/register", {
+                key: data.key,
+                name_pc: hostname.nom,
+                name_pharmacie: getInfo?.name,
+                email: getInfo?.email,
+                phone: getInfo?.phone,
+                localisation: getInfo?.address
+            })
+
+            if (res.data.success) {
+                await ActivateKeyService.set({
+                    key: data.key,
+                    isInfinity: true
+                })
+                resetKey()
+                setLaodLicense(!laodLicense)
+                setOpenLicenseModal(false)
+                toast.success("Licence activée avec succès")
+            } else{ 
+                toast.error(res.data.msg)
+            }
+        } catch(er) {
+            toast.error(er.message)
+        }
     }
 
     // ==============================================================
@@ -148,7 +175,7 @@ export default function SettingsPage() {
                             <p className="text-sm text-gray-600">Clé: {licenseInfos?.key || 'XXXX-XXXX-XXXX-XXXX'}</p>
                         </div>
                         <div className="text-right">
-                            { licenseInfos?.expired?.isInfinity &&
+                            { !licenseInfos?.expired?.isInfinity &&
                                 <div className="flex items-center gap-2 text-sm text-gray-600">
                                     <Calendar className="w-4 h-4" />
                                         <span>Expire le: {licenseInfos?.expired?.date}</span>

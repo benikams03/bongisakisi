@@ -31,12 +31,13 @@ export default function SelectProfil() {
                     const activateKey = await ActivateKeyService.get()
                     if(!activateKey.data){
                         setOpenKey(true)
-                    }
-                    // check license
-                    const isExpired = await ActivateKeyService.check()
-                    if(isExpired){
-                        setExpired(true)
-                        setOpenKey(true)
+                    }else{
+                        // check license
+                        const isExpired = await ActivateKeyService.check()
+                        if(isExpired){
+                            setExpired(true)
+                            setOpenKey(true)
+                        }
                     }
                 }
             }

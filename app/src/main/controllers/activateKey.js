@@ -25,6 +25,14 @@ class ActivateKeyController {
         }
     }
 
+    getOsInfo() {
+        return {
+            nom: this.os.hostname(),
+            system: this.os.platform(),
+            architecture: this.os.arch()
+        }
+    }
+
     set(data) {
         try{
             const dateExpired = new Date();

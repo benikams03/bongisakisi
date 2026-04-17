@@ -4,19 +4,46 @@ import { Bouton } from "../ui/bouton"
 import { Key } from "lucide-react"
 import { ActivateKeyService } from "../../services/activate-key"
 import { useForm } from "react-hook-form"
+import axios from "axios"
+import { parametreService } from "../../services/admin/parametre_service"
+import { toast } from "react-hot-toast"
+
 
 export default function ActivateKey({ open, setOpen, isExpired }){
     
     const { register, handleSubmit, formState: { errors }, setValue } = useForm();
     
-    const handle = async () => {
-        console.log('online');
-        // Activer la clé de licence
+    const handle = async (data) => {
+        try {
+            const getInfo = (await parametreService.getSettings()).data
+            const hostname = await window.localApi.invoke('getOsInfo')
+
+            const res = await axios.post("http://localhost:5050/api/v1/register", {
+                key: data.key,
+                name_pc: hostname.nom,
+                name_pharmacie: getInfo?.name,
+                email: getInfo?.email,
+                phone: getInfo?.phone,
+                localisation: getInfo?.address
+            })
+
+            if (res.data.success) {
+                await ActivateKeyService.set({
+                    key: data.key,
+                    isInfinity: true
+                })
+                setOpen(false)
+                toast.success("Licence activée avec succès")
+            } else{ 
+                toast.error(res.data.msg)
+            }
+        } catch(er) {
+            toast.error(er.message)
+        }
     }
 
     const handleFree = async () => {
         await ActivateKeyService.set({
-            activated: true,
             isInfinity: false
         })
         setOpen(false)

@@ -67,6 +67,7 @@ ipcMain.handle('getStatAdmin', (_, choix) => rapportController.getStatAdmin(choi
 ipcMain.handle('getActivate', () => activateKeyController.get())
 ipcMain.handle('createActive', (_, data) => activateKeyController.set(data))
 ipcMain.handle('updateActive', (_, data) => activateKeyController.update(data))
+ipcMain.handle('getOsInfo', () => activateKeyController.getOsInfo())
 
 
 ipcMain.handle("check-update", async () => {
