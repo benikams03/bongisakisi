@@ -7,18 +7,21 @@ import { useForm } from "react-hook-form"
 import axios from "axios"
 import { parametreService } from "../../services/admin/parametre_service"
 import { toast } from "react-hot-toast"
+import { useState } from "react"
 
 
 export default function ActivateKey({ open, setOpen, isExpired }){
     
     const { register, handleSubmit, formState: { errors }, setValue } = useForm();
     
+    const [laodkey, setLaodkey] = useState(false)
     const handle = async (data) => {
+        setLaodkey(true)
         try {
             const getInfo = (await parametreService.getSettings()).data
             const hostname = await window.localApi.invoke('getOsInfo')
 
-            const res = await axios.post("http://localhost:5050/api/v1/register", {
+            const res = await axios.post("https://bongisakisi-admin-web.onrender.com/api/v1/register", {
                 key: data.key,
                 name_pc: hostname.nom,
                 name_pharmacie: getInfo?.name,
@@ -39,6 +42,8 @@ export default function ActivateKey({ open, setOpen, isExpired }){
             }
         } catch(er) {
             toast.error(er.message)
+        } finally{
+            setLaodkey(false)
         }
     }
 
@@ -94,7 +99,7 @@ export default function ActivateKey({ open, setOpen, isExpired }){
             
             { !isExpired &&
             <div className="flex gap-2 mt-6">
-                <Bouton primary className="flex-1" type="submit">
+                <Bouton load={laodkey} primary className="flex-1" type="submit">
                     <Key className="w-4 h-4" />
                     Activer
                 </Bouton>
@@ -106,7 +111,7 @@ export default function ActivateKey({ open, setOpen, isExpired }){
             
             { isExpired &&
             <div className="flex gap-1 mt-6">
-                <Bouton primary className="flex-1" type="submit">
+                <Bouton load={laodkey} primary className="flex-1" type="submit">
                     <Key className="w-4 h-4" />
                     Activer
                 </Bouton>

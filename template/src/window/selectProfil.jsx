@@ -189,9 +189,9 @@ export default function SelectProfil() {
                 <div className="mt-12 text-center text-sm text-gray-500">
                     <div className="flex items-center justify-center gap-2 mb-2">
                         <Package className="w-4 h-4 text-gray-400" />
-                        <span>Version 1.2.0</span>
+                        <span>Version 1.3.0</span>
                         <span className="text-gray-400">•</span>
-                        <span>Build 16.04.2026</span>
+                        <span>Build 17.04.2026</span>
                     </div>
                     <p>&copy; 2026 BongisaKisi - Solution de gestion pharmacetique</p>
                     <div className="mt-4 flex justify-center">

@@ -14,7 +14,7 @@ export default function Update({ after }) {
             const result = await updateService.check()
             if (result && result.offline) {
                 setState('offline')
-            } else if (result && result.version !== '1.2.0') {
+            } else if (result && result.version !== '1.3.0') {
                 setUpdateInfo(result)
                 setState('available')
             } else {

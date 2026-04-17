@@ -68,12 +68,14 @@ export default function SettingsPage() {
         setValueKey("key",formatted);
     };
 
+    const [laodkey, setLaodkey] = useState(false)
     const handleKey = async (data) => {
+        setLaodkey(true)
         try {
             const getInfo = (await parametreService.getSettings()).data
             const hostname = await window.localApi.invoke('getOsInfo')
 
-            const res = await axios.post("http://localhost:5050/api/v1/register", {
+            const res = await axios.post("https://bongisakisi-admin-web.onrender.com/api/v1/register", {
                 key: data.key,
                 name_pc: hostname.nom,
                 name_pharmacie: getInfo?.name,
@@ -96,6 +98,9 @@ export default function SettingsPage() {
             }
         } catch(er) {
             toast.error(er.message)
+        }
+        finally{
+            setLaodkey(false)
         }
     }
 
@@ -433,7 +438,8 @@ export default function SettingsPage() {
                     </div>
                     
                     <div className="flex gap-2 mt-6">
-                        <Bouton primary className="flex-1" type="submit">
+                        <Bouton load={laodkey}
+                            primary className="flex-1" type="submit">
                             <Key className="w-4 h-4" />
                             Activer
                         </Bouton>
