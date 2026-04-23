@@ -44,7 +44,7 @@ export default function Rapport() {
                 <div key={index} className="bg-white border border-gray-200 rounded-lg p-6">
                     <p className="text-sm text-gray-600 mb-2">{stat.label}</p>
                     <p className="text-2xl font-bold text-gray-900 mb-2">{stat.value}</p>
-                    <span className={`text-sm font-medium ${stat.positive ? 'text-emerald-600' : 'text-red-600'}`}>
+                    <span className={`text-xs font-medium rounded-lg py-0.5 px-2 ${stat.positive ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'}`}>
                         {stat.change}
                     </span>
                 </div>

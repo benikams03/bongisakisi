@@ -18,6 +18,8 @@ import Rapports from '../window/admin/rapports'
 import Settings from '../window/admin/settings'
 import Approvisionnement from '../window/admin/approvisionnement'
 import Ravitaillement from '../window/admin/ravitaillement'
+import Export from '../window/admin/export'
+import ExportView from '../window/admin/export-view'
 
 export const route = createHashRouter([
     {
@@ -73,6 +75,14 @@ export const route = createHashRouter([
             {
                 path: 'rapports',
                 element: <Rapports />
+            },
+            {
+                path: 'export',
+                element: <Export />
+            },
+            {
+                path: 'export-view',
+                element: <ExportView />
             },
             {
                 path: 'settings',

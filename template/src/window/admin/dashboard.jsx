@@ -98,8 +98,8 @@ export default function Dashboard() {
                                 <div className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-lg flex items-center justify-center`}>
                                     <Icon className="w-6 h-6 text-white" />
                                 </div>
-                                <div className={`flex items-center gap-1 text-sm font-medium ${
-                                    stat.positive ? 'text-emerald-600' : 'text-red-600'
+                                <div className={`flex items-center gap-1 text-xs font-medium rounded-lg py-0.5 px-1 ${
+                                    stat.positive ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'
                                 }`}>
                                     {stat.positive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                                     {stat.change}

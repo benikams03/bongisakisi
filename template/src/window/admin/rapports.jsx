@@ -54,8 +54,8 @@ export default function Rapports() {
                         <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                             <DollarSign className="w-6 h-6 text-white" />
                         </div>
-                        <div className={`flex items-center gap-1 text-sm font-medium ${
-                            number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) >= 0 ? 'text-emerald-600' : 'text-red-600'
+                        <div className={`flex items-center gap-1 text-xs font-medium rounded-lg py-0.5 px-1 ${
+                            number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) >= 0 ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'
                         }`}>
                             {number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                             {number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay)}
@@ -70,8 +70,8 @@ export default function Rapports() {
                         <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
                             <ShoppingCart className="w-6 h-6 text-white" />
                         </div>
-                        <div className={`flex items-center gap-1 text-sm font-medium ${
-                            number.pourcentage(Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay) , Number(rapport?.stats_old?.ventesDay) - Number(rapport?.stats_old?.gainDay)) >= 0 ? 'text-emerald-600' : 'text-red-600'
+                        <div className={`flex items-center gap-1 text-xs rounded-lg py-0.5 px-1 font-medium ${
+                            number.pourcentage(Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay) , Number(rapport?.stats_old?.ventesDay) - Number(rapport?.stats_old?.gainDay)) >= 0 ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'
                         }`}>
                             {number.pourcentage(Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay) , Number(rapport?.stats_old?.ventesDay) - Number(rapport?.stats_old?.gainDay)) >= 0
                                 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
@@ -87,8 +87,8 @@ export default function Rapports() {
                         <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
                             <TrendingUp className="w-6 h-6 text-white" />
                         </div>
-                        <div className={`flex items-center gap-1 text-sm font-medium ${
-                            number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay) >= 0 ? 'text-emerald-600' : 'text-red-600'
+                        <div className={`flex items-center gap-1 text-xs rounded-lg py-0.5 px-1 font-medium ${
+                            number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay) >= 0 ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'
                         }`}>
                             {number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay) >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                             {number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay)}
