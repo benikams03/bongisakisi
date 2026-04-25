@@ -10,6 +10,10 @@ import { rapportController } from './controllers/rapportController.js'
 import { activateKeyController } from './controllers/activateKey.js';
 import updater from "electron-updater";
 const { autoUpdater } = updater;
+import { dialog } from 'electron';
+import Store from 'electron-store';
+
+const store = new Store();
 
 // Variable pour stocker la fenêtre principale
 let mainWindow = null;
@@ -115,3 +119,52 @@ autoUpdater.on("update-downloaded", () => {
 ipcMain.handle("install-update", () => {
     autoUpdater.quitAndInstall()
 })
+
+// Handler pour ouvrir le dialogue de sélection de dossier
+ipcMain.handle('open-folder-dialog', async () => {
+    try {
+        if (!mainWindow) {
+            throw new Error('Fenêtre principale non trouvée')
+        }
+
+        const result = await dialog.showOpenDialog(mainWindow, {
+            properties: ['openDirectory'],
+            title: 'Sélectionner un dossier pour les exports PDF',
+            buttonLabel: 'Sélectionner ce dossier'
+        })
+
+        return result
+    } catch (error) {
+        Log.error('Erreur lors de l\'ouverture du dialogue de dossier:', error)
+        throw error
+    }
+})
+
+// Handlers pour les paramètres d'exportation PDF
+ipcMain.handle('get-pdf-export-settings', () => {
+    try {
+        const settings = store.get('pdfExportSettings', {
+            pdfExportPath: 'C:\\Users\\benik\\Documents\\01_PROJETS\\PERSO\\05_BongisaKisi\\bongisakisi\\app',
+            pdfAutoOpen: true,
+            pdfIncludeCharts: true,
+            pdfIncludeDetails: true,
+            pdfFormat: 'A4',
+            pdfOrientation: 'portrait'
+        });
+        return settings;
+    } catch (error) {
+        Log.error('Erreur lors de la récupération des paramètres PDF:', error);
+        throw error;
+    }
+});
+
+ipcMain.handle('save-pdf-export-settings', (_, settings) => {
+    try {
+        store.set('pdfExportSettings', settings);
+        Log.info('Paramètres d\'exportation PDF sauvegardés:', settings);
+        return { success: true };
+    } catch (error) {
+        Log.error('Erreur lors de la sauvegarde des paramètres PDF:', error);
+        throw error;
+    }
+});

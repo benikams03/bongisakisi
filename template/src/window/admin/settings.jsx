@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Settings, Save, Bell, Database, Download, Shield, AlertTriangle, Calendar, Key } from 'lucide-react'
+import { Settings, Save, Bell, Database, Download, Shield, AlertTriangle, Calendar, Key, FileText } from 'lucide-react'
 import { Bouton } from '../../components/ui/bouton'
 import { InputLabel } from '../../components/ui/input'
 import Modal from "@mui/material/Modal"
@@ -10,10 +10,106 @@ import { getDaysRemaining } from '../../hooks/format_date'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 
+// Importer l'API Electron pour le dialogue de sélection de dossier
+let electronAPI = null;
+
+try {
+    // Utiliser le contextBridge exposé par le preload script
+    electronAPI = window.localApi;
+} catch (error) {
+    console.error('Electron API non disponible:', error);
+    // Fallback pour le développement web
+}
+
+
+
+    
 export default function SettingsPage() {
     
     // GESTION INFORMATION GENERAL
     const [load, setLoad] = useState(false)
+    
+    // État pour les paramètres
+    const [formData, setFormData] = useState({
+        // Paramètres généraux
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        nomPharmacie: 'Pharma Plus',
+        telephone: '+243 812 345 678',
+        
+        // Notifications
+        lowStockAlerts: true,
+        salesReports: false,
+        lowStockThreshold: 10,
+        emailNotifications: true,
+        stockAlerts: true,
+        
+        // Sécurité
+        sessionTimeout: 30,
+        passwordMinLength: 8,
+        twoFactorAuth: false,
+        
+        // Apparence
+        theme: 'light',
+        primaryColor: '#10b981',
+        
+        // Exportation PDF
+        pdfExportPath: 'C:\\Users\\benik\\Documents\\01_PROJETS\\PERSO\\05_BongisaKisi\\bongisakisi\\app',
+        pdfAutoOpen: true,
+        pdfIncludeCharts: true,
+        pdfIncludeDetails: true,
+        pdfFormat: 'A4',
+        pdfOrientation: 'portrait'
+    })
+    
+    // Charger les paramètres PDF depuis electron-store au démarrage
+    useEffect(() => {
+        const loadPdfSettings = async () => {
+            try {
+                if (electronAPI) {
+                    const settings = await electronAPI.invoke('get-pdf-export-settings');
+                    setFormData(prevData => ({
+                        ...prevData,
+                        ...settings
+                    }));
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des paramètres PDF:', error);
+            }
+        };
+        
+        loadPdfSettings();
+    }, []);
+
+    // Sauvegarder automatiquement les paramètres PDF lorsqu'ils changent
+    useEffect(() => {
+        const saveAllPdfSettings = async () => {
+            const pdfSettings = {
+                pdfExportPath: formData.pdfExportPath,
+                pdfAutoOpen: formData.pdfAutoOpen,
+                pdfIncludeCharts: formData.pdfIncludeCharts,
+                pdfIncludeDetails: formData.pdfIncludeDetails,
+                pdfFormat: formData.pdfFormat,
+                pdfOrientation: formData.pdfOrientation
+            };
+            
+            await savePdfSettings(pdfSettings);
+        };
+        
+        // Délai pour éviter les sauvegardes multiples
+        const timeoutId = setTimeout(saveAllPdfSettings, 1000);
+        
+        return () => clearTimeout(timeoutId);
+    }, [
+        formData.pdfExportPath,
+        formData.pdfAutoOpen,
+        formData.pdfIncludeCharts,
+        formData.pdfIncludeDetails,
+        formData.pdfFormat,
+        formData.pdfOrientation
+    ]);
 
     const {
         register: registerUpdate,
@@ -109,36 +205,11 @@ export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState('general')
     const [openLicenseModal, setOpenLicenseModal] = useState(false)
 
-
-    const [formData, setFormData] = useState({
-        // Paramètres généraux
-        nomPharmacie: 'Pharma Plus',
-        adresse: '123 Avenue des Pharmaciens, Kinshasa',
-        telephone: '+243 123 456 789',
-        email: 'contact@pharmaplus.com',
-        devise: 'FC',
-        langue: 'fr',
-        
-        // Notifications
-        emailNotifications: true,
-        stockAlerts: true,
-        salesReports: false,
-        lowStockThreshold: 10,
-        
-        // Sécurité
-        sessionTimeout: 30,
-        passwordMinLength: 8,
-        twoFactorAuth: false,
-        
-        // Apparence
-        theme: 'light',
-        primaryColor: '#10b981'
-    })
-
     const tabs = [
         { id: 'general', label: 'Général', icon: Settings },
         // { id: 'notifications', label: 'Notifications', icon: Bell },
         { id: 'license', label: 'Licence', icon: Shield },
+        { id: 'export', label: 'Export PDF', icon: FileText },
         // { id: 'backup', label: 'Sauvegarde', icon: Database },
     ]
 
@@ -148,6 +219,53 @@ export default function SettingsPage() {
         // Logique de sauvegarde
         alert('Sauvegarde créée avec succès!')
     }
+
+
+    // =============================================================================
+    const savePdfSettings = async (settings) => {
+        try {
+            if (electronAPI) {
+                await electronAPI.invoke('save-pdf-export-settings', settings);
+                console.log('Paramètres PDF sauvegardés:', settings);
+            }
+        } catch (error) {
+            console.error('Erreur lors de la sauvegarde des paramètres PDF:', error);
+            toast.error('Erreur lors de la sauvegarde des paramètres');
+        }
+    };
+
+    const handleBrowseFolder = async () => {
+        try {
+            // Vérifier si l'API Electron est disponible
+            if (!electronAPI) {
+                toast.error('Fonctionnalité non disponible dans le navigateur web')
+                return
+            }
+            
+            // Utiliser l'API Electron pour ouvrir le dialogue de sélection de dossier
+            const result = await electronAPI.invoke('open-folder-dialog')
+            
+            if (result && !result.canceled) {
+                // Mettre à jour le chemin sélectionné
+                const newSettings = {
+                    ...formData,
+                    pdfExportPath: result.filePaths[0]
+                };
+                
+                setFormData(newSettings);
+                
+                // Sauvegarder automatiquement dans electron-store
+                await savePdfSettings(newSettings);
+                
+                // Afficher un message de confirmation
+                toast.success('Dossier sélectionné et sauvegardé avec succès')
+            }
+        } catch (error) {
+            console.error('Erreur lors de la sélection du dossier:', error)
+            toast.error('Erreur lors de la sélection du dossier')
+        }
+    }
+    // =============================================================================
 
 
 
@@ -357,11 +475,143 @@ export default function SettingsPage() {
         </div>
     )
 
+    const renderExportSettings = () => (
+        <div className="space-y-6">
+            <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Paramètres d'exportation PDF</h3>
+                <div className="space-y-6">
+                    {/* Emplacement d'exportation */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Emplacement d'exportation des fichiers PDF
+                        </label>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={formData.pdfExportPath}
+                                onChange={(e) => setFormData({...formData, pdfExportPath: e.target.value})}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
+                                placeholder="Ex: C:\Users\benik\Documents\Exports"
+                            />
+                            <Bouton outline onClick={handleBrowseFolder}>
+                                Parcourir
+                            </Bouton>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                            Dossier où les fichiers PDF générés seront enregistrés
+                        </p>
+                    </div>
+
+                    {/* Options d'exportation */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="font-medium text-gray-900">Ouvrir automatiquement</p>
+                                    <p className="text-sm text-gray-600">Ouvrir le PDF après génération</p>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.pdfAutoOpen}
+                                        onChange={(e) => setFormData({...formData, pdfAutoOpen: e.target.checked})}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-600"></div>
+                                </label>
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="font-medium text-gray-900">Inclure les graphiques</p>
+                                    <p className="text-sm text-gray-600">Ajouter les graphiques dans le PDF</p>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.pdfIncludeCharts}
+                                        onChange={(e) => setFormData({...formData, pdfIncludeCharts: e.target.checked})}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-600"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="font-medium text-gray-900">Inclure les détails</p>
+                                    <p className="text-sm text-gray-600">Ajouter les tableaux détaillés</p>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.pdfIncludeDetails}
+                                        onChange={(e) => setFormData({...formData, pdfIncludeDetails: e.target.checked})}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-600"></div>
+                                </label>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Format de page
+                                </label>
+                                <select
+                                    value={formData.pdfFormat}
+                                    onChange={(e) => setFormData({...formData, pdfFormat: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
+                                >
+                                    <option value="A4">A4</option>
+                                    <option value="A3">A3</option>
+                                    <option value="Letter">Letter</option>
+                                    <option value="Legal">Legal</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Orientation
+                                </label>
+                                <select
+                                    value={formData.pdfOrientation}
+                                    onChange={(e) => setFormData({...formData, pdfOrientation: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
+                                >
+                                    <option value="portrait">Portrait</option>
+                                    <option value="landscape">Paysage</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Bouton de test */}
+                    <div className="pt-4 border-t border-gray-200">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm text-gray-600">
+                                    Testez vos paramètres en générant un exemple de PDF
+                                </p>
+                            </div>
+                            <Bouton primary>
+                                <FileText className="w-4 h-4" />
+                                Générer un PDF test
+                            </Bouton>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+
     const renderTabContent = () => {
         switch(activeTab) {
             case 'general': return renderGeneralSettings()
             case 'notifications': return renderNotificationSettings()
             case 'license': return renderLicenseSettings()
+            case 'export': return renderExportSettings()
             case 'backup': return renderBackupSettings()
             default: return renderGeneralSettings()
         }
