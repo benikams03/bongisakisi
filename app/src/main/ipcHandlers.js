@@ -1,5 +1,8 @@
 import { ipcMain } from 'electron'
 import Log from 'electron-log';
+import updater from "electron-updater";
+import { dialog } from 'electron';
+import Store from 'electron-store';
 import { settingsController } from './controllers/settingsController.js'
 import { familleController } from './controllers/familieController.js'
 import { produitController } from './controllers/produitController.js'
@@ -8,16 +11,13 @@ import { acquisitionController } from './controllers/acquisitionController.js'
 import { orderController } from './controllers/orderController.js'
 import { rapportController } from './controllers/rapportController.js'
 import { activateKeyController } from './controllers/activateKey.js';
-import updater from "electron-updater";
-const { autoUpdater } = updater;
-import { dialog } from 'electron';
-import Store from 'electron-store';
+import { exportController } from './controllers/export.js';
 
+const { autoUpdater } = updater;
 const store = new Store();
 
 // Variable pour stocker la fenêtre principale
 let mainWindow = null;
-
 // Fonction pour définir la fenêtre principale
 export const setMainWindow = (window) => {
     mainWindow = window;
@@ -74,6 +74,14 @@ ipcMain.handle('updateActive', (_, data) => activateKeyController.update(data))
 ipcMain.handle('getOsInfo', () => activateKeyController.getOsInfo())
 
 
+// EXPORTS
+ipcMain.handle('getExport', (_, type, date) => exportController.get(type, date))
+ipcMain.handle('getExportBy', (_, type, date) => exportController.getBy(type, date))
+
+
+
+// ===============================================================================
+// MISE A JOURS VIA GITHUB
 ipcMain.handle("check-update", async () => {
     const result = await autoUpdater.checkForUpdates()
     Log.info('Update check result:', result)
@@ -119,6 +127,7 @@ autoUpdater.on("update-downloaded", () => {
 ipcMain.handle("install-update", () => {
     autoUpdater.quitAndInstall()
 })
+// ===============================================================================
 
 // Handler pour ouvrir le dialogue de sélection de dossier
 ipcMain.handle('open-folder-dialog', async () => {
@@ -139,6 +148,13 @@ ipcMain.handle('open-folder-dialog', async () => {
         throw error
     }
 })
+
+// ===============================================================================
+
+
+
+
+
 
 // Handlers pour les paramètres d'exportation PDF
 ipcMain.handle('get-pdf-export-settings', () => {

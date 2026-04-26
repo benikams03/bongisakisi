@@ -81,7 +81,7 @@ export const route = createHashRouter([
                 element: <Export />
             },
             {
-                path: 'export-view',
+                path: 'export-view/:type/:date',
                 element: <ExportView />
             },
             {

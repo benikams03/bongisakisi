@@ -1,86 +1,54 @@
-import { useState } from 'react'
-import { Calendar, Download, Eye, TrendingUp, DollarSign, Package, ShoppingCart, ArrowRight, ClipboardList, RefreshCw } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Calendar, Download, Eye, TrendingUp, DollarSign, Package, ShoppingCart, ClipboardList, RefreshCw } from 'lucide-react'
 import { Bouton } from '../../components/ui/bouton'
 import { InputLabel } from '../../components/ui/input'
 import { Link } from 'react-router-dom'
+import { exportService } from '../../services/admin/export_service'
+import { number } from "./../../hooks/number"
+import { useForm } from 'react-hook-form'
 
 export default function ExportPage() {
+    const now = new Date()
     const [filterType, setFilterType] = useState('journalier')
-    const [selectedMonth, setSelectedMonth] = useState('')
-    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
 
-    // Données fictives pour le rendu
-    const exportData = [
-        {
-            id: 1,
-            date: '2026-04-22',
-            type: 'journalier',
-            status: 'ready',
-            totalVentes: 125000,
-            benefice: 45000,
-            capital: 80000,
-            produitsVendus: 89,
-            nombreCommandes: 23,
-            depenses: 35000
-        },
-        {
-            id: 2,
-            date: '2026-04-21',
-            type: 'journalier',
-            status: 'ready',
-            totalVentes: 98000,
-            benefice: 32000,
-            capital: 66000,
-            produitsVendus: 67,
-            nombreCommandes: 18,
-            depenses: 28000
-        },
-        {
-            id: 3,
-            date: '2026-04',
-            type: 'mensuel',
-            status: 'in_progress',
-            totalVentes: 2850000,
-            benefice: 950000,
-            capital: 1900000,
-            produitsVendus: 1245,
-            nombreCommandes: 312,
-            depenses: 850000
-        },
-        {
-            id: 4,
-            date: '2026-03',
-            type: 'mensuel',
-            status: 'ready',
-            totalVentes: 2650000,
-            benefice: 880000,
-            capital: 1770000,
-            produitsVendus: 1102,
-            nombreCommandes: 289,
-            depenses: 790000
-        },
-        {
-            id: 5,
-            date: '2025',
-            type: 'annuel',
-            status: 'ready',
-            totalVentes: 32500000,
-            benefice: 10800000,
-            capital: 21700000,
-            produitsVendus: 8956,
-            nombreCommandes: 2245,
-            depenses: 9650000
+    const [exportDatas, setExportDatas] = useState([])
+    const [load, setLoad] = useState(true)
+
+    const {
+        register: registerDay,
+        watch: watchDay
+    } = useForm()
+
+    const {
+        register: registerMonth,
+        watch: watchMonth,
+    } = useForm()
+
+    useEffect(()=>{
+        (async()=>{
+            setExportDatas(await exportService.get( filterType, 
+                filterType === 'mensuel' ? watchMonth('mensuel') : 
+                    filterType === 'journalier' ? watchDay('journalier') : 'all'))
+        })()
+    },[filterType, load])    
+
+    const getStatusBadge = (date) => {
+        let status
+        if(filterType === 'mensuel') {
+            status = date === `${now.getFullYear()}-${now.getMonth() + 1}` ? 'ready' : 'pending'
+        } else if(filterType === 'journalier') {
+            status = date === now.toISOString().slice(0, 10) ? 'pending' : 'ready'
+        } else if(filterType === 'annuel') {
+            status = date === now.getFullYear() ? 'ready' : 'pending'
         }
-    ]
-
-    const getStatusBadge = (status) => {
+        
         if (status === 'ready') {
             return (
                 <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     Prêt
                 </span>
             )
-        } else if (status === 'in_progress') {
+        } else if (status === 'pending') {
             return (
                 <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 flex items-center gap-1">
                     <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
@@ -90,30 +58,6 @@ export default function ExportPage() {
         }
         return null
     }
-
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('fr-FR', {
-            style: 'currency',
-            currency: 'CDF'
-        }).format(amount)
-    }
-
-    const handleRefresh = () => {
-        // Simuler le rafraîchissement des données
-        console.log('Actualisation des données pour:', { filterType, selectedMonth, selectedYear })
-        // Ici vous pourriez ajouter un appel API pour recharger les données
-    }
-
-    const filteredData = exportData.filter(item => {
-        if (filterType === 'journalier') {
-            return item.type === 'journalier'
-        } else if (filterType === 'mensuel') {
-            return item.type === 'mensuel'
-        } else if (filterType === 'annuel') {
-            return item.type === 'annuel'
-        }
-        return true
-    })
 
     return (
         <div className="p-2.5 h-full overflow-auto">
@@ -165,13 +109,14 @@ export default function ExportPage() {
                                 <InputLabel
                                     label="Mois & Année"
                                     type="month"
-                                    value={selectedMonth}
-                                    onChange={(e) => setSelectedMonth(e.target.value)}
+                                    {...registerDay('journalier',
+                                        { value: now.toISOString().slice(0, 7) }
+                                    )}
                                 />
                                 <Bouton 
                                     outline 
                                     className="flex items-center gap-2 w-full"
-                                    onClick={handleRefresh}
+                                    onClick={()=> setLoad(!load)}
                                 >
                                     <RefreshCw className="w-4 h-4" />
                                     Actualiser
@@ -183,14 +128,15 @@ export default function ExportPage() {
                                 <InputLabel
                                     label="Année"
                                     type="number"
-                                    value={selectedYear}
-                                    onChange={(e) => setSelectedYear(e.target.value)}
                                     min="2026"
+                                    {...registerMonth('mensuel', 
+                                        { value: now.getFullYear() }
+                                    )}
                                 />
                                 <Bouton 
                                     outline 
                                     className="flex items-center gap-2 w-full"
-                                    onClick={handleRefresh}
+                                    onClick={()=> setLoad(!load)}
                                 >
                                     <RefreshCw className="w-4 h-4" />
                                     Actualiser
@@ -207,17 +153,17 @@ export default function ExportPage() {
                     <h3 className="text-lg font-semibold text-gray-900">Rapports disponibles</h3>
                 </div>
                 <div className="divide-y divide-gray-200">
-                    {filteredData.map((item) => (
-                        <div key={item.id} className="p-6">
+                    {exportDatas?.map((item, index) => (
+                        <div key={index} className="p-6">
                             <div className="flex justify-between items-start">
                                 <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-2">
                                         <h4 className="font-medium text-gray-900">
-                                            {item.type === 'journalier' && `Rapport du ${item.date}`}
-                                            {item.type === 'mensuel' && `Rapport de ${item.date}`}
-                                            {item.type === 'annuel' && `Rapport de l'année ${item.date}`}
+                                            {filterType === 'journalier' && `Rapport du ${item.periode}`}
+                                            {filterType === 'mensuel' && `Rapport de ${item.periode}`}
+                                            {filterType === 'annuel' && `Rapport de l'année ${item.periode}`}
                                         </h4>
-                                        {getStatusBadge(item.status)}
+                                        {getStatusBadge(item.periode)}
                                     </div>
                                     
                                     {/* Statistiques */}
@@ -228,8 +174,8 @@ export default function ExportPage() {
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <p className="text-xs text-gray-500 truncate">Ventes</p>
-                                                <p className="font-semibold text-gray-900 text-sm truncate" title={formatCurrency(item.totalVentes)}>
-                                                    {formatCurrency(item.totalVentes)}
+                                                <p className="font-semibold text-gray-900 text-sm truncate">
+                                                    {number.format(item.total_ventes)} FC
                                                 </p>
                                             </div>
                                         </div>
@@ -239,8 +185,8 @@ export default function ExportPage() {
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <p className="text-xs text-gray-500 truncate">Bénéfice</p>
-                                                <p className="font-semibold text-gray-900 text-sm truncate" title={formatCurrency(item.benefice)}>
-                                                    {formatCurrency(item.benefice)}
+                                                <p className="font-semibold text-gray-900 text-sm truncate" >
+                                                    {number.format(item.total_benefice)} FC
                                                 </p>
                                             </div>
                                         </div>
@@ -250,8 +196,8 @@ export default function ExportPage() {
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <p className="text-xs text-gray-500 truncate">Capital</p>
-                                                <p className="font-semibold text-gray-900 text-sm truncate" title={formatCurrency(item.capital)}>
-                                                    {formatCurrency(item.capital)}
+                                                <p className="font-semibold text-gray-900 text-sm truncate">
+                                                    {number.format(item.capital)} FC
                                                 </p>
                                             </div>
                                         </div>
@@ -261,8 +207,8 @@ export default function ExportPage() {
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <p className="text-xs text-gray-500 truncate">Produits vendus</p>
-                                                <p className="font-semibold text-gray-900 text-sm truncate" title={item.produitsVendus.toString()}>
-                                                    {item.produitsVendus}
+                                                <p className="font-semibold text-gray-900 text-sm truncate">
+                                                    {item.total_quantite}
                                                 </p>
                                             </div>
                                         </div>
@@ -271,9 +217,9 @@ export default function ExportPage() {
                                                 <ClipboardList className="w-4 h-4 text-blue-600" />
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <p className="text-xs text-gray-500 truncate">Nb commandes</p>
-                                                <p className="font-semibold text-gray-900 text-sm truncate" title={item.nombreCommandes.toString()}>
-                                                    {item.nombreCommandes}
+                                                <p className="text-xs text-gray-500 truncate">Commandes</p>
+                                                <p className="font-semibold text-gray-900 text-sm truncate">
+                                                    {item.nombre_commandes}
                                                 </p>
                                             </div>
                                         </div>
@@ -282,23 +228,19 @@ export default function ExportPage() {
 
                                 {/* Actions */}
                                 <div className="flex flex-col gap-2">
-                                    {filterType === 'journalier' && (
-                                        <Link to={`/admin/export-view`}>
-                                            <Bouton
-                                                outline
-                                                size="sm"
-                                                disabled={item.status === 'in_progress'}
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                                Visualiser
-                                            </Bouton>
-                                        </Link>
-                                    )}
+                                    <Link to={`/admin/export-view/${filterType}/${item.periode}`}>
+                                        <Bouton
+                                            outline
+                                            size="sm"
+                                        >
+                                            <Eye className="w-4 h-4" />
+                                            Visualiser
+                                        </Bouton>
+                                    </Link>
                                     <Bouton
                                         primary
                                         size="sm"
                                         className="px-4"
-                                        disabled={item.status === 'in_progress'}
                                     >
                                         <Download className="w-4 h-4" />
                                         PDF
