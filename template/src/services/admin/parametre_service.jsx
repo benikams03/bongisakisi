@@ -26,4 +26,39 @@ export const parametreService = {
         }
     },
 
+    openFolderDialog: async () => {
+        try{
+            const res = await window.localApi.invoke('open-folder-dialog')
+            if (res && !res.canceled) {
+                return res.filePaths[0]
+            }
+            return null
+        }
+        catch {
+            toast.error('Erreur lors de l\'ouverture du dialogue de sélection de dossier')
+            return null
+        }
+    },
+
+    savePdfSettings: async (settings) => {
+        try {
+            await window.localApi.invoke('save-pdf-export-settings', settings);
+            toast.success('Paramètres PDF sauvegardés avec succès');
+        } catch (error) {
+            console.error('Erreur lors de la sauvegarde des paramètres PDF:', error);
+            toast.error('Erreur lors de la sauvegarde des paramètres');
+        }
+    },
+
+    getPdfSettings: async () => {
+        try {
+            const settings = await window.localApi.invoke('get-pdf-export-settings');
+            return settings;
+        } catch (error) {
+            console.error('Erreur lors de la récupération des paramètres PDF:', error);
+            toast.error('Erreur lors de la récupération des paramètres');
+            return null;
+        }
+    }
+
 }
