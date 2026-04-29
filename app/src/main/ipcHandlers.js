@@ -1,7 +1,6 @@
 import { ipcMain } from 'electron'
 import Log from 'electron-log';
 import updater from "electron-updater";
-import { dialog } from 'electron';
 import Store from 'electron-store';
 import { settingsController } from './controllers/settingsController.js'
 import { familleController } from './controllers/familieController.js'
@@ -25,6 +24,54 @@ export const setMainWindow = (window) => {
 
 // Test de base
 ipcMain.handle('test', () => 'BongisaKisi API fonctionne!')
+// ======================================================================================================
+// MISE A JOURS VIA GITHUB
+ipcMain.handle("check-update", async () => {
+    const result = await autoUpdater.checkForUpdates()
+    Log.info('Update check result:', result)
+    return {
+        ...result?.updateInfo,
+        isUpdateAvailable: result?.updateInfo && result?.updateInfo.version ? true : false
+    }
+})
+
+ipcMain.handle("start-update", async () => {
+    try {
+        // Vérifier d'abord si une mise à jour est disponible
+        const checkResult = await autoUpdater.checkForUpdates()
+        if (!checkResult || !checkResult.updateInfo || !checkResult.updateInfo.version) {
+        return { success: false, error: "Aucune mise à jour disponible" }
+        }
+        
+        // Démarrer le téléchargement
+        await autoUpdater.downloadUpdate()
+        return { success: true }
+    } catch (error) {
+        Log.error('Error starting download:', error)
+        return { success: false, error: error.message }
+    }
+})
+
+// progression
+autoUpdater.on("download-progress", (progress) => {
+    if (mainWindow) {
+        mainWindow.webContents.send("update-progress", {
+        percent: progress.percent,
+        speed: progress.bytesPerSecond
+        })
+    }
+})
+
+autoUpdater.on("update-downloaded", () => {
+    if (mainWindow) {
+        mainWindow.webContents.send("update-downloaded")
+    }
+})
+
+ipcMain.handle("install-update", () => {
+    autoUpdater.quitAndInstall()
+})
+// ================================================================================================
 
 ipcMain.handle('getSettings', () => settingsController.get())
 ipcMain.handle('setSettings', (_, settings) => settingsController.set(settings))
@@ -77,110 +124,6 @@ ipcMain.handle('getOsInfo', () => activateKeyController.getOsInfo())
 // EXPORTS
 ipcMain.handle('getExport', (_, type, date) => exportController.get(type, date))
 ipcMain.handle('getExportBy', (_, type, date) => exportController.getBy(type, date))
-
-
-
-// ===============================================================================
-// MISE A JOURS VIA GITHUB
-ipcMain.handle("check-update", async () => {
-    const result = await autoUpdater.checkForUpdates()
-    Log.info('Update check result:', result)
-    return {
-        ...result?.updateInfo,
-        isUpdateAvailable: result?.updateInfo && result?.updateInfo.version ? true : false
-    }
-})
-
-ipcMain.handle("start-update", async () => {
-    try {
-        // Vérifier d'abord si une mise à jour est disponible
-        const checkResult = await autoUpdater.checkForUpdates()
-        if (!checkResult || !checkResult.updateInfo || !checkResult.updateInfo.version) {
-        return { success: false, error: "Aucune mise à jour disponible" }
-        }
-        
-        // Démarrer le téléchargement
-        await autoUpdater.downloadUpdate()
-        return { success: true }
-    } catch (error) {
-        Log.error('Error starting download:', error)
-        return { success: false, error: error.message }
-    }
-})
-
-// progression
-autoUpdater.on("download-progress", (progress) => {
-    if (mainWindow) {
-        mainWindow.webContents.send("update-progress", {
-        percent: progress.percent,
-        speed: progress.bytesPerSecond
-        })
-    }
-})
-
-autoUpdater.on("update-downloaded", () => {
-    if (mainWindow) {
-        mainWindow.webContents.send("update-downloaded")
-    }
-})
-
-ipcMain.handle("install-update", () => {
-    autoUpdater.quitAndInstall()
-})
-// ===============================================================================
-
-// Handler pour ouvrir le dialogue de sélection de dossier
-ipcMain.handle('open-folder-dialog', async () => {
-    try {
-        if (!mainWindow) {
-            throw new Error('Fenêtre principale non trouvée')
-        }
-
-        const result = await dialog.showOpenDialog(mainWindow, {
-            properties: ['openDirectory'],
-            title: 'Sélectionner un dossier pour les exports PDF',
-            buttonLabel: 'Sélectionner ce dossier'
-        })
-
-        return result
-    } catch (error) {
-        Log.error('Erreur lors de l\'ouverture du dialogue de dossier:', error)
-        throw error
-    }
-})
-
-// ===============================================================================
-
-
-
-
-
-
-// Handlers pour les paramètres d'exportation PDF
-ipcMain.handle('get-pdf-export-settings', () => {
-    try {
-        const settings = store.get('pdfExportSettings', {
-            pdfExportPath: 'C:\\Users\\benik\\Documents\\01_PROJETS\\PERSO\\05_BongisaKisi\\bongisakisi\\app',
-            pdfAutoOpen: true,
-            pdfIncludeCharts: true,
-            pdfIncludeDetails: true,
-            pdfFormat: 'A4',
-            pdfOrientation: 'portrait'
-        });
-        return settings;
-    } catch (error) {
-        Log.error('Erreur lors de la récupération des paramètres PDF:', error);
-        throw error;
-    }
-});
-
-ipcMain.handle('save-pdf-export-settings', (_, settings) => {
-    try {
-        store.set('pdfExportSettings', settings);
-        Log.info('Paramètres d\'exportation PDF sauvegardés:', settings);
-        return { success: true };
-    } catch (error) {
-        Log.error('Erreur lors de la sauvegarde des paramètres PDF:', error);
-        throw error;
-    }
-});
+ipcMain.handle('open-folder-dialog', () => exportController.openFolderDialog())
+ipcMain.handle('get-pdf-export-settings', () => exportController.getPdfExportSettings())
+ipcMain.handle('save-pdf-export-settings', (_, settings) => exportController.savePdfExportSettings(settings))

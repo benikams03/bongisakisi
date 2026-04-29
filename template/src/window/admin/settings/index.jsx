@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Settings, Bell, Database, Download, Shield, AlertTriangle, Calendar, Key, FileText } from 'lucide-react'
+import { Settings, Shield, FileText } from 'lucide-react'
 import { RenderGeneralSettings } from './general'
 import { RenderLicenseSettings } from './license'
 import { RenderExportSettings } from './export'
@@ -11,7 +11,7 @@ export default function SettingsPage() {
     const tabs = [
         { id: 'general', label: 'Général', icon: Settings },
         { id: 'license', label: 'Licence', icon: Shield },
-        { id: 'export', label: 'Export PDF', icon: FileText },
+        { id: 'export', label: 'Export', icon: FileText },
     ]
 
     const renderTabContent = () => {

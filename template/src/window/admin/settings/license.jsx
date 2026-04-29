@@ -99,7 +99,7 @@ export const RenderLicenseSettings = () => {
                         <h4 className="text-xl font-bold text-gray-900">
                             {licenseInfos?.expired?.isInfinity ? 'Premium' : 'Trial'}
                         </h4>
-                        <p className="text-sm text-gray-600">Clé: {licenseInfos?.key || 'XXXX-XXXX-XXXX-XXXX'}</p>
+                        <p className="text-sm text-gray-600">Clé: XXXX-XXXX-XXXX-XXXX</p>
                     </div>
                     <div className="text-right">
                         { !licenseInfos?.expired?.isInfinity &&

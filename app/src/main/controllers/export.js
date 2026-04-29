@@ -1,11 +1,19 @@
 import { queries } from './../models/index.js'
 import log from 'electron-log';
+import { dialog } from 'electron';
+import Store from 'electron-store';
 import { Text } from '../utils/text.js';
 
 class ExportController {
 
     constructor() {
         this.queries = queries;
+        this.mainWindow = null;
+        this.store = new Store();
+    }
+
+    setMainWindow(window) {
+        this.mainWindow = window;
     }
 
     get(type, date) {
@@ -170,6 +178,55 @@ class ExportController {
             }
         }
 
+    }
+
+
+    // ================================== SETTINGS ======================================
+    async openFolderDialog() {
+        try {
+    
+            const result = await dialog.showOpenDialog(this.mainWindow, {
+                properties: ['openDirectory'],
+                title: 'Sélectionner un dossier pour les exports PDF',
+                buttonLabel: 'Sélectionner ce dossier'
+            })
+    
+            return result
+        } catch (error) {
+            log.error('Erreur lors de l\'ouverture du dialogue de dossier:', error)
+            throw error
+        }
+    }
+
+    getPdfExportSettings() {
+        try {
+            const settings = this.store.get('pdfExportSettings');
+            return {
+                success: true,
+                data: settings
+            }
+        } catch (error) {
+            log.error('Erreur lors de la récupération des paramètres PDF:', error)
+            return {
+                success: false,
+                error: error.message
+            }
+        }
+    }
+
+    savePdfExportSettings(settings) {
+        try {
+            this.store.set('pdfExportSettings', settings);
+            return {
+                success: true
+            }
+        } catch (error) {
+            log.error('Erreur lors de la sauvegarde des paramètres PDF:', error)
+            return {
+                success: false,
+                error: error.message
+            }
+        }
     }
     
 }

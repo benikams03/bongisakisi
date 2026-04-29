@@ -52,8 +52,12 @@ export const parametreService = {
 
     getPdfSettings: async () => {
         try {
-            const settings = await window.localApi.invoke('get-pdf-export-settings');
-            return settings;
+            const result = await window.localApi.invoke('get-pdf-export-settings');
+            if (!result.success) {
+                toast.error(result.error);
+                return null;
+            }
+            return result.data;
         } catch (error) {
             console.error('Erreur lors de la récupération des paramètres PDF:', error);
             toast.error('Erreur lors de la récupération des paramètres');
