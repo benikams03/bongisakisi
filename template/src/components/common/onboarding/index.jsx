@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { X, ChevronRight, ChevronLeft, Store, Mail, Phone, MapPin, Check, Package, Users, BarChart3, Settings, Shield } from 'lucide-react'
+import { ChevronRight, ChevronLeft, Store, Mail, Phone, MapPin, Check, Package, Users, BarChart3, Settings, Shield } from 'lucide-react'
 import { Bouton } from '../../ui/bouton/index'
-import Drawer from "@mui/material/Drawer"
+import Modal from '@mui/material/Modal'
 import { InputLabel } from "./../../ui/input/index"
 import toast from 'react-hot-toast'
 import logo  from './../../../assets/logo.png'
 
-const OnboardingModal = ({ open, onClose, onComplete }) => {
+const OnboardingModal = ({ open, onComplete }) => {
     const [currentStep, setCurrentStep] = useState(0)
     
     // Configuration de react-hook-form avec validation
@@ -218,15 +218,11 @@ const OnboardingModal = ({ open, onClose, onComplete }) => {
     const Icon = currentStepData.icon
 
     return (
-        <Drawer
-            anchor="bottom"
+        <Modal
             open={open}
-            onClose={onClose}
-            PaperProps={{
-                className: "bg-white shadow-xl border border-gray-200 rounded-t-3xl text-black max-h-[90vh] overflow-hidden"
-            }}
+            className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4"
         >
-            <div className="w-full max-w-2xl mx-auto">
+            <div className="w-full max-w-2xl mx-auto bg-white rounded-xl overflow-hidden">
                 {/* Header */}
                 <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4">
                     <div className="flex items-center justify-between mb-4">
@@ -317,7 +313,7 @@ const OnboardingModal = ({ open, onClose, onComplete }) => {
                     </div>
                 </div>
             </div>
-        </Drawer>
+        </Modal>
     )
 }
 

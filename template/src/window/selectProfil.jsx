@@ -219,7 +219,6 @@ export default function SelectProfil() {
         {/* Modal d'onboarding pour nouveaux utilisateurs */}
         <OnboardingModal 
             open={showOnboarding}
-            // onClose={() => setShowOnboarding(false)}
             onComplete={handleOnboardingComplete}
         />
 
