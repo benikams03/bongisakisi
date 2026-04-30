@@ -1,7 +1,11 @@
-import { queries } from './../models/index.js'
+import { queries } from '../models/index.js'
 import log from 'electron-log';
-import { dialog } from 'electron';
+import { dialog, BrowserWindow } from 'electron';
 import Store from 'electron-store';
+import * as PDFModule from '../views/PDF.js';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 import { Text } from '../utils/text.js';
 
 class ExportController {
@@ -10,6 +14,11 @@ class ExportController {
         this.queries = queries;
         this.mainWindow = null;
         this.store = new Store();
+        this.pdf = PDFModule.pdf;
+        this.fs = fs;
+        this.path = path;
+        this.os = os;
+        this.browserWindow = null;
     }
 
     setMainWindow(window) {
@@ -180,6 +189,75 @@ class ExportController {
 
     }
 
+
+    // =========================== EXPORT ==========================================
+    async exportPdf(data, type) {
+        try {
+            // Créer le BrowserWindow uniquement pour l'export PDF
+            if (!this.browserWindow) {
+                this.browserWindow = new BrowserWindow({ 
+                    show: false,
+                    webPreferences: {
+                        nodeIntegration: true,
+                        contextIsolation: false
+                    }
+                });
+            }
+
+            const paths = this.store.get('pdfExportSettings')
+            const basePath = this.path.join(paths.pdfExportPath, 'BongisaKisi');
+            // 1. créer PharmacieApp s'il n'existe pas
+            if (!this.fs.existsSync(basePath)) {
+                this.fs.mkdirSync(basePath, { recursive: true });
+            }
+
+            // 2. sous-dossiers
+            const folders = [ 'journalier', 'mensuel', 'annuel'];
+
+            // 3. créer les sous-dossiers
+            folders.forEach(folder => {
+                const fullPath = this.path.join(basePath, folder);
+
+                if (!this.fs.existsSync(fullPath)) {
+                    this.fs.mkdirSync(fullPath);
+                }
+            });
+            
+            const html = this.pdf(data, type, this.store.get('settings'));
+            await this.browserWindow.loadURL("data:text/html;charset=utf-8," + encodeURIComponent(html));
+
+            const pdf = await this.browserWindow.webContents.printToPDF({
+                printBackground: true
+            });
+
+            const fileName = `rapport-vente-${type}-${data?.head[0]?.periode}.pdf`;
+            let filePath;
+            if(type === 'journalier'){
+                filePath = this.path.join(basePath, 'journalier', fileName);
+            } else if (type === 'mensuel'){
+                filePath = this.path.join(basePath, 'mensuel', fileName);
+            } else {
+                filePath = this.path.join(basePath, 'annuel', fileName);
+            }
+            
+            this.fs.writeFileSync(filePath, pdf);
+
+            // Nettoyer le BrowserWindow après l'export
+            this.browserWindow.close();
+            this.browserWindow = null;
+
+            return {
+                success: true
+            }
+
+        } catch (error) {
+            log.error('Erreur lors de l\'export PDF:', error)
+            return { 
+                success: false, 
+                error: error.message
+            }
+        }
+    }
 
     // ================================== SETTINGS ======================================
     async openFolderDialog() {

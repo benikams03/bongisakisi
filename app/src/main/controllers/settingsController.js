@@ -1,11 +1,16 @@
 import Store from 'electron-store';
 import { Text } from '../utils/text.js';
 import Log from 'electron-log';
-
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 class SettingsController {
 
     constructor() {
         this.store = new Store();
+        this.fs = fs;
+        this.path = path;
+        this.os = os;
     }
 
     get() {
@@ -31,6 +36,11 @@ class SettingsController {
                 email: Text.toLowerCase(settings.email),
                 address: Text.capitalizeWords(settings.address)
             });
+
+            this.store.set('pdfExportSettings',{
+                pdfExportPath: this.path.join(this.os.homedir(), 'Documents')
+            });
+
             return { success: true }
         } catch (error) {
             Log.error('Error setting settings:', error);

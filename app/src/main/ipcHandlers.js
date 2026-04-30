@@ -9,8 +9,8 @@ import { fournisseurController } from './controllers/fournisseurController.js'
 import { acquisitionController } from './controllers/acquisitionController.js'
 import { orderController } from './controllers/orderController.js'
 import { rapportController } from './controllers/rapportController.js'
-import { activateKeyController } from './controllers/activateKey.js';
-import { exportController } from './controllers/export.js';
+import { activateKeyController } from './controllers/activateKeyController.js';
+import { exportController } from './controllers/exportController.js';
 
 const { autoUpdater } = updater;
 const store = new Store();
@@ -127,3 +127,4 @@ ipcMain.handle('getExportBy', (_, type, date) => exportController.getBy(type, da
 ipcMain.handle('open-folder-dialog', () => exportController.openFolderDialog())
 ipcMain.handle('get-pdf-export-settings', () => exportController.getPdfExportSettings())
 ipcMain.handle('save-pdf-export-settings', (_, settings) => exportController.savePdfExportSettings(settings))
+ipcMain.handle('exportPdf', (_, data, type) => exportController.exportPdf(data, type))

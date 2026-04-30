@@ -5,31 +5,41 @@ import { Input } from '../../components/ui/input'
 import { Link, useParams } from 'react-router-dom'
 import { exportService } from '../../services/admin/export_service'
 import { number } from '../../hooks/number'
+import LoadExportPDFModal from '../../components/common/modal/loadExportPDF'
+import { formatDateToFrench } from '../../hooks/format_date'
 
 export default function ExportViewPage() {
     const { type, date } = useParams()
     const [data, setData] = useState([])
     const [searchTerm, setSearchTerm] = useState('')
+    const [showExportModal, setShowExportModal] = useState(false)
 
     useEffect(()=>{
         (async()=>{
             setData(await exportService.getBy(type, date))
         })()
     },[])
+
+    // pour exporter en PDF
+    const handleExportPDF = async () => {
+        await setShowExportModal(true)
+        await exportService.exportPdf(data, type)
+    }
     
 
     return (
+    <>
         <div className="p-2.5 h-full overflow-auto">
             {/* Header */}
             <div className="mb-8">
                 <div className="flex items-center gap-4 mb-4">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900">Visualisation du rapport</h1>
-                        <p className="text-gray-600">Rapport de vente du {data?.head && data.head[0] ? data?.head[0]?.periode : ''}</p>
+                        <p className="text-gray-600">Rapport de vente : {data?.head && data.head[0] ? formatDateToFrench(data?.head[0]?.periode) : ''}</p>
                     </div>
                 </div>
                 <div className="flex gap-3">
-                    <Bouton primary className="flex items-center gap-2">
+                    <Bouton onClick={handleExportPDF} primary className="flex items-center gap-2">
                         <Download className="w-4 h-4" />
                         Exporter en PDF
                     </Bouton>
@@ -166,5 +176,10 @@ export default function ExportViewPage() {
                 </div>
             </div>
         </div>
-    )
+
+        <LoadExportPDFModal
+            open={showExportModal}
+            onClose={() => setShowExportModal(false)}
+        />
+    </>)
 }

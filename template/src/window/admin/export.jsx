@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import { exportService } from '../../services/admin/export_service'
 import { number } from "./../../hooks/number"
 import { useForm } from 'react-hook-form'
+import { formatDateToFrench } from '../../hooks/format_date'
 
 export default function ExportPage() {
     const now = new Date()
@@ -30,7 +31,9 @@ export default function ExportPage() {
                 filterType === 'mensuel' ? watchMonth('mensuel') : 
                     filterType === 'journalier' ? watchDay('journalier') : 'all'))
         })()
-    },[filterType, load])    
+    },[filterType, load])   
+    
+
 
     const getStatusBadge = (date) => {
         let status
@@ -60,6 +63,7 @@ export default function ExportPage() {
     }
 
     return (
+    <>
         <div className="p-2.5 h-full overflow-auto">
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-gray-900">Exportation des Rapports</h1>
@@ -159,8 +163,8 @@ export default function ExportPage() {
                                 <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-2">
                                         <h4 className="font-medium text-gray-900">
-                                            {filterType === 'journalier' && `Rapport du ${item.periode}`}
-                                            {filterType === 'mensuel' && `Rapport de ${item.periode}`}
+                                            {filterType === 'journalier' && `Rapport du : ${formatDateToFrench(item.periode)}`}
+                                            {filterType === 'mensuel' && `Rapport du mois : ${formatDateToFrench(item.periode)}`}
                                             {filterType === 'annuel' && `Rapport de l'année ${item.periode}`}
                                         </h4>
                                         {getStatusBadge(item.periode)}
@@ -227,30 +231,20 @@ export default function ExportPage() {
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex flex-col gap-2">
-                                    <Link to={`/admin/export-view/${filterType}/${item.periode}`}>
-                                        <Bouton
-                                            outline
-                                            size="sm"
-                                        >
-                                            <Eye className="w-4 h-4" />
-                                            Visualiser
-                                        </Bouton>
-                                    </Link>
+                                <Link to={`/admin/export-view/${filterType}/${item.periode}`}>
                                     <Bouton
-                                        primary
+                                        outline
                                         size="sm"
-                                        className="px-4"
                                     >
-                                        <Download className="w-4 h-4" />
-                                        PDF
+                                        <Eye className="w-4 h-4" />
+                                        Visualiser
                                     </Bouton>
-                                </div>
+                                </Link>
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
         </div>
-    )
+    </>)
 }

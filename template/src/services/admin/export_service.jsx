@@ -35,4 +35,21 @@ export const exportService = {
         }
     },
 
+    exportPdf : async (data,type) => {
+        try{ 
+            const result = await window.localApi.invoke('exportPdf', data, type)
+            if(result.success) {
+                toast.success('Export effectué avec succès')
+                return result.data
+            }else{
+                toast.error(result.error || 'Erreur lors de l\'export')
+                return []
+            }
+        }
+        catch {
+            toast.error('Erreur lors de l\'export')
+            return []
+        }
+    }
+
 }
