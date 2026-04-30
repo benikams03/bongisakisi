@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Package, Search, CreditCard, Pill, Plus, ShoppingCart, Minus, Trash2, CheckCircle  } from 'lucide-react'
+import { Package, Search, CreditCard, Pill, Plus, ShoppingCart, Minus, Trash2, CheckCircle,Printer  } from 'lucide-react'
 import { Bouton } from './../../components/ui/bouton/index'
 import { Input } from './../../components/ui/input/index'
 import Modal from "@mui/material/Modal"
@@ -18,6 +18,8 @@ export default function IndexCaisse() {
     const [panier, setPanier] = useState([])
     const [loading, setLoading] = useState(false)
     const [total, setTotal] = useState(0)
+
+    const [caches, setCaches] = useState(false)
 
     useEffect(() => {
         (async ()=> {
@@ -215,11 +217,11 @@ export default function IndexCaisse() {
                 <div className="border-t border-gray-400/50 my-2" />
                 <div className="flex justify-between items-center text-xl font-bold">
                     <h2 className="">Total</h2>
-                    <p className="font-semibold text-green-600">{number.format(total)} Fc</p>
+                    <p className="font-semibold text-green-600">{number.format(total) } Fc</p>
                 </div>
             </div>
             
-            <div className="flex gap-2">
+            { caches === false && <div className="flex gap-2">
                 <Bouton className="w-full" outline
                     onClick={() => setOpen(false)}>
                     Annuler
@@ -228,14 +230,30 @@ export default function IndexCaisse() {
                     onClick={async () => {
                         const data = await ordersService.confirmPanier()
                         if (data) {
-                            setLoading(!loading)
-                            setOpen(false)
+                            setCaches(true)
+                            // setOpen(false)
                         }
                     }} 
                     className="w-full">
                     Confirmation
                 </Bouton>
-            </div>
+            </div> }
+
+            { caches === true && 
+            <div className='flex flex-col gap-2'>
+                <Bouton className="w-full">
+                    <Printer className='w-4 h-4 text-gray-200' />
+                    Imprimer</Bouton>
+
+                <Bouton className="w-full" outline
+                    onClick={() => {
+                        setOpen(false)
+                        setCaches(false)
+                        setLoading(!loading)
+                    }}>
+                    Annuler
+                </Bouton>
+            </div> }
         </div>
     </Modal>
     </>)
