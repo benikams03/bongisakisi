@@ -8,6 +8,7 @@ import { calculateStockStatus } from '../../hooks/calcul'
 import { ordersService } from '../../services/caissier/orders_service'
 import { number } from '../../hooks/number'
 import { formatDateToDMYWithTime } from '../../hooks/format_date'
+import { imprimantService } from '../../services/caissier/imprimant_service'
 
 
 export default function IndexCaisse() {
@@ -20,6 +21,7 @@ export default function IndexCaisse() {
     const [total, setTotal] = useState(0)
 
     const [caches, setCaches] = useState(false)
+    const [sendData, setSendData] = useState([])
 
     useEffect(() => {
         (async ()=> {
@@ -228,6 +230,7 @@ export default function IndexCaisse() {
                 </Bouton>
                 <Bouton primary
                     onClick={async () => {
+                        await setSendData(panier)
                         const data = await ordersService.confirmPanier()
                         if (data) {
                             setCaches(true)
@@ -241,7 +244,16 @@ export default function IndexCaisse() {
 
             { caches === true && 
             <div className='flex flex-col gap-2'>
-                <Bouton className="w-full">
+                <Bouton className="w-full"
+                    onClick={async ()=>{
+                        const res = await imprimantService.print(sendData)
+                        if(res) {
+                            setOpen(false)
+                            setCaches(false)
+                            setSendData([])
+                            setLoading(!loading)
+                        }
+                    }}>
                     <Printer className='w-4 h-4 text-gray-200' />
                     Imprimer</Bouton>
 

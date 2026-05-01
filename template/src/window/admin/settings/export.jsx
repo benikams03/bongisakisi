@@ -7,17 +7,24 @@ import { useForm } from 'react-hook-form'
 export const RenderExportSettings = () => {
 
     const [loading, setLoading] = useState(false)
+    const [printers, setPrinters] = useState([])
     const { register, reset } = useForm()
+    const [cache, setCache] = useState()
     
     useEffect(() => {
         (async()=>{
             const settings = await parametreService.getPdfSettings()
+            setCache(settings)
             reset({
-                pdfExportPath: settings?.pdfExportPath || ''
+                pdfExportPath: settings?.pdfExportPath || '',
+                selectedPrinter: settings?.selectedPrinter || ''
             })
+            
+            // Charger la liste des imprimantes
+            const availablePrinters = await parametreService.getPrinters()
+            setPrinters(availablePrinters)
         })()
     }, [loading]);
-
 
     const handleBrowseFolder = async () => {
         try {
@@ -56,6 +63,35 @@ export const RenderExportSettings = () => {
                         </div>
                         <p className="text-xs text-gray-500 mt-1">
                             Dossier où les fichiers PDF générés seront enregistrés
+                        </p>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Imprimante pour les tickets
+                        </label>
+                        <select
+                            {...register('selectedPrinter',{
+                                onChange: async (e) => {
+                                    await parametreService.savePdfSettings({ 
+                                        pdfExportPath: cache?.pdfExportPath,
+                                        selectedPrinter: e.target.value
+                                    })
+                                    setLoading(!loading)
+                                }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value={cache?.selectedPrinter || ''}>{cache?.selectedPrinter || 'Sélectionner une imprimantee'}</option>
+                            {printers?.map((printer) => {
+                                return printer.name === cache?.selectedPrinter ? null : (
+                                    <option key={printer.name} value={printer.name}>
+                                        {printer.name}
+                                    </option>
+                                )
+                            })}
+                        </select>
+                        <p className="text-xs text-gray-500 mt-1">
+                            Imprimante utilisée pour l'impression des tickets de caisse
                         </p>
                     </div>
 

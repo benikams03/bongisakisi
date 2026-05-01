@@ -1,58 +1,125 @@
 import log from 'electron-log';
-import escpos from "escpos";
-import USB from "escpos-usb";
+import pkg from "electron-pos-printer";
+import Store from 'electron-store';
+
+const { PosPrinter } = pkg;
 
 class ImprimeController {
 
     constructor() {
-        this.escpos = escpos;
-        this.USB = USB;
+        this.store = new Store();
     }
 
-    print() {
+    async getPrinters(mainWindow) {
         try {
+            const res = await mainWindow.webContents.getPrintersAsync();
+            return {
+                success: true,
+                data: res
+            };
+        } catch (error) {
+            log.error('Erreur lors de la récupération des imprimantes:', error);
+            return {
+                success: false,
+                error: 'Erreur lors de la récupération des imprimantes'
+            };
+        }
+    }
+
+    async print(datas) {
+        try {
+
+            const infosPharma = this.store.get('settings') 
+            const infosPrint = this.store.get('pdfExportSettings') 
+            const line = ('-').repeat(75)
+
+            const data = [
+                {
+                    type: "text",
+                    value: infosPharma.name,
+                    style: { textAlign: "center", fontSize: "24px", fontWeight: "bold" }
+                },
+                {
+                    type: "text",
+                    value: infosPharma.address,
+                    style: { textAlign: "center" }
+                },
+                {
+                    type: "text",
+                    value: "Tél: " + infosPharma.phone,
+                    style: { textAlign: "center" }
+                },
+
+                { type: "text", value: line },
+
+                // Infos facture
+                {
+                    type: "text",
+                    value: "Date & Heure: " + datas[0]?.datecreate,
+                    style: { textAlign: "left" }
+                },
+
+                { type: "text", value: line },
+
+                // Table produits
+                {
+                    type: "table",
+                    style: { border: "0px solid #ddd" },
+                    tableHeader: ["Produit", "Qte", "Prix"],
+                    tableBody: datas.map(item => [
+                        item.name.substring(0, 30),
+                        item.quantity.toString(),
+                        item.price_total.toString() + " FC"
+                    ]),
+                    tableFooter: ["TOTAL", datas.reduce((acc, item) => acc + item.price_total, 0).toString() + " FC"],
+                    tableHeaderStyle: {
+                        textAlign: "center",
+                        fontWeight: "bold"
+                    },
+                    tableBodyStyle: {
+                        textAlign: "center"
+                    },
+                    tableFooterStyle: {
+                        textAlign: "right",
+                        fontWeight: "bold"
+                    }
+                },
+
+
+                // Footer
+                {
+                    type: "text",
+                    value: "Merci pour votre visite, à bientôt !",
+                    style: { "text-align": "center" }
+                },
+
+                // Barcode
+                {
+                    type: "barCode",
+                    value: "1234567890",
+                    height: 40,
+                    width: 2,
+                    style: {textAlign: 'center'},
+                    displayValue: false
+                }
+            ];
+
+            // Récupérer l'imprimante sélectionnée
+            const settings = this.store.get('pdfExportSettings') || {};
+            const selectedPrinter = settings.selectedPrinter || 'POS-80';
             
-            const device = new this.escpos.USB(); // auto détecte USB
-            const printer = new this.escpos.Printer(device);
-            const line = "_".repeat(52);
-
-            device.open(() => {
-                printer
-                    .align("CT")
-                    .style('B')
-                    .size(2, 2)
-                    .text("name_pharamcie")
-                printer
-                    .align("CT")
-                    .size(1, 1)
-                    .style('I')
-                    .text("bongisakisi")
-
-                printer
-                    .align("CT")
-                    .text("PHARMACIE BONGISA KISI")
-                    .text("----------------------")
-                    .align("LT");
-
-                data.items.forEach(item => {
-                printer.text(`${item.name} x${item.qty}   ${item.price} CDF`);
-                });
-
-                
-
-                printer.text(line)
-                printer.tableCustom([
-                    { text: 'TOTAL', align: 'LEFT', width: 0.7 },
-                    { text: '12000Fc' + " FC", align: 'RIGHT', width: 0.3 }
-                ])
-
-                
-                printer.align('CT').text('Merci pour votre visite, à bientôt !')
-                printer.barcode("1234567890", "EAN13");
-
-                printer.cut();
-                printer.close();
+            await PosPrinter.print(data, {
+                preview: false,
+                silent: true,
+                width: "300px",
+                margin: "0 0 0 0",
+                copies: 1,
+                printerName: infosPrint?.selectedPrinter,
+                timeOutPerLine: 400,
+                pageSize: "80mm"
             });
+
+            return{ success: true };
             
         } catch (error) {
             log.error('Error printing:', error);

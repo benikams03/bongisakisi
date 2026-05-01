@@ -11,6 +11,7 @@ import { orderController } from './controllers/orderController.js'
 import { rapportController } from './controllers/rapportController.js'
 import { activateKeyController } from './controllers/activateKeyController.js';
 import { exportController } from './controllers/exportController.js';
+import { imprimeController } from './controllers/imprimeController.js';
 
 const { autoUpdater } = updater;
 const store = new Store();
@@ -128,3 +129,7 @@ ipcMain.handle('open-folder-dialog', () => exportController.openFolderDialog())
 ipcMain.handle('get-pdf-export-settings', () => exportController.getPdfExportSettings())
 ipcMain.handle('save-pdf-export-settings', (_, settings) => exportController.savePdfExportSettings(settings))
 ipcMain.handle('exportPdf', (_, data, type) => exportController.exportPdf(data, type))
+
+// IMPRIMANTE
+ipcMain.handle('get-printers', () => imprimeController.getPrinters(mainWindow))
+ipcMain.handle('print', (_, data) => imprimeController.print(data))

@@ -63,6 +63,21 @@ export const parametreService = {
             toast.error('Erreur lors de la récupération des paramètres');
             return null;
         }
+    },
+
+    getPrinters: async () => {
+        try {
+            const result = await window.localApi.invoke('get-printers');
+            if (!result.success) {
+                toast.error(result.error);
+                return null;
+            }
+            return result.data;
+        } catch (error) {
+            console.error('Erreur lors de la récupération des imprimantes:', error);
+            toast.error('Erreur lors de la récupération des imprimantes');
+            return null;
+        }
     }
 
 }
