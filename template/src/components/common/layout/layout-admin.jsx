@@ -94,7 +94,7 @@ export default function LayoutAdmin() {
                     })}
                 </nav>
 
-                <div className='flex flex-col gap-1 border-t border-gray-50/20 pt-3 mt-3'>
+                <div className='flex flex-col gap-1 border-t border-gray-50/10 pt-2 mt-2'>
                     {menuItemsSecondaire.map(item => {
                         const Icon = item.icon
                         return (
@@ -129,7 +129,7 @@ export default function LayoutAdmin() {
 
 
             <div className=''>
-                <div className='border-t border-gray-50/20 pt-3 pb-2'>
+                <div className='border-t border-gray-50/20 pt-2 pb-2'>
                     <div className='flex justify-between items-center px-2'>
                         <div className='flex gap-2 items-center'>
                             <User className="w-8 h-8 bg-white p-1.5 rounded-lg text-slate-600" />

@@ -78,6 +78,21 @@ export const parametreService = {
             toast.error('Erreur lors de la récupération des imprimantes');
             return null;
         }
+    },
+
+    changePassword: async (data) => {
+        try {
+            const result = await window.localApi.invoke('change-password', data);
+            if (!result.success) {
+                toast.error(result.error);
+                return { success: false, error: result.error };
+            }
+            return { success: true };
+        } catch (error) {
+            console.error('Erreur lors de la modification du mot de passe:', error);
+            toast.error('Erreur lors de la modification du mot de passe');
+            return { success: false, error: 'Erreur lors de la modification du mot de passe' };
+        }
     }
 
 }

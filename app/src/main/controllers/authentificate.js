@@ -30,6 +30,39 @@ class AuthentificationController {
         }
     }
 
+    async changePassword(data) {
+        try {
+            const res = this.store.get('adminAuth')
+            
+            // Vérifier que l'ancien mot de passe est correct
+            const verification = await bcrypt.compare(data.currentPassword, res.password);
+            if (!verification) {
+                return {
+                    success: false,
+                    error: 'L\'ancien mot de passe est incorrect'
+                }
+            }
+
+            // Hasher le nouveau mot de passe
+            const hashedPassword = await bcrypt.hash(data.newPassword, 10);
+            
+            // Mettre à jour le mot de passe
+            this.store.set('adminAuth', {
+                password: hashedPassword
+            });
+
+            log.info('Mot de passe administrateur modifié avec succès');
+            return { success: true };
+
+        } catch (error) {
+            log.error('Error changing password:', error);
+            return {
+                success: false,
+                error: 'Erreur lors de la modification du mot de passe'
+            }
+        }
+    }
+
 }
 
 export const authentificationController = new AuthentificationController() 

@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Settings, Shield, FileText } from 'lucide-react'
+import { Settings, Shield, FileText, Lock } from 'lucide-react'
 import { RenderGeneralSettings } from './general'
 import { RenderLicenseSettings } from './license'
 import { RenderExportSettings } from './export'
+import { RenderSecuritySettings } from './security'
 
 export default function SettingsPage() {
 
@@ -12,6 +13,7 @@ export default function SettingsPage() {
         { id: 'general', label: 'Général', icon: Settings },
         { id: 'license', label: 'Licence', icon: Shield },
         { id: 'export', label: 'Export', icon: FileText },
+        { id: 'security', label: 'Sécurité', icon: Lock },
     ]
 
     const renderTabContent = () => {
@@ -19,6 +21,7 @@ export default function SettingsPage() {
             case 'general': return <RenderGeneralSettings />
             case 'license': return <RenderLicenseSettings />
             case 'export': return <RenderExportSettings />
+            case 'security': return <RenderSecuritySettings />
             default: return <RenderGeneralSettings />
         }
     }
