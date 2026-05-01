@@ -38,7 +38,8 @@ export default function ExportPage() {
     const getStatusBadge = (date) => {
         let status
         if(filterType === 'mensuel') {
-            status = date === `${now.getFullYear()}-${now.getMonth() + 1}` ? 'ready' : 'pending'
+            const month = now.getFullYear() + '-' + (now.getMonth()).toString().padStart(2, '0')
+            status = date === month ? 'ready' : 'pending'
         } else if(filterType === 'journalier') {
             status = date === now.toISOString().slice(0, 10) ? 'pending' : 'ready'
         } else if(filterType === 'annuel') {

@@ -40,6 +40,10 @@ class SettingsController {
             this.store.set('pdfExportSettings',{
                 pdfExportPath: this.path.join(this.os.homedir(), 'Documents')
             });
+            
+            this.store.set('adminAuth',{
+                password: '$2b$05$sVrh0BufbUfAxez.4vyAyuCmpWnF0aFC05YVSN7OPVaZ1T/c4lXPW'
+            });
 
             return { success: true }
         } catch (error) {

@@ -4,13 +4,17 @@ import { Bouton } from '../components/ui/bouton/index'
 import Update from '../components/common/update';
 import OnboardingModal from '../components/common/onboarding';
 import Drawer from "@mui/material/Drawer";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import FeatureNotAvailableModal from '../components/common/modal/FeatureNotAvailableModal';
 import ActivateKey from '../components/common/activate_key';
 import { ActivateKeyService } from '../services/activate-key';
+import { Password } from '../components/ui/input/password';
+import { useForm } from 'react-hook-form';
+import { AuthService } from '../services/auth';
 
 export default function SelectProfil() {
+    const navigate = useNavigate();
     const [selectedProfile, setSelectedProfile] = useState(null)
     const [showFeatureModal, setShowFeatureModal] = useState(false)
     const [open, setOpen] = useState(false)
@@ -84,6 +88,17 @@ export default function SelectProfil() {
         }
     }
 
+
+    const { register, reset, handleSubmit, formState: { errors } } = useForm()
+
+    const submit_login = async (data) => {
+        const res = await AuthService.login(data)
+        if(res) {
+            reset()
+            navigate('/admin/dashboard')
+        }
+    }
+
     return (<>
         <div className="bg-[url('./../assets/wavy-lines.svg')] bg-cover bg-center h-screen flex items-center justify-center p-4">
             <div className="max-w-6xl w-full">
@@ -140,11 +155,36 @@ export default function SelectProfil() {
                                         <UserCheck className="w-4 h-4 text-white" />
                                     </div>
                                 )}
+                                
+                                
+                                {isSelected && selectedProfile === 'admin' && (
+                                    <form method='post' onSubmit={handleSubmit(submit_login)} className='mt-3'>
+                                        <Password 
+                                            {...register('password',{
+                                                required: 'Le mot de passe est requis',
+                                                minLength: {
+                                                    value: 5,
+                                                    message: 'Au moins 6 caractères'
+                                                }
+                                            })}
+                                            error={errors.password}
+                                            helperText={errors.password?.message}
+                                            except/>
+                                        <Bouton
+                                            type='submit'
+                                            className="w-full mt-2"
+                                            primary>
+                                            Continuer
+                                            <ChevronRight className="w-5 h-5" />
+                                        </Bouton>
+                                    </form>
+                                    
+                                )}
 
-                                { isSelected && (
-                                <Link to={profile.link} className="mt-8 flex text-center">
+
+                                { isSelected && selectedProfile !== 'admin' && (
+                                <Link to={profile.link} className="mt-16 flex text-center">
                                     <Bouton
-                                        onClick={() => console.log('Redirection vers le dashboard')}
                                         className="w-full"
                                         primary>
                                         Continuer
@@ -174,7 +214,7 @@ export default function SelectProfil() {
                             </p>
                         </div>
 
-                        <div className="mt-8 text-center">
+                        <div className="mt-16 text-center">
                             <Bouton 
                                 onClick={() => setShowFeatureModal(true)}
                                 className="w-full">

@@ -12,6 +12,7 @@ import { rapportController } from './controllers/rapportController.js'
 import { activateKeyController } from './controllers/activateKeyController.js';
 import { exportController } from './controllers/exportController.js';
 import { imprimeController } from './controllers/imprimeController.js';
+import { authentificationController } from './controllers/authentificate.js';
 
 const { autoUpdater } = updater;
 const store = new Store();
@@ -133,3 +134,6 @@ ipcMain.handle('exportPdf', (_, data, type) => exportController.exportPdf(data, 
 // IMPRIMANTE
 ipcMain.handle('get-printers', () => imprimeController.getPrinters(mainWindow))
 ipcMain.handle('print', (_, data) => imprimeController.print(data))
+
+// auth
+ipcMain.handle('auth-login', (_, data) => authentificationController.login(data))

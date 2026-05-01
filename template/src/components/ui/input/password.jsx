@@ -13,7 +13,7 @@ function Password({ className, icons ,helperText, error , ...props }) {
             data-slot="input"
             className={cn(
                 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black',
-                ( error ? '!border-red-500' : null),
+                ( error ? '!border-red-500 focus:!ring-red-500 focus:!ring-1' : null),
                 ( icons ? 'pl-10' : null ),
                 className
             )}
@@ -22,7 +22,7 @@ function Password({ className, icons ,helperText, error , ...props }) {
         <button 
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+            className={`absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors ${props.except ? 'hidden' : ''}`}
             >
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
         </button>
