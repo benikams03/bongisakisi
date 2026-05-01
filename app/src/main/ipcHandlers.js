@@ -73,6 +73,19 @@ autoUpdater.on("update-downloaded", () => {
 ipcMain.handle("install-update", () => {
     autoUpdater.quitAndInstall()
 })
+// =====================================================================================================
+// Window controls
+ipcMain.handle('close-window', () => {
+    if (mainWindow) {
+        mainWindow.close()
+    }
+})
+
+ipcMain.handle('minimize-window', () => {
+    if (mainWindow) {
+        mainWindow.minimize()
+    }
+})
 // ================================================================================================
 
 ipcMain.handle('getSettings', () => settingsController.get())

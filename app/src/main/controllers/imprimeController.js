@@ -109,6 +109,7 @@ class ImprimeController {
             const selectedPrinter = settings.selectedPrinter || 'POS-80';
             
             await PosPrinter.print(data, {
+                // preview: true, // for test
                 preview: false,
                 silent: true,
                 width: "300px",

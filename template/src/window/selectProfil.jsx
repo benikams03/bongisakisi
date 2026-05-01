@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { User, UserCheck, Plus, Crown, ChevronRight, Package, Download, AlertCircle, Check, X } from 'lucide-react'
+import { User, UserCheck, Plus, Crown, ChevronRight, Package, Download, X, Minus } from 'lucide-react'
 import { Bouton } from '../components/ui/bouton/index'
 import Update from '../components/common/update';
 import OnboardingModal from '../components/common/onboarding';
@@ -99,11 +99,39 @@ export default function SelectProfil() {
         }
     }
 
+    const handleCloseWindow = () => {
+        if (window.localApi) {
+            window.localApi.invoke('close-window')
+        }
+    }
+
+    const handleMinimizeWindow = () => {
+        if (window.localApi) {
+            window.localApi.invoke('minimize-window')
+        }
+    }
+
     return (<>
         <div className="bg-[url('./../assets/wavy-lines.svg')] bg-cover bg-center h-screen flex items-center justify-center p-4">
-            <div className="max-w-6xl w-full">
+            
+            <div className='absolute top-0 right-0'>
+                <button 
+                    onClick={handleMinimizeWindow}
+                    className='py-1.5 px-4 hover:bg-gray-200 transition-colors duration-200 active:bg-gray-300'
+                >
+                    <Minus size={18}/>
+                </button>
+                <button 
+                    onClick={handleCloseWindow}
+                    className='py-1.5 px-4 hover:bg-red-500 transition-colors duration-200 active:bg-red-600'
+                >
+                    <X size={18}/>
+                </button>
+            </div>
+            
+            <div className="max-w-6xl w-full h-full flex flex-col justify-between">
                 {/* Header */}
-                <div className="text-center mb-12">
+                <div className="text-center mb-12 mt-12">
                     <h1 className="text-4xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-4">
                         Bongisa
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-black to-slate-500">Kisi</span>

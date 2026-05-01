@@ -1,7 +1,7 @@
 import Modal from "@mui/material/Modal"
 import { InputLabel } from "../ui/input"
 import { Bouton } from "../ui/bouton"
-import { Key } from "lucide-react"
+import { Key, X } from "lucide-react"
 import { ActivateKeyService } from "../../services/activate-key"
 import { useForm } from "react-hook-form"
 import axios from "axios"
@@ -60,10 +60,25 @@ export default function ActivateKey({ open, setOpen, isExpired }){
         setValue("key", formatted);
     };
     
+    const handleCloseWindow = () => {
+        if (window.localApi) {
+            window.localApi.invoke('close-window')
+        }
+    }
+
     return(<>
     <Modal open={open} className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4">
         <form method="post" onSubmit={handleSubmit(handle)} className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">Activation de la licence</h2>
+            
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Activation de la licence</h2>
+                
+                <button type="button"
+                    className="relative rigth-0 p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                    onClick={handleCloseWindow}>
+                    <X className="w-5 h-5 text-gray-500" />
+                </button>
+            </div>
 
             {isExpired && (
             <p className="text-sm text-red-600 mb-4">

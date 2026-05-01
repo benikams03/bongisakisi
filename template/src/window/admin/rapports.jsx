@@ -34,7 +34,7 @@ export default function Rapports() {
                                 onClick={() => setSelectedPeriod(period)}
                                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                                     selectedPeriod === period
-                                        ? 'bg-slate-800 text-white'
+                                        ? 'bg-emerald-800 text-white'
                                         : 'text-gray-600 hover:text-gray-900'
                                 }`}
                             >
@@ -58,7 +58,7 @@ export default function Rapports() {
                             number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) >= 0 ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'
                         }`}>
                             {number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                            {number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay)}
+                            {number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay)}%
                         </div>
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-1">{number.format(Number(rapport?.stats?.ventesDay))} FC</h3>
@@ -75,7 +75,7 @@ export default function Rapports() {
                         }`}>
                             {number.pourcentage(Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay) , Number(rapport?.stats_old?.ventesDay) - Number(rapport?.stats_old?.gainDay)) >= 0
                                 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                            {number.pourcentage(Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay) , Number(rapport?.stats_old?.ventesDay) - Number(rapport?.stats_old?.gainDay))}
+                            {number.pourcentage(Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay) , Number(rapport?.stats_old?.ventesDay) - Number(rapport?.stats_old?.gainDay))}%
                         </div>
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-1">{number.format( Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay))} FC</h3>
@@ -91,7 +91,7 @@ export default function Rapports() {
                             number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay) >= 0 ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'
                         }`}>
                             {number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay) >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                            {number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay)}
+                            {number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay)}%
                         </div>
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-1">{number.format(Number(rapport?.stats?.gainDay))} FC</h3>
@@ -135,7 +135,7 @@ export default function Rapports() {
                         {rapport?.topVentes?.map((product, index) => (
                             <div key={index} className="flex items-center border border-gray-300 justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-8 h-8 bg-slate-800 text-white rounded-lg flex items-center justify-center font-semibold text-sm">
+                                    <div className="w-8 h-8 bg-emerald-800 text-white rounded-lg flex items-center justify-center font-semibold text-sm">
                                         {index + 1}
                                     </div>
                                     <div>

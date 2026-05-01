@@ -76,7 +76,7 @@ export default function Dashboard() {
                                 onClick={() => setSelectedPeriod(period)}
                                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                                     selectedPeriod === period
-                                        ? 'bg-slate-800 text-white'
+                                        ? 'bg-emerald-800 text-white'
                                         : 'text-gray-600 hover:text-gray-900'
                                 }`}
                             >

@@ -45,6 +45,7 @@ function createWindow () {
         height: 700,
         minWidth: 1200,
         minHeight: 700,
+        frame: false,
         backgroundColor: '#ffffff',
         titleBarStyle: 'default',
         show: false, // Keep hidden initially
@@ -56,9 +57,9 @@ function createWindow () {
     })
 
     // Ouvrir DevTools en développement
-    if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
-        mainWindow.webContents.openDevTools()
-    }
+    // if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
+    //     mainWindow.webContents.openDevTools()
+    // }
 
     mainWindow.setMenu(null)
     mainWindow.loadURL('http://localhost:5173')
