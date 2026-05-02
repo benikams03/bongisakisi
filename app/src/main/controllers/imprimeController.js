@@ -31,7 +31,7 @@ class ImprimeController {
 
             const infosPharma = this.store.get('settings') 
             const infosPrint = this.store.get('pdfExportSettings') 
-            const line = ('-').repeat(75)
+            const line = ('-').repeat(68)
 
             const data = [
                 {
@@ -101,6 +101,12 @@ class ImprimeController {
                     width: 2,
                     style: {textAlign: 'center'},
                     displayValue: false
+                },
+                // Commandes ESC/POS pour la coupe du ticket
+                {
+                    type: "text",
+                    value: "\x1B\x6D", // ESC m - Full cut command
+                    style: { display: 'none' } // Cacher le texte, juste envoyer la commande
                 }
             ];
 
@@ -112,7 +118,7 @@ class ImprimeController {
                 // preview: true, // for test
                 preview: false,
                 silent: true,
-                width: "300px",
+                width: "275px",
                 margin: "0 0 0 0",
                 copies: 1,
                 printerName: infosPrint?.selectedPrinter,
