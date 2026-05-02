@@ -31,7 +31,14 @@ export const RenderExportSettings = () => {
         try {
             const result = await parametreService.openFolderDialog()
             if (result !== null) {
-                await parametreService.savePdfSettings({ pdfExportPath: result })
+                if(cache?.selectedPrinter){
+                    await parametreService.savePdfSettings({ 
+                        pdfExportPath: result, 
+                        selectedPrinter: cache.selectedPrinter 
+                    })
+                }else{
+                    await parametreService.savePdfSettings({ pdfExportPath: result })
+                }
                 setLoading(!loading)
             }
         } catch (error) {

@@ -14,6 +14,8 @@ export default function ExportViewPage() {
     const [searchTerm, setSearchTerm] = useState('')
     const [showExportModal, setShowExportModal] = useState(false)
 
+    const [res_export, setResExport] = useState(null)
+
     useEffect(()=>{
         (async()=>{
             setData(await exportService.getBy(type, date))
@@ -23,7 +25,8 @@ export default function ExportViewPage() {
     // pour exporter en PDF
     const handleExportPDF = async () => {
         await setShowExportModal(true)
-        await exportService.exportPdf(data, type)
+        const result = await exportService.exportPdf(data, type)
+        setResExport(result)
     }
     
 
@@ -178,6 +181,7 @@ export default function ExportViewPage() {
         </div>
 
         <LoadExportPDFModal
+            path={res_export}
             open={showExportModal}
             onClose={() => setShowExportModal(false)}
         />

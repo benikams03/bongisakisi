@@ -11,7 +11,13 @@ class AuthentificationController {
     async login(data) {
         try {
             const res = this.store.get('adminAuth')
-            const verification = await bcrypt.compare( data.password , res.password );
+            const password = res?.password ? res.password : '$2b$10$nQW2X91X..awDdDIgd81aOFsqJP8JhUXZzlgnq6b1EZWqNtsx.24G'
+            if(!res?.password){
+                this.store.set('adminAuth',{
+                    password: '$2b$05$sVrh0BufbUfAxez.4vyAyuCmpWnF0aFC05YVSN7OPVaZ1T/c4lXPW'
+                });
+            }
+            const verification = await bcrypt.compare( data.password , password );
             if( !verification ) {
                 return {
                     success: false,

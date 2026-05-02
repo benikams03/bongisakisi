@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { ChevronRight, ChevronLeft, Store, Mail, Phone, MapPin, Check, Package, Users, BarChart3, Settings, Shield } from 'lucide-react'
+import { ChevronRight, ChevronLeft, Store, Mail, Phone, MapPin, Check, Package, Users, BarChart3, Settings, Shield, CheckCircle } from 'lucide-react'
 import { Bouton } from '../../ui/bouton/index'
 import Modal from '@mui/material/Modal'
 import { InputLabel } from "./../../ui/input/index"
@@ -178,6 +178,35 @@ const OnboardingModal = ({ open, onComplete }) => {
                             helperText={errors.address?.message}
                             error={!!errors.address}
                         />
+                    </div>
+                </div>
+            )
+        },
+        {
+            id: 'congratulations',
+            title: 'Félicitations !',
+            description: 'Votre pharmacie est prête',
+            icon: CheckCircle,
+            content: (
+                <div className="text-center space-y-4">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <CheckCircle className="w-8 h-8 text-green-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        Félicitations ! 🎉
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                        Votre pharmacie <span className="font-medium">BongisaKisi</span> est maintenant configurée et prête à l'emploi.
+                    </p>
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm">
+                        <h4 className="font-medium text-amber-900 mb-2">🔐 Accès administrateur :</h4>
+                        <p className="text-amber-700">
+                            <span className="font-medium">Mot de passe par défaut :</span> 
+                            <span className="font-mono bg-white px-2 py-1 rounded text-amber-800">admin</span>
+                        </p>
+                        <p className="text-xs text-amber-600 mt-2">
+                            🔑 Vous pouvez utiliser ce mot de passe pour vous connecter en tant qu'administrateur.
+                        </p>
                     </div>
                 </div>
             )

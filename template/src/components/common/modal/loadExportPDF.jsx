@@ -3,7 +3,7 @@ import { Modal, LinearProgress, } from '@mui/material'
 import { FileText } from 'lucide-react'
 import { Bouton } from '../../ui/bouton'
 
-const LoadExportPDFModal = ({ open, onClose }) => {
+const LoadExportPDFModal = ({ path, open, onClose }) => {
 
     const [currentProgress, setCurrentProgress] = useState(0)
     const [isCompleted, setIsCompleted] = useState(false)
@@ -51,6 +51,13 @@ const LoadExportPDFModal = ({ open, onClose }) => {
                 <p className='pt-3 text-gray-700 text-sm'>
                     {isCompleted ? 'Exportation terminée!' : 'Préparation...'}
                 </p>
+
+                {isCompleted && path && (
+                    <p className='text-gray-600 text-xs bg-gray-50 p-2 rounded border border-gray-200'>
+                        <span className='font-medium'>Document enregistré dans :</span><br/>
+                        <span className='text-gray-700 font-mono'>{path}</span>
+                    </p>
+                )}
 
                 <div className='flex items-center'>
                     <div className='w-full'>

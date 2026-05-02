@@ -40,7 +40,7 @@ export const exportService = {
             const result = await window.localApi.invoke('exportPdf', data, type)
             if(result.success) {
                 toast.success('Export effectué avec succès')
-                return result.data
+                return result.path
             }else{
                 toast.error(result.error || 'Erreur lors de l\'export')
                 return []

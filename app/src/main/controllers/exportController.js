@@ -204,8 +204,20 @@ class ExportController {
                 });
             }
 
-            const paths = this.store.get('pdfExportSettings')
-            const basePath = this.path.join(paths.pdfExportPath, 'BongisaKisi');
+            const get_config = this.store.get('pdfExportSettings')
+            if(!get_config.pdfExportPath && !get_config.selectedPrinter){
+                this.store.set('pdfExportSettings', {
+                    pdfExportPath: this.path.join(this.os.homedir(), 'Documents')
+                })
+            }else if(!get_config.pdfExportPath) {
+                this.store.set('pdfExportSettings', {
+                    pdfExportPath: this.path.join(this.os.homedir(), 'Documents'),
+                    selectedPrinter: get_config.selectedPrinter
+                })
+            }
+            const paths = get_config.pdfExportPath ? get_config.pdfExportPath : this.path.join(this.os.homedir(), 'Documents')
+            const basePath = this.path.join(paths, 'BongisaKisi');
+            
             // 1. créer PharmacieApp s'il n'existe pas
             if (!this.fs.existsSync(basePath)) {
                 this.fs.mkdirSync(basePath, { recursive: true });
@@ -247,7 +259,8 @@ class ExportController {
             this.browserWindow = null;
 
             return {
-                success: true
+                success: true,
+                path: paths
             }
 
         } catch (error) {

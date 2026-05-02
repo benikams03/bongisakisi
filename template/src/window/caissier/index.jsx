@@ -9,6 +9,7 @@ import { ordersService } from '../../services/caissier/orders_service'
 import { number } from '../../hooks/number'
 import { formatDateToDMYWithTime } from '../../hooks/format_date'
 import { imprimantService } from '../../services/caissier/imprimant_service'
+import { parametreService } from '../../services/admin/parametre_service'
 
 
 export default function IndexCaisse() {
@@ -23,6 +24,8 @@ export default function IndexCaisse() {
     const [caches, setCaches] = useState(false)
     const [sendData, setSendData] = useState([])
 
+    const [printers, setPrinters] = useState([])
+
     useEffect(() => {
         (async ()=> {
             const data_medoc = await produitService.get()
@@ -30,6 +33,8 @@ export default function IndexCaisse() {
             const data_panier = await ordersService.get()
             setPanier(data_panier.data)
             setTotal(data_panier.data.reduce((sum, item) => sum + item.price_total, 0));
+            const data_printers = await parametreService.getPdfSettings()
+            setPrinters(data_printers)
         })()
     }, [loading])
 
@@ -234,7 +239,8 @@ export default function IndexCaisse() {
                         const data = await ordersService.confirmPanier()
                         if (data) {
                             setCaches(true)
-                            // setOpen(false)
+                            !printers.selectedPrinter && setOpen(false)
+                            !printers.selectedPrinter && setLoading(!loading)
                         }
                     }} 
                     className="w-full">
@@ -242,7 +248,7 @@ export default function IndexCaisse() {
                 </Bouton>
             </div> }
 
-            { caches === true && 
+            { caches === true && printers.selectedPrinter && 
             <div className='flex flex-col gap-2'>
                 <Bouton className="w-full"
                     onClick={async ()=>{
