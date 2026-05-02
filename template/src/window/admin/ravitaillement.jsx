@@ -15,6 +15,8 @@ export default function Ravitaillement() {
     const [searchTerm, setSearchTerm] = useState("")
     const [loading, setLoading] = useState(false)
 
+    const [choix_btn, setChoix_btn] = useState()
+
     const [openStockModal, setOpenStockModal] = useState(false)
      const [openExpiryModal, setOpenExpiryModal] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState(null)
@@ -33,10 +35,11 @@ export default function Ravitaillement() {
         reset: resetStock,
     } = useForm()
 
-    const handleAddStock = async (data) => {
+    const handleAddSoustrStock = async (data) => {
         const newData = {
             ...data,
-            id: selectedProduct.id
+            id: selectedProduct.id,
+            choix: choix_btn
         }
         const success = await produitService.addStock(newData)
         if(success) { 
@@ -273,16 +276,28 @@ export default function Ravitaillement() {
                                     <td className="px-4 py-2">
                                         <div className="flex items-center gap-2">
                                             <Bouton 
-                                                primary 
-                                                className="text-sm"
+                                                className="px-4"
                                                 onClick={() => {
+                                                    setChoix_btn('ajouter')
                                                     setOpenStockModal(true)
                                                     setSelectedProduct(item)
                                                 }}
                                             >
-                                                <Plus className="w-3 h-3" />
-                                                Ajouter
+                                                Add
                                             </Bouton>
+
+                                            <Bouton  
+                                                outline
+                                                className="px-4"
+                                                onClick={() => {
+                                                    setChoix_btn('soustraire')
+                                                    setOpenStockModal(true)
+                                                    setSelectedProduct(item)
+                                                }}
+                                            >
+                                                Soustr
+                                            </Bouton>
+                                            
                                             {isExpiringSoon(item.date_expiration) && (
                                                 <Bouton 
                                                     outline 
@@ -312,7 +327,7 @@ export default function Ravitaillement() {
 
             {/* Modal pour ajouter du stock */}
             <Modal open={openStockModal} className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4">
-                <form method='post' onSubmit={handleSubmitStock(handleAddStock)} className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
+                <form method='post' onSubmit={handleSubmitStock(handleAddSoustrStock)} className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
                     <h2 className="text-xl font-semibold mb-4">Ajouter du stock</h2>
                     
                     {selectedProduct && (
@@ -329,7 +344,7 @@ export default function Ravitaillement() {
                     <div className="space-y-4">
                         <InputLabel 
                             type="number"
-                            label="Quantité à ajouter"
+                            label={"Quantité à" + " " + choix_btn}
                             placeholder="0"
                             {...registerStock('quantite', {
                                 required: 'La quantité est obligatoire',

@@ -115,12 +115,12 @@ class ProduitController {
     addStock(data) {
         try {
             const old = this.queries.findOne('medicaments', { id: data.id })
-            const newStock = Number(old.stock) + Number(data.quantite)
+            const newStock = data.choix === 'ajouter' ? Number(old.stock) + Number(data.quantite) : Number(old.stock) - Number(data.quantite)
 
             this.queries.update('medicaments', 
             {
-                stock: newStock,
-                last_stock: newStock
+                stock: newStock >= 0 ? newStock : 0,
+                last_stock: newStock >= 0 ? newStock : 0
             }, { id: data.id })
             
             return { success: true}
