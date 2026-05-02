@@ -1,6 +1,6 @@
 {
     "name": "bongisakisi",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "description": "Application de gestion d'une pharmacie",
     "main": "./src/main/index.js",
     "type": "module",

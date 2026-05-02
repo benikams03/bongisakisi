@@ -3,7 +3,7 @@ import { Download, Check, Loader, X, RefreshCw, WifiOff } from 'lucide-react'
 import { Bouton } from "../ui/bouton/index";
 import { updateService } from '../../services/update';
 
-export default function Update({ after }) {
+export default function Update({ after, version }) {
     const [state, setState] = useState('checking') // checking, available, downloading, downloaded, no-update, error, offline
     const [updateInfo, setUpdateInfo] = useState(null)
     const [progress, setProgress] = useState(0)
@@ -14,7 +14,7 @@ export default function Update({ after }) {
             const result = await updateService.check()
             if (result && result.offline) {
                 setState('offline')
-            } else if (result && result.version !== '1.3.0') {
+            } else if (result && result.version !== version) {
                 setUpdateInfo(result)
                 setState('available')
             } else {
