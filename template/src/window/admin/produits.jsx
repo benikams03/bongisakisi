@@ -1,24 +1,28 @@
 import { useState, useEffect } from 'react'
-import { Package, Plus, Edit, Trash2, Search, AlertTriangle, Eye } from 'lucide-react'
+import { Package, Plus, Edit, Trash2, Search, AlertTriangle, Eye, Filter, Calendar } from 'lucide-react'
 import { Bouton } from '../../components/ui/bouton'
-import { Input, InputLabel } from '../../components/ui/input'
+import { InputLabel } from '../../components/ui/input'
 import Modal from "@mui/material/Modal"
 import { famillieService } from '../../services/admin/famillie_service'
 import { useForm } from 'react-hook-form'
 import { Select as SelectCustom } from '../../components/ui/input/select'
 import { produitService } from '../../services/admin/produit_service'
-import { formatDateToDMY, isExpiringSoon } from '../../hooks/format_date'
+import { formatDateToDMY, isExpiringSoon, toYearMonth } from '../../hooks/format_date'
 import { calculateStockStatus } from '../../hooks/calcul'
 import ConfirmModal from '../../components/common/modal/confirme'
+import TableauLoading from '../../components/common/loading/tableau'
 
 
 export default function Produits() {
+
+    const [coLoad, setcoLoad] = useState(false)
 
     const [loading, setLoading] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [families, setFamilies] = useState([])
     const [medicaments, setMedicaments] = useState([])
     const [selectedProduct, setSelectedProduct] = useState(null)
+    const [filter, setFilter] = useState('all')
 
     const [openModal, setOpenModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
@@ -26,10 +30,15 @@ export default function Produits() {
 
     useEffect(() => {
         const res = async () => {
-            const data = await famillieService.get()
-            setFamilies(data)
-            const medicamentsData = await produitService.get()
-            setMedicaments(medicamentsData)
+            try{
+                await setcoLoad(true)
+                const data = await famillieService.get()
+                setFamilies(data)
+                const medicamentsData = await produitService.get()
+                setMedicaments(medicamentsData)
+            } catch(e) {
+                console.log(e.message);
+            } finally{ await setcoLoad(false) }
         }
         res()
     }, [loading])
@@ -77,6 +86,8 @@ export default function Produits() {
             name: product.medicament_name,
             prixAchat: product.price_buy,
             prixVente: product.price_sell,
+            quantite: product.stock,
+            dateExpiration: toYearMonth(product.date_expiration)
         })
         setEditModal(true)
     }
@@ -93,6 +104,17 @@ export default function Produits() {
         setProductIdToDelete(id);
         setShowConfirmModal(true);
     }
+
+    const filteredMedicaments = medicaments?.data?.filter(item => {
+        const matchesFilter = filter === 'all' || 
+            (filter === 'low_stock' && ((item.stock / item.last_stock) * 100) <= 45) ||
+            (filter === 'expired' && isExpiringSoon(item.date_expiration))
+        
+        const matchesSearch = searchTerm === '' || 
+            item.medicament_name.toLowerCase().includes(searchTerm.toLowerCase())
+        
+        return matchesFilter && matchesSearch
+    })
 
     return (
         <div className="flex-1 p-2.5 h-full overflow-auto">
@@ -116,19 +138,98 @@ export default function Produits() {
                 </div>
             </div>
 
-            {/* Filtres */}
-            <div className="flex gap-2 mb-6">
-                <div className="flex-1">
-                    <Input 
-                        icons={<Search className="text-gray-400 w-5 h-5" />} 
-                        placeholder="Rechercher un produit, remarque..." 
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+            <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 w-full">
+                        <div className="flex items-center gap-2">
+                            <Filter className="w-4 h-4 text-gray-500" />
+                        </div>
+                        <div className="flex gap-2">
+                            <Bouton 
+                                outline={filter !== 'all'}
+                                primary={filter === 'all'}
+                                className="text-sm"
+                                onClick={() => setFilter('all')}
+                            >
+                                Tous les médicaments
+                            </Bouton>
+                            <Bouton 
+                                outline={filter !== 'low_stock'}
+                                primary={filter === 'low_stock'}
+                                className="text-sm"
+                                onClick={() => setFilter('low_stock')}
+                            >
+                                Stock faible
+                            </Bouton>
+                            <Bouton 
+                                outline={filter !== 'expired'}
+                                primary={filter === 'expired'}
+                                className="text-sm"
+                                onClick={() => setFilter('expired')}
+                            >
+                                Expirés ou expire bientôt
+                            </Bouton>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2 w-1/2">
+                        <Search className="w-4 h-4 text-gray-500" />
+                        <input
+                            type="text"
+                            placeholder="Rechercher un médicament..."
+                            className="px-3 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
                 </div>
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            <Package className="w-5 h-5 text-green-600" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-600">En stock</p>
+                            <p className="text-xl font-bold text-gray-900">
+                                {medicaments?.data?.filter(m => ((m.stock / m.last_stock) * 100) > 45).length}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <AlertTriangle className="w-5 h-5 text-orange-600" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-600">Stock faible</p>
+                            <p className="text-xl font-bold text-gray-900">
+                                {medicaments?.data?.filter(m => ((m.stock / m.last_stock) * 100) <= 45).length}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                            <Calendar className="w-5 h-5 text-red-600" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-600">Expirés ou expire bientôt</p>
+                            <p className="text-xl font-bold text-gray-900">
+                                {medicaments?.data?.filter(m => isExpiringSoon(m.date_expiration)).length}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            { coLoad && <TableauLoading icone={Package} titre="des produits" /> }
+
             {/* Tableau des produits */}
+            { !coLoad && (
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full">
@@ -144,7 +245,7 @@ export default function Produits() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                            {medicaments?.data?.map((product, index) => {
+                            {filteredMedicaments?.map((product, index) => {
                                 const view = product.medicament_name.toLowerCase().includes(searchTerm.toLowerCase())
                                 return (
                                     <tr key={index} className={`hover:bg-gray-50 ${ view ? '' : 'hidden' }`}>
@@ -209,13 +310,13 @@ export default function Produits() {
                             })}
                         </tbody>
                     </table>
-                    { medicaments?.data?.length === 0 &&
+                    { filteredMedicaments?.length === 0 &&
                     (<div className='flex items-center justify-center flex-col text-center w-full h-80'>
                         <Package className="w-12 h-12 text-gray-400 mb-3" />
                         <p className="text-gray-600">Aucun produit trouvé</p>
                     </div>) }
                 </div>
-            </div>
+            </div>  )}
 
             {/* ======================================================================================== */}
 
@@ -296,7 +397,7 @@ export default function Produits() {
                             helperText={errorsAdd.prixVente?.message}
                         />
                         <InputLabel 
-                            type="date"
+                            type="month"
                             label="Date d'expiration *"
                             {...registerAdd('dateExpiration', {
                                 required: 'La date d\'expiration est obligatoire'
@@ -354,6 +455,20 @@ export default function Produits() {
                         </SelectCustom>
                         <InputLabel 
                             type="number"
+                            label="Quantité *"
+                            placeholder="0"
+                            {...registerUpdate('quantite', {
+                                required: 'La quantité est obligatoire',
+                                min: {
+                                    value: 0,
+                                    message: 'La quantité doit être positive'
+                                }
+                            })}
+                            error={!!errorsUpdate.quantite}
+                            helperText={errorsUpdate.quantite?.message}
+                        />
+                        <InputLabel 
+                            type="number"
                             label="Prix d'achat (FC) *"
                             placeholder="0"
                             {...registerUpdate('prixAchat', {
@@ -380,13 +495,23 @@ export default function Produits() {
                             error={!!errorsUpdate.prixVente}
                             helperText={errorsUpdate.prixVente?.message}
                         />
+                        <InputLabel 
+                            type="month"
+                            label="Date d'expiration *"
+                            {...registerUpdate('dateExpiration', {
+                                required: 'La date d\'expiration est obligatoire'
+                            })}
+                            error={!!errorsUpdate.dateExpiration}
+                            helperText={errorsUpdate.dateExpiration?.message}
+                        />
                     </div>
                     
                     <div className="flex gap-2 mt-6">
                         <Bouton primary type="submit" className="flex-1">
                             Sauvegarder les modifications
                         </Bouton>
-                        <Bouton className="flex-1" outline onClick={() => setEditModal(false)}>
+                        <Bouton className="flex-1" outline onClick={() => {
+                            setEditModal(false)}}>
                             Annuler
                         </Bouton>
                     </div>

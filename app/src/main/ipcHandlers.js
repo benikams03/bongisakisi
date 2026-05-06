@@ -103,8 +103,6 @@ ipcMain.handle('getProduits', () => produitController.get())
 ipcMain.handle('addProduit', (_, data) => produitController.add(data))
 ipcMain.handle('updateProduit', (_, data, id) => produitController.update(data, id))
 ipcMain.handle('deleteProduit', (_, id) => produitController.delete(id))
-ipcMain.handle('addStock', (_, data) => produitController.addStock(data))
-ipcMain.handle('updateExpiry', (_, data) => produitController.updateExpiry(data))
 
 ipcMain.handle('getFournisseurs', () => fournisseurController.get())
 ipcMain.handle('addFournisseur', (_, data) => fournisseurController.add(data))

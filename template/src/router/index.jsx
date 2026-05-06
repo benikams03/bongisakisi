@@ -17,7 +17,6 @@ import Categories from '../window/admin/categories'
 import Rapports from '../window/admin/rapports'
 import Settings from '../window/admin/settings/index'
 import Approvisionnement from '../window/admin/approvisionnement'
-import Ravitaillement from '../window/admin/ravitaillement'
 import Export from '../window/admin/export'
 import ExportView from '../window/admin/export-view'
 
@@ -67,10 +66,6 @@ export const route = createHashRouter([
             {
                 path: 'approvisionnement',
                 element: <Approvisionnement />
-            },
-            {
-                path: 'ravitaillement',
-                element: <Ravitaillement />
             },
             {
                 path: 'rapports',

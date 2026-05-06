@@ -1,3 +1,14 @@
+export function toYearMonth(dateStr) {
+  // Vérifie format YYYY-MM-DD strict
+  const regex = /^\d{4}-\d{2}-\d{2}$/;
+
+  if (!regex.test(dateStr)) {
+    return null; // ou throw une erreur
+  }
+
+  return dateStr.slice(0, 7);
+}
+
 /**
  * Transforme une date du format YYYY-MM-DD en DD/MM/YYYY
  * @param {string} dateString - Date au format YYYY-MM-DD

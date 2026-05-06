@@ -60,7 +60,7 @@ class ProduitController {
                     last_stock: data.quantite,
                     price_buy: data.prixAchat,
                     price_sell: data.prixVente,
-                    date_expiration: data.dateExpiration
+                    date_expiration: data.dateExpiration + "-01"
                 })
                 return { success: true}
             }
@@ -85,8 +85,17 @@ class ProduitController {
                         name: Text.capitalize(data.name),
                         family_id: data.family,
                         price_buy: data.prixAchat,
-                        price_sell: data.prixVente
+                        price_sell: data.prixVente,
+                        date_expiration: data.dateExpiration + "-01",
                     }, { id: id })
+
+                    if(Number(data.quantite) !== verify.stock) {
+                        this.queries.update('medicaments', 
+                        {
+                            stock: data.quantite,
+                            last_stock: data.quantite
+                        }, { id: id })
+                    } 
                     
                     return { success: true}
                 }
@@ -105,44 +114,6 @@ class ProduitController {
             return { success: true}
         } catch (error) {
             log.error('Error deleting product:', error);
-            return {
-                success: false,
-                error: error.message
-            }
-        }
-    }
-
-    addStock(data) {
-        try {
-            const old = this.queries.findOne('medicaments', { id: data.id })
-            const newStock = data.choix === 'ajouter' ? Number(old.stock) + Number(data.quantite) : Number(old.stock) - Number(data.quantite)
-
-            this.queries.update('medicaments', 
-            {
-                stock: newStock >= 0 ? newStock : 0,
-                last_stock: newStock >= 0 ? newStock : 0
-            }, { id: data.id })
-            
-            return { success: true}
-        } catch (error) {
-            log.error('Error adding stock:', error);
-            return {
-                success: false,
-                error: error.message
-            }
-        }
-    }
-
-    updateExpiry(data) {
-        try {
-            this.queries.update('medicaments', 
-            {
-                date_expiration: data.nouvelleDate
-            }, { id: data.id })
-            
-            return { success: true}
-        } catch (error) {
-            log.error('Error updating expiry:', error);
             return {
                 success: false,
                 error: error.message
