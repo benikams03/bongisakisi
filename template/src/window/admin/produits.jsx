@@ -191,7 +191,7 @@ export default function Produits() {
                             <Package className="w-5 h-5 text-green-600" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-600">En stock</p>
+                            <p className="text-sm text-gray-600">Stock normal</p>
                             <p className="text-xl font-bold text-gray-900">
                                 {medicaments?.data?.filter(m => ((m.stock / m.last_stock) * 100) > 45).length}
                             </p>

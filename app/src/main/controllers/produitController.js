@@ -76,29 +76,32 @@ class ProduitController {
     update(data, id) {
         try {
             const verify = this.queries.findOne('medicaments', { name: Text.capitalize(data.name) })
-                if(verify && verify.id !== id) {
-                    log.warn('le nom du produit existe déjà:', data.name);
-                    return { success: false, error: 'Le nom du produit existe déjà' }
-                } else {
+            const currentProduct = this.queries.findOne('medicaments', { id: id })
+            
+            if(verify && verify.id !== id) {
+                log.warn('le nom du produit existe déjà:', data.name);
+                return { success: false, error: 'Le nom du produit existe déjà' }
+            } else {
+                this.queries.update('medicaments', 
+                {
+                    name: Text.capitalize(data.name),
+                    family_id: data.family,
+                    price_buy: data.prixAchat,
+                    price_sell: data.prixVente,
+                    date_expiration: data.dateExpiration + "-01",
+                }, { id: id })
+
+                // Vérifier si la quantité a changé et mettre à jour le stock
+                if(currentProduct && Number(data.quantite) !== currentProduct.stock) {
                     this.queries.update('medicaments', 
                     {
-                        name: Text.capitalize(data.name),
-                        family_id: data.family,
-                        price_buy: data.prixAchat,
-                        price_sell: data.prixVente,
-                        date_expiration: data.dateExpiration + "-01",
+                        stock: data.quantite,
+                        last_stock: data.quantite
                     }, { id: id })
-
-                    if(Number(data.quantite) !== verify.stock) {
-                        this.queries.update('medicaments', 
-                        {
-                            stock: data.quantite,
-                            last_stock: data.quantite
-                        }, { id: id })
-                    } 
-                    
-                    return { success: true}
-                }
+                } 
+                
+                return { success: true}
+            }
         } catch (error) {
             log.error('Error updating product:', error);
             return {
