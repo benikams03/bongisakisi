@@ -1,203 +1,251 @@
 import { useState, useEffect } from 'react'
-import { FileText, Download, TrendingUp, TrendingDown, DollarSign, Package, ShoppingCart, Calendar, Filter, BarChart3, PieChart, LineChart, ArrowUpRight, ArrowDownRight, Printer, Mail } from 'lucide-react'
+import { Calendar, Download, Eye, TrendingUp, DollarSign, Package, ShoppingCart, ClipboardList, RefreshCw } from 'lucide-react'
 import { Bouton } from '../../components/ui/bouton'
-import { rapportService } from "../../services/caissier/rapport_service";
+import { InputLabel } from '../../components/ui/input'
+import { Link } from 'react-router-dom'
+import { exportService } from '../../services/admin/export_service'
 import { number } from "./../../hooks/number"
+import { useForm } from 'react-hook-form'
+import { formatDateToFrench } from '../../hooks/format_date'
 
 export default function Rapports() {
-    
-    const [selectedPeriod, setSelectedPeriod] = useState('day')
-    const [rapport, setRapport] = useState([])
+    const now = new Date()
+    const [filterType, setFilterType] = useState('journalier')
 
-    useEffect(()=>{ 
-        (async() => {
-            const result = await rapportService.getRapportAdmin(selectedPeriod);
-            setRapport(result.data);
-            
+    const [exportDatas, setExportDatas] = useState([])
+    const [load, setLoad] = useState(true)
+
+    const {
+        register: registerDay,
+        watch: watchDay
+    } = useForm()
+
+    const {
+        register: registerMonth,
+        watch: watchMonth,
+    } = useForm()
+
+    useEffect(()=>{
+        (async()=>{
+            setExportDatas(await exportService.get( filterType, 
+                filterType === 'mensuel' ? watchMonth('mensuel') : 
+                    filterType === 'journalier' ? watchDay('journalier') : 'all'))
         })()
-    },[selectedPeriod])
+    },[filterType, load])   
+    
 
+
+    const getStatusBadge = (date) => {
+        let status
+        if(filterType === 'mensuel') {
+            const month = now.getFullYear() + '-' + (now.getMonth()).toString().padStart(2, '0')
+            status = date === month ? 'ready' : 'pending'
+        } else if(filterType === 'journalier') {
+            status = date === now.toISOString().slice(0, 10) ? 'pending' : 'ready'
+        } else if(filterType === 'annuel') {
+            status = date === now.getFullYear() ? 'ready' : 'pending'
+        }
+        
+        if (status === 'ready') {
+            return (
+                <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Prêt
+                </span>
+            )
+        } else if (status === 'pending') {
+            return (
+                <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 flex items-center gap-1">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                    En cours
+                </span>
+            )
+        }
+        return null
+    }
 
     return (
-        <div className="flex-1 p-2.5 h-full overflow-auto">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Rapports et analyses</h2>
-                    <p className="text-sm text-gray-600 mt-1">Analysez vos performances commerciales</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1">
-                        {['day','week', 'month', 'year'].map((period) => (
-                            <button
-                                key={period}
-                                onClick={() => setSelectedPeriod(period)}
-                                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
-                                    selectedPeriod === period
-                                        ? 'bg-emerald-800 text-white'
-                                        : 'text-gray-600 hover:text-gray-900'
-                                }`}
+    <>
+        <div className="p-2.5 h-full overflow-auto">
+            <div className="mb-6">
+                <h1 className="text-2xl font-bold text-gray-900">Exportation des Rapports</h1>
+                <p className="text-sm text-gray-600 mt-1">Générez et exportez les rapports de vente selon différentes périodes</p>
+            </div>
+
+            {/* Options de filtrage */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-4">
+                <div className="flex justify-between items-start">
+                    <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Période d'exportation</h3>
+                        <div className="flex gap-3">
+                            <Bouton
+                                primary={filterType === 'journalier'}
+                                outline={filterType !== 'journalier'}
+                                onClick={() => setFilterType('journalier')}
+                                className="flex items-center gap-2"
                             >
-                                {period === 'day' ? 'Aujourd\'hui' : 
-                                 period === 'week' ? 'Semaine' :
-                                 period === 'month' ? 'Mois' : 'Année'}
-                            </button>
-                        ))}
+                                <Calendar className="w-4 h-4" />
+                                Journalier
+                            </Bouton>
+                            <Bouton
+                                primary={filterType === 'mensuel'}
+                                outline={filterType !== 'mensuel'}
+                                onClick={() => setFilterType('mensuel')}
+                                className="flex items-center gap-2"
+                            >
+                                <Calendar className="w-4 h-4" />
+                                Mensuel
+                            </Bouton>
+                            <Bouton
+                                primary={filterType === 'annuel'}
+                                outline={filterType !== 'annuel'}
+                                onClick={() => setFilterType('annuel')}
+                                className="flex items-center gap-2"
+                            >
+                                <Calendar className="w-4 h-4" />
+                                Annuel
+                            </Bouton>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            {/* Statistiques principales */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
-                <div className="bg-white border border-gray-200 rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                            <DollarSign className="w-6 h-6 text-white" />
-                        </div>
-                        <div className={`flex items-center gap-1 text-xs font-medium rounded-lg py-0.5 px-1 ${
-                            number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) >= 0 ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'
-                        }`}>
-                            {number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                            {number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay)}%
-                        </div>
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{number.format(Number(rapport?.stats?.ventesDay))} FC</h3>
-                    <p className="text-sm text-gray-600">Chiffre d'affaires</p>
-                </div>
-
-                <div className="bg-white border border-gray-200 rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-                            <ShoppingCart className="w-6 h-6 text-white" />
-                        </div>
-                        <div className={`flex items-center gap-1 text-xs rounded-lg py-0.5 px-1 font-medium ${
-                            number.pourcentage(Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay) , Number(rapport?.stats_old?.ventesDay) - Number(rapport?.stats_old?.gainDay)) >= 0 ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'
-                        }`}>
-                            {number.pourcentage(Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay) , Number(rapport?.stats_old?.ventesDay) - Number(rapport?.stats_old?.gainDay)) >= 0
-                                ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                            {number.pourcentage(Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay) , Number(rapport?.stats_old?.ventesDay) - Number(rapport?.stats_old?.gainDay))}%
-                        </div>
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{number.format( Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay))} FC</h3>
-                    <p className="text-sm text-gray-600">Fonds de roulement</p>
-                </div>
-
-                <div className="bg-white border border-gray-200 rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                            <TrendingUp className="w-6 h-6 text-white" />
-                        </div>
-                        <div className={`flex items-center gap-1 text-xs rounded-lg py-0.5 px-1 font-medium ${
-                            number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay) >= 0 ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'
-                        }`}>
-                            {number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay) >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                            {number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay)}%
-                        </div>
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{number.format(Number(rapport?.stats?.gainDay))} FC</h3>
-                    <p className="text-sm text-gray-600">Bénéfice</p>
-                </div>
-
-                <div className="bg-white border border-gray-200 rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-                            <ShoppingCart className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="text-sm font-medium text-gray-600">
-                            {number.format(Number(rapport?.stats?.commandeDay))} ventes
-                        </div>
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{number.format(Number(rapport?.stats?.produitDay))}</h3>
-                    <p className="text-sm text-gray-600">Produits actifs</p>
-                </div>
-            </div>
-
-            {/* Graphique par mois */}
-            {/* <div className='mb-5'>
-                <div className="bg-white border border-gray-200 rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900">Évolution des revenus mensuels</h3>
-                        <Bouton outline className="text-sm">
-                            <BarChart3 className="w-4 h-4" />
-                        </Bouton>
-                    </div>
-                </div>
-            </div> */}
-
-            {/* Graphiques */}
-            <div className="grid grid-cols-1 gap-3">
-                
-                <div className="bg-white border border-gray-200 rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900">Top 10 de produits vendus</h3>
-                    </div>
-                    <div className="space-y-3">
-                        {rapport?.topVentes?.map((product, index) => (
-                            <div key={index} className="flex items-center border border-gray-300 justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-8 h-8 bg-emerald-800 text-white rounded-lg flex items-center justify-center font-semibold text-sm">
-                                        {index + 1}
-                                    </div>
-                                    <div>
-                                        <h4 className="font-medium text-gray-900">{product.name}</h4>
-                                        <p className="text-sm text-gray-600">{product.quantiteTotale} ventes</p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className="font-semibold text-gray-900">{number.format(Number(product.totalVentes))} FC</p>
-                                    <p className={`text-sm ${
-                                        product.stock < 10 ? 'text-red-600' : 'text-gray-600'
-                                    }`}>
-                                        Stock: {product.stock}
-                                    </p>
-                                </div>
+                    {/* Options supplémentaires selon le type */}
+                    <div className="w-64">
+                        {filterType === 'journalier' && (
+                            <div className="space-y-3">
+                                <InputLabel
+                                    label="Mois & Année"
+                                    type="month"
+                                    {...registerDay('journalier',
+                                        { value: now.toISOString().slice(0, 7) }
+                                    )}
+                                />
+                                <Bouton 
+                                    outline 
+                                    className="flex items-center gap-2 w-full"
+                                    onClick={()=> setLoad(!load)}
+                                >
+                                    <RefreshCw className="w-4 h-4" />
+                                    Actualiser
+                                </Bouton>
                             </div>
-                        ))}
+                        )}
+                        {filterType === 'mensuel' && (
+                            <div className="space-y-3">
+                                <InputLabel
+                                    label="Année"
+                                    type="number"
+                                    min="2026"
+                                    {...registerMonth('mensuel', 
+                                        { value: now.getFullYear() }
+                                    )}
+                                />
+                                <Bouton 
+                                    outline 
+                                    className="flex items-center gap-2 w-full"
+                                    onClick={()=> setLoad(!load)}
+                                >
+                                    <RefreshCw className="w-4 h-4" />
+                                    Actualiser
+                                </Bouton>
+                            </div>
+                        )}
                     </div>
                 </div>
-                
             </div>
 
-            {/* Rapports disponibles */}
-            {/* <div className="bg-white border border-gray-200 rounded-xl p-6">
-                <div className="flex items-center justify-between mb-6">
+            {/* Liste des données d'exportation */}
+            <div className="bg-white rounded-lg shadow-xs border border-gray-200">
+                <div className="p-6 border-b border-gray-200">
                     <h3 className="text-lg font-semibold text-gray-900">Rapports disponibles</h3>
-                    <div className="flex items-center gap-2">
-                        <Bouton outline className="text-sm">
-                            <Mail className="w-4 h-4" />
-                            Envoyer par email
-                        </Bouton>   
-                    </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {availableReports.map((report, index) => {
-                        const Icon = report.icon
-                        return (
-                            <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                                <div className="flex items-start gap-3">
-                                    <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-                                        <Icon className="w-5 h-5 text-slate-600" />
+                <div className="divide-y divide-gray-200">
+                    {exportDatas?.map((item, index) => (
+                        <div key={index} className="p-6">
+                            <div className="flex justify-between items-start">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <h4 className="font-medium text-gray-900">
+                                            {filterType === 'journalier' && `Rapport du : ${formatDateToFrench(item.periode)}`}
+                                            {filterType === 'mensuel' && `Rapport du mois : ${formatDateToFrench(item.periode)}`}
+                                            {filterType === 'annuel' && `Rapport de l'année ${item.periode}`}
+                                        </h4>
+                                        {getStatusBadge(item.periode)}
                                     </div>
-                                    <div className="flex-1">
-                                        <h4 className="font-medium text-gray-900 mb-1">{report.name}</h4>
-                                        <p className="text-sm text-gray-600 mb-3">{report.description}</p>
-                                        <div className="flex gap-2">
-                                            <Bouton outline className="text-xs">
-                                                <Download className="w-3 h-3" />
-                                                PDF
-                                            </Bouton>
-                                            <Bouton outline className="text-xs">
-                                                <FileText className="w-3 h-3" />
-                                                Excel
-                                            </Bouton>
+                                    
+                                    {/* Statistiques */}
+                                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                                                <DollarSign className="w-4 h-4 text-green-600" />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs text-gray-500 truncate">Ventes</p>
+                                                <p className="font-semibold text-gray-900 text-sm truncate">
+                                                    {number.format(item.total_ventes)} FC
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                                                <TrendingUp className="w-4 h-4 text-blue-600" />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs text-gray-500 truncate">Bénéfice</p>
+                                                <p className="font-semibold text-gray-900 text-sm truncate" >
+                                                    {number.format(item.total_benefice)} FC
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                                                <Package className="w-4 h-4 text-purple-600" />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs text-gray-500 truncate">Capital</p>
+                                                <p className="font-semibold text-gray-900 text-sm truncate">
+                                                    {number.format(item.capital)} FC
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                                                <ShoppingCart className="w-4 h-4 text-orange-600" />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs text-gray-500 truncate">Produits vendus</p>
+                                                <p className="font-semibold text-gray-900 text-sm truncate">
+                                                    {item.total_quantite}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                                                <ClipboardList className="w-4 h-4 text-blue-600" />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs text-gray-500 truncate">Commandes</p>
+                                                <p className="font-semibold text-gray-900 text-sm truncate">
+                                                    {item.nombre_commandes}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Actions */}
+                                <Link to={`/admin/export-view/${filterType}/${item.periode}`}>
+                                    <Bouton
+                                        outline
+                                        size="sm"
+                                    >
+                                        <Eye className="w-4 h-4" />
+                                        Visualiser
+                                    </Bouton>
+                                </Link>
                             </div>
-                        )
-                    })}
+                        </div>
+                    ))}
                 </div>
-            </div> */}
+            </div>
         </div>
-    )
+    </>)
 }

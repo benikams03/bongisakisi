@@ -10,7 +10,6 @@ const menuItems = [
 ]
 
 const menuItemsSecondaire = [
-    { id: 'export', label: 'Export', icon: Download },
     { id: 'settings', label: 'Paramètres', icon: Settings },
 ]
 

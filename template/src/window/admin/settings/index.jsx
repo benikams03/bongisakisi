@@ -4,7 +4,7 @@ import { RenderGeneralSettings } from './general'
 import { RenderLicenseSettings } from './license'
 import { RenderExportSettings } from './export'
 import { RenderSecuritySettings } from './security'
-// import { RenderThemeSettings } from './theme'
+import { RenderThemeSettings } from './theme'
 // import { RenderNotificationSettings } from './notifications'
 // import { RenderImportSettings } from './import'
 // import { RenderRegionalSettings } from './regional'
@@ -17,7 +17,7 @@ export default function SettingsPage() {
     const tabs = [
         { id: 'general', label: 'Général', icon: Settings },
         // { id: 'notifications', label: 'Notifications', icon: Bell },
-        // { id: 'theme', label: 'Thème', icon: Palette },
+        { id: 'theme', label: 'Thème', icon: Palette },
         { id: 'license', label: 'Licence', icon: Shield },
         { id: 'export', label: 'Export', icon: FileText },
         { id: 'security', label: 'Sécurité', icon: Lock },
@@ -32,7 +32,7 @@ export default function SettingsPage() {
             case 'license': return <RenderLicenseSettings />
             case 'export': return <RenderExportSettings />
             case 'security': return <RenderSecuritySettings />
-            // case 'theme': return <RenderThemeSettings />
+            case 'theme': return <RenderThemeSettings />
             // case 'notifications': return <RenderNotificationSettings />
             // case 'import': return <RenderImportSettings />
             // case 'regional': return <RenderRegionalSettings />

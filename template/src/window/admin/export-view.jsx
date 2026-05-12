@@ -46,7 +46,7 @@ export default function ExportViewPage() {
                         <Download className="w-4 h-4" />
                         Exporter en PDF
                     </Bouton>
-                    <Link to="/admin/export">
+                    <Link to="/admin/rapports">
                         <Bouton outline className="flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
                             Changer la période

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Package, DollarSign, ShoppingCart, AlertTriangle, ArrowUpRight, ArrowDownRight, Calendar } from 'lucide-react'
+import { TrendingUp, DollarSign, Package, ShoppingCart, Calendar,  ArrowUpRight, ArrowDownRight, AlertTriangle } from 'lucide-react'
 import { rapportService } from "../../services/caissier/rapport_service";
 import { number } from "./../../hooks/number"
 import { formatDateToDMY } from "../../hooks/format_date"
@@ -8,17 +8,17 @@ export default function Dashboard() {
     
     const [selectedPeriod, setSelectedPeriod] = useState('day')
     const [rapport, setRapport] = useState([])
-    const [lowStockItems, setLowStockItems] = useState([])
-    const [expiredItems, setExpiredItems] = useState([])
-    const [expiringSoonItems, setExpiringSoonItems] = useState([])
 
     useEffect(()=>{ 
         (async() => {
-            const result = await rapportService.getStatDashbord(selectedPeriod);
+            const result = await rapportService.getRapportAdmin(selectedPeriod);
             setRapport(result.data);
         })()
     },[selectedPeriod])
 
+    const [lowStockItems, setLowStockItems] = useState([])
+    const [expiredItems, setExpiredItems] = useState([])
+    const [expiringSoonItems, setExpiringSoonItems] = useState([])
     useEffect(() => {
         (async() => {
             // Récupérer les stocks faibles
@@ -32,33 +32,6 @@ export default function Dashboard() {
         })()
     }, [])
 
-    // Données simulées pour le dashboard
-    const stats = [
-        {
-            title: 'Chiffre d\'affaires',
-            value: number.format(Number(rapport?.stats?.ventesDay)) + ' FC',
-            change: number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) + '%',
-            positive: number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) >= 0 ? true : false ,
-            icon: DollarSign,
-            color: 'from-blue-500 to-blue-600'
-        },
-        {
-            title: 'Produits vendus',
-            value: number.format(Number(rapport?.stats?.produitDay)),
-            change: number.pourcentage(rapport?.stats?.produitDay , rapport?.stats_old?.produitDay) + '%',
-            positive: number.pourcentage(rapport?.stats?.produitDay , rapport?.stats_old?.produitDay) >= 0 ? true : false ,
-            icon: Package,
-            color: 'from-emerald-500 to-emerald-600'
-        },
-        {
-            title: 'Commandes',
-            value: number.format(Number(rapport?.stats?.commandeDay)),
-            change: number.pourcentage(rapport?.stats?.commandeDay , rapport?.stats_old?.commandeDay) + '%',
-            positive: number.pourcentage(rapport?.stats?.commandeDay , rapport?.stats_old?.commandeDay) >= 0 ? true : false ,
-            icon: ShoppingCart,
-            color: 'from-purple-500 to-purple-600'
-        },
-    ]
 
     return (
         <div className="flex-1 p-2.5 h-full overflow-auto">
@@ -70,7 +43,7 @@ export default function Dashboard() {
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1">
-                        {['day', 'week'].map((period) => (
+                        {['day','week', 'month', 'year'].map((period) => (
                             <button
                                 key={period}
                                 onClick={() => setSelectedPeriod(period)}
@@ -81,37 +54,108 @@ export default function Dashboard() {
                                 }`}
                             >
                                 {period === 'day' ? 'Aujourd\'hui' : 
-                                 period === 'week' ? 'Semaine' : ''}
+                                 period === 'week' ? 'Semaine' :
+                                 period === 'month' ? 'Mois' : 'Année'}
                             </button>
                         ))}
                     </div>
                 </div>
             </div>
 
-            {/* Statistiques */}
-            <div className="grid grid-cols-3 gap-4 mb-5">
-                {stats.map((stat, index) => {
-                    const Icon = stat.icon
-                    return (
-                        <div key={index} className="bg-white border border-gray-200 rounded-xl p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-lg flex items-center justify-center`}>
-                                    <Icon className="w-6 h-6 text-white" />
-                                </div>
-                                <div className={`flex items-center gap-1 text-xs font-medium rounded-lg py-0.5 px-1 ${
-                                    stat.positive ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'
-                                }`}>
-                                    {stat.positive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                                    {stat.change}
-                                </div>
-                            </div>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</h3>
-                            <p className="text-sm text-gray-600">{stat.title}</p>
+            {/* Statistiques principales */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                            <DollarSign className="w-6 h-6 text-white" />
                         </div>
-                    )
-                })}
+                        <div className={`flex items-center gap-1 text-xs font-medium rounded-lg py-0.5 px-1 ${
+                            number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) >= 0 ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'
+                        }`}>
+                            {number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay) >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                            {number.pourcentage(rapport?.stats?.ventesDay , rapport?.stats_old?.ventesDay)}%
+                        </div>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{number.format(Number(rapport?.stats?.ventesDay))} FC</h3>
+                    <p className="text-sm text-gray-600">Chiffre d'affaires</p>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <ShoppingCart className="w-6 h-6 text-white" />
+                        </div>
+                        <div className={`flex items-center gap-1 text-xs rounded-lg py-0.5 px-1 font-medium ${
+                            number.pourcentage(Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay) , Number(rapport?.stats_old?.ventesDay) - Number(rapport?.stats_old?.gainDay)) >= 0 ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'
+                        }`}>
+                            {number.pourcentage(Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay) , Number(rapport?.stats_old?.ventesDay) - Number(rapport?.stats_old?.gainDay)) >= 0
+                                ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                            {number.pourcentage(Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay) , Number(rapport?.stats_old?.ventesDay) - Number(rapport?.stats_old?.gainDay))}%
+                        </div>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{number.format( Number(rapport?.stats?.ventesDay) - Number(rapport?.stats?.gainDay))} FC</h3>
+                    <p className="text-sm text-gray-600">Fonds de roulement</p>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                            <TrendingUp className="w-6 h-6 text-white" />
+                        </div>
+                        <div className={`flex items-center gap-1 text-xs rounded-lg py-0.5 px-1 font-medium ${
+                            number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay) >= 0 ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'
+                        }`}>
+                            {number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay) >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                            {number.pourcentage(rapport?.stats?.gainDay , rapport?.stats_old?.gainDay)}%
+                        </div>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{number.format(Number(rapport?.stats?.gainDay))} FC</h3>
+                    <p className="text-sm text-gray-600">Bénéfice</p>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <ShoppingCart className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="text-sm font-medium text-gray-600">
+                            {number.format(Number(rapport?.stats?.commandeDay))} ventes
+                        </div>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{number.format(Number(rapport?.stats?.produitDay))}</h3>
+                    <p className="text-sm text-gray-600">Produits actifs</p>
+                </div>
             </div>
 
+            <div className="grid grid-cols-1 gap-3 mb-5">
+                
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-gray-900">Top 10 de produits vendus</h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        {rapport?.topVentes?.map((product, index) => (
+                            <div key={index} className="flex items-center border border-gray-200 justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-7 h-7 bg-gray-200 text-gray-800 rounded-lg flex items-center justify-center font-semibold text-sm">
+                                        {index + 1}
+                                    </div>
+                                    <div>
+                                        <h4 className="font-medium text-gray-900">{product.name}</h4>
+                                        <p className="text-sm text-gray-600">{product.quantiteTotale} ventes</p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <p className="font-semibold text-gray-900 text-sm">{number.format(Number(product.totalVentes))} FC</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                
+            </div>
+
+            
             <div className="grid grid-cols-2 gap-5">
  
                 {/* Stocks faibles */}
@@ -191,6 +235,7 @@ export default function Dashboard() {
                     </div>
                 </div>
             </div>
+
         </div>
     )
 }
