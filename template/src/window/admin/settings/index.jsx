@@ -1,9 +1,14 @@
 import { useState } from 'react'
-import { Settings, Shield, FileText, Lock } from 'lucide-react'
+import { Settings, Shield, FileText, Lock, Palette, Bell, Upload, Globe, Wrench } from 'lucide-react'
 import { RenderGeneralSettings } from './general'
 import { RenderLicenseSettings } from './license'
 import { RenderExportSettings } from './export'
 import { RenderSecuritySettings } from './security'
+// import { RenderThemeSettings } from './theme'
+// import { RenderNotificationSettings } from './notifications'
+// import { RenderImportSettings } from './import'
+// import { RenderRegionalSettings } from './regional'
+// import { RenderMaintenanceSettings } from './maintenance'
 
 export default function SettingsPage() {
 
@@ -11,9 +16,14 @@ export default function SettingsPage() {
 
     const tabs = [
         { id: 'general', label: 'Général', icon: Settings },
+        // { id: 'notifications', label: 'Notifications', icon: Bell },
+        // { id: 'theme', label: 'Thème', icon: Palette },
         { id: 'license', label: 'Licence', icon: Shield },
         { id: 'export', label: 'Export', icon: FileText },
         { id: 'security', label: 'Sécurité', icon: Lock },
+        // { id: 'import', label: 'Import', icon: Upload },
+        // { id: 'regional', label: 'Régionalisation', icon: Globe },
+        // { id: 'maintenance', label: 'Maintenance', icon: Wrench },
     ]
 
     const renderTabContent = () => {
@@ -22,6 +32,11 @@ export default function SettingsPage() {
             case 'license': return <RenderLicenseSettings />
             case 'export': return <RenderExportSettings />
             case 'security': return <RenderSecuritySettings />
+            // case 'theme': return <RenderThemeSettings />
+            // case 'notifications': return <RenderNotificationSettings />
+            // case 'import': return <RenderImportSettings />
+            // case 'regional': return <RenderRegionalSettings />
+            // case 'maintenance': return <RenderMaintenanceSettings />
             default: return <RenderGeneralSettings />
         }
     }
@@ -39,7 +54,7 @@ export default function SettingsPage() {
             <div className="flex gap-6">
                 {/* Sidebar */}
                 <div className="w-64">
-                    <nav className="space-y-1">
+                    <nav className="space-y-1 sticky top-0">
                         {tabs.map((tab) => {
                             const Icon = tab.icon
                             return (

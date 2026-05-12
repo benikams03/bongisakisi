@@ -27,14 +27,12 @@ export default function ActivateKey({ open, setOpen, isExpired }){
                 name_pharmacie: getInfo?.name,
                 email: getInfo?.email,
                 phone: getInfo?.phone,
-                localisation: getInfo?.address
+                localisation: getInfo?.address,
+                DeviceId: hostname.deviceId
             })
 
             if (res.data.success) {
-                await ActivateKeyService.set({
-                    key: data.key,
-                    isInfinity: true
-                })
+                await ActivateKeyService.set(res.data.data)
                 setOpen(false)
                 toast.success("Licence activée avec succès")
             } else{ 
@@ -48,8 +46,21 @@ export default function ActivateKey({ open, setOpen, isExpired }){
     }
 
     const handleFree = async () => {
+        const hostname = await window.localApi.invoke('getOsInfo')
+        const date = Date.now();
+        const hash = await window.localApi.invoke('hash', hostname.deviceId + date.toString() + hostname.deviceId)
+
         await ActivateKeyService.set({
-            isInfinity: false
+            license: {
+                key: null,
+                expires: {
+                    start: date,
+                    end: date + (8 * 24 * 60 * 60 * 1000), // 8 days in milliseconds
+                    hash: hash
+                },
+                deviceId: hostname.deviceId
+            },
+            signature: null
         })
         setOpen(false)
     }
@@ -119,7 +130,7 @@ export default function ActivateKey({ open, setOpen, isExpired }){
                     Activer
                 </Bouton>
                 
-                <Bouton outline className="flex-1" onClick={handleFree}>
+                <Bouton outline className="flex-1" type="button" onClick={handleFree}>
                     Activer l’essai gratuit
                 </Bouton>
             </div> }

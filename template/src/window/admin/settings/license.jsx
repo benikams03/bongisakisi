@@ -50,14 +50,12 @@ export const RenderLicenseSettings = () => {
                 name_pharmacie: getInfo?.name,
                 email: getInfo?.email,
                 phone: getInfo?.phone,
-                localisation: getInfo?.address
+                localisation: getInfo?.address,
+                DeviceId: hostname.deviceId
             })
 
             if (res.data.success) {
-                await ActivateKeyService.set({
-                    key: data.key,
-                    isInfinity: true
-                })
+                await ActivateKeyService.set(res.data.data)
                 resetKey()
                 setLaodLicense(!laodLicense)
                 setOpenLicenseModal(false)
@@ -81,7 +79,7 @@ export const RenderLicenseSettings = () => {
                 <div className="flex items-start justify-between">
                     <div>
                         <div className="flex items-center gap-2 mb-2">
-                            { licenseInfos?.expired?.isInfinity ?
+                            { licenseInfos?.license?.expires === false ?
                                 <>
                                     <Shield className="w-5 h-5" />
                                     <span className={`px-2 py-1 rounded-full text-xs font-medium text-green-600 bg-green-100`}>
@@ -97,24 +95,26 @@ export const RenderLicenseSettings = () => {
                             }
                         </div>
                         <h4 className="text-xl font-bold text-gray-900">
-                            {licenseInfos?.expired?.isInfinity ? 'Premium' : 'Trial'}
+                            { licenseInfos?.license?.expires === false ? 'Premium' : 'Trial'}
                         </h4>
                         <p className="text-sm text-gray-600">Clé: XXXX-XXXX-XXXX-XXXX</p>
                     </div>
                     <div className="text-right">
-                        { !licenseInfos?.expired?.isInfinity &&
+                        { licenseInfos?.license?.expires?.hash !== undefined &&
                             <div className="flex items-center gap-2 text-sm text-gray-600">
                                 <Calendar className="w-4 h-4" />
-                                    <span>Expire le: {licenseInfos?.expired?.date}</span>
+                                    <span>Expire le: {new Date(licenseInfos?.license?.expires?.end).toISOString().split("T")[0]}</span>
                             </div>
                         }
                         <p className="text-2xl font-bold text-gray-900 mt-1">
-                            { licenseInfos?.expired?.isInfinity ? 'Illimitée' : `${getDaysRemaining(licenseInfos?.expired?.date)} jours`}
+                            { licenseInfos?.license?.expires?.hash !== undefined ? `
+                                ${getDaysRemaining(new Date(licenseInfos?.license?.expires?.end).toISOString().split("T")[0])} jours` 
+                                : ''}
                         </p>
                     </div>
                 </div>
                 
-                { !licenseInfos?.expired?.isInfinity && (
+                { licenseInfos?.license?.expires?.hash !== undefined && (
                     <div className="mt-4">
                         <Bouton primary onClick={() => setOpenLicenseModal(true)}>
                             <Key className="w-4 h-4" />

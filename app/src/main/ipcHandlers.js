@@ -132,6 +132,9 @@ ipcMain.handle('getActivate', () => activateKeyController.get())
 ipcMain.handle('createActive', (_, data) => activateKeyController.set(data))
 ipcMain.handle('updateActive', (_, data) => activateKeyController.update(data))
 ipcMain.handle('getOsInfo', () => activateKeyController.getOsInfo())
+ipcMain.handle('hash', (_, content) => activateKeyController.hash(content))
+ipcMain.handle('compareHash', (_, content, hash) => activateKeyController.compareHash(content, hash))
+ipcMain.handle('verifyLicense', () => activateKeyController.verifyLicense())
 
 
 // EXPORTS

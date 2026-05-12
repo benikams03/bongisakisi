@@ -5,7 +5,7 @@ const menuItems = [
     { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
     { id: 'produits', label: 'Produits', icon: Package },
     { id: 'categories', label: 'Catégories', icon: Tag },
-    { id: 'approvisionnement', label: 'Commandes', icon: Truck, notif : 1 },
+    { id: 'approvisionnement', label: 'Acquisition', icon: Truck, notif : 1 },
     { id: 'rapports', label: 'Rapports', icon: FileText },
 ]
 

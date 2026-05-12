@@ -62,8 +62,8 @@ function createWindow () {
     // }
 
     mainWindow.setMenu(null)
-    // mainWindow.loadURL('http://localhost:5173')
-    mainWindow.loadFile(path.join(__dirname, '..', '..', 'resources', 'dist', 'index.html'))
+    mainWindow.loadURL('http://localhost:5173')
+    // mainWindow.loadFile(path.join(__dirname, '..', '..', 'resources', 'dist', 'index.html'))
 
     // Définir la fenêtre principale pour les handlers IPC
     setMainWindow(mainWindow)

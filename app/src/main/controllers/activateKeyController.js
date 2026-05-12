@@ -1,13 +1,18 @@
 import Store from 'electron-store';
 import log from 'electron-log';
 import os from 'os';
-import { Text } from '../utils/text.js';
+import pkg from "node-machine-id";
+const { machineIdSync } = pkg;
+import bcrypt from 'bcryptjs';
+import { PUBLIC_KEY } from '../store/secutiy.js';
+import crypto from "crypto";
 
 class ActivateKeyController {
     
     constructor() {
         this.store = new Store();
         this.os = os;
+        this.bcrypt = bcrypt;
     }
 
     get() {
@@ -19,14 +24,24 @@ class ActivateKeyController {
         } catch (error) {
             log.error('Error getting license:', error);
             return {
-                success: false,
+                success: false, 
                 error: error.message
             }
         }
     }
 
+    async hash(content) {
+        const salt = await this.bcrypt.genSalt(5)
+        return await this.bcrypt.hash(content, salt);
+    }
+    
+    async compareHash(content, hash) {
+        return await this.bcrypt.compare(content, hash);
+    }
+
     getOsInfo() {
         return {
+            deviceId: machineIdSync(),
             nom: this.os.hostname(),
             system: this.os.platform(),
             architecture: this.os.arch()
@@ -35,23 +50,7 @@ class ActivateKeyController {
 
     set(data) {
         try{
-            const dateExpired = new Date();
-            dateExpired.setDate(dateExpired.getDate() + 8)
-
-            this.store.set('license', {
-                key: data.key || '',
-                createdAt: new Date().toLocaleDateString("en-CA"),
-                expired: {
-                    isInfinity: data.isInfinity || false,
-                    date: dateExpired.toLocaleDateString("en-CA")
-                },
-                deviceId: {
-                    nom: this.os.hostname(),
-                    system: this.os.platform(),
-                    architecture: this.os.arch()
-                }
-            });
-
+            this.store.set('license', data);
             return { success: true }
         } catch (error) {
             log.error('Error setting license:', error);
@@ -83,6 +82,30 @@ class ActivateKeyController {
             return { success: true }
         } catch (error) {
             log.error('Error setting license:', error);
+            return {
+                success: false,
+                error: error.message
+            }
+        }
+    }
+
+    verifyLicense() {
+        try{
+            const currentLicense = this.store.get('license');
+            const isValid = crypto.verify(
+                "sha256",
+                Buffer.from(JSON.stringify({
+                    key: currentLicense.license.key,
+                    expires: false,
+                    deviceId: this.getOsInfo().deviceId
+                })),
+                PUBLIC_KEY,
+                Buffer.from(currentLicense.signature, "base64")
+            );
+            
+            return { success: !isValid }
+        } catch (error) {
+            log.error('Error verifying license:', error);
             return {
                 success: false,
                 error: error.message

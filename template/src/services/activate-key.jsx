@@ -33,21 +33,24 @@ export const ActivateKeyService = {
         try {
             const res = await window.localApi.invoke('getActivate')
             if(res.success) {
-                if(!res.data.expired.isInfinity) {
-                    const target = res.data.expired.date;
-                    const today = new Date().toISOString().split("T")[0];
+                if(res.data?.license?.expires === false) {
+                    const response = await window.localApi.invoke('verifyLicense')
+                    return response.success;
+                }else if(res.data?.license?.expires?.hash !== undefined) {
+                    const hostname = await window.localApi.invoke('getOsInfo')
+                    const now = Date.now();
+                    const checkOne = await window.localApi.invoke('compareHash', hostname.deviceId + res.data.license.expires.start + hostname.deviceId, res.data.license.expires.hash)
+                    const checkTwo = now > res.data.license.expires.end
+                    const checkThree = Math.round((res.data.license.expires.end - res.data.license.expires.start) / (1000 * 60 * 60 * 24)) === 8
 
-                    if( today > target ) {
-                        // expired
-                        return true
-                    } else {
+                    if( checkOne && !checkTwo && checkThree ) {
                         // not expired
                         return false
+                    } else {
+                        // expired
+                        return true
                     }
-                }else {
-                    console.log('online');
-                    // faire une verification online
-                }
+                }else { return true }
             } 
         }
         catch {
