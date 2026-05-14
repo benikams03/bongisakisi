@@ -4,7 +4,7 @@
  * @param {number} initialStock - Stock initial (last_stock)
  * @returns {object} - Objet avec statut et pourcentage
  */
-export function calculateStockStatus(currentStock, initialStock) {
+export function calculateStockStatus(currentStock, initialStock, color, bgcolor) {
     if (!currentStock || !initialStock) {
         return {
             status: 'inconnu',
@@ -34,8 +34,8 @@ export function calculateStockStatus(currentStock, initialStock) {
         return {
             status: 'bon',
             percentage: percentage,
-            color: 'text-emerald-600',
-            bgColor: 'bg-emerald-100'
+            color: color,
+            bgColor: bgcolor
         };
     }
 }

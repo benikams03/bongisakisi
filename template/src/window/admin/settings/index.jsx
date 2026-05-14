@@ -53,7 +53,7 @@ export default function SettingsPage() {
 
             <div className="flex gap-6">
                 {/* Sidebar */}
-                <div className="w-64">
+                <div className="w-52">
                     <nav className="space-y-1 sticky top-0">
                         {tabs.map((tab) => {
                             const Icon = tab.icon

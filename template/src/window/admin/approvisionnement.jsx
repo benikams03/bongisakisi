@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Building2, ChevronDown,User, ChevronUp, Plus, CheckCircle, Package, Edit, Trash2 } from 'lucide-react'
+import { useState, useEffect, useContext } from 'react'
+import { File, ChevronDown,User, ChevronUp, Plus, CheckCircle, Package, Edit, Trash2 } from 'lucide-react'
 import { Bouton } from '../../components/ui/bouton'
 import { InputLabel } from '../../components/ui/input'
 import Modal from "@mui/material/Modal"
@@ -9,9 +9,11 @@ import { famillieService } from '../../services/admin/famillie_service'
 import { produitService } from '../../services/admin/produit_service'
 import ConfirmModal from '../../components/common/modal/confirme'
 import { aquisitionService } from '../../services/admin/aquivistion_service'
+import { ThemeContext } from "./../../router/provider"
 
 export default function Approvisionnement() {
 
+    const { color } = useContext(ThemeContext)
     const [fournisseurs, setFournisseurs] = useState([])
     const [familles, setFamilles] = useState([])
     const [load, setLoad] = useState(false)
@@ -139,7 +141,7 @@ export default function Approvisionnement() {
                 <Bouton primary
                     onClick={() => setOpenM(true)}>
                     <Plus className="w-4 h-4" />
-                    Ajouter un fournisseur
+                    Nouveau papier
                 </Bouton>
             </div>
 
@@ -149,15 +151,19 @@ export default function Approvisionnement() {
                     <div key={index} className="bg-white border border-gray-200 rounded-lg">
                         {/* En-tête du fournisseur */}
                         <div 
-                            className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50"
+                            className={"px-3 py-2 flex items-center justify-between cursor-pointer " + color?.bg.hover[55] }
                             onClick={() => toggleSupplier(items.id)}
                         >
                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                    <Building2 className="w-4 h-4 text-blue-600" />
+                                <div className={"w-10 h-10 rounded-lg flex items-center justify-center " + color?.bg[200] }>
+                                    <File className={"w-4 h-4 " + color?.text[700]} />
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-gray-900">{items.name}</h3>
+                                    <h2 className='text-xs'>Papier {index + 1}</h2>
+                                    <h3 className="text-sm text-gray-900">
+                                        Titre:
+                                        <span className='font-semibold'> {items.name}</span>
+                                    </h3>
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
@@ -340,18 +346,18 @@ export default function Approvisionnement() {
                 className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4"
                 >
                 <form method='post' onSubmit={handleSubmitAddFournisseur(handleAddFournisseur)} id="print-area" className="bg-white border border-gray-300 w-1/3 p-4 rounded-lg shadow animate-fadeIn">
-                    <h2 className="text-xl font-semibold mb-5">Ajouter un fournisseur</h2>
+                    <h2 className="text-xl font-semibold mb-5">Ajouter un papier</h2>
 
                     <div className='space-y-2'>
-                        <InputLabel label="Nom du fournisseur"
-                            icons={User} 
+                        <InputLabel label="Titre du papier"
+                            icons={File} 
                             type="text" 
-                            placeholder="Jean Dupont"
+                            placeholder=""
                             {...registerAddFournisseur('name', {
-                                required: 'Le nom du fournisseur est obligatoire',
+                                required: 'Le titre est obligatoire',
                                 minLength: {
                                     value: 2,
-                                    message: 'Le nom du fournisseur doit contenir au moins 2 caractères'
+                                    message: 'Le titre doit contenir au moins 2 caractères'
                                 }
                             })}
                             error={!!errorsAddFournisseur.name}
@@ -375,16 +381,16 @@ export default function Approvisionnement() {
             {/* Modal pour modifier le fournisseur */}
             <Modal open={editSupplierModal} className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4">
                 <form method='post' onSubmit={handleSubmitUpdateFournisseur(handleUpdateFournisseur)} className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
-                    <h2 className="text-xl font-semibold mb-4">Modifier le fournisseur</h2>
+                    <h2 className="text-xl font-semibold mb-4">Modifier le papier</h2>
                     
-                    <InputLabel label="Nom du fournisseur"
+                    <InputLabel label="Titre du papier"
                         icons={User} 
                         type="text" 
                         {...registerUpdateFournisseur('name', {
-                            required: 'Le nom du fournisseur est obligatoire',
+                            required: 'Le titre est obligatoire',
                             minLength: {
                                 value: 2,
-                                message: 'Le nom du fournisseur doit contenir au moins 2 caractères'
+                                message: 'Le titre doit contenir au moins 2 caractères'
                             }
                         })}
                         error={!!errorsUpdateFournisseur.name}
@@ -417,8 +423,8 @@ export default function Approvisionnement() {
                     setShowConfirmModal(false);
                 }}
                 onCancel={() => setShowConfirmModal(false)}
-                title="Supprimer le fournisseur"
-                message="Êtes-vous sûr de vouloir supprimer ce fournisseur ?, Toutes les commandes liées à ce fournisseur seront également supprimées"
+                title="Supprimer le papier"
+                message="Êtes-vous sûr de vouloir supprimer ce papier ? Toutes les commandes liées dans ce papier seront également supprimées"
             />
         </div>
     )

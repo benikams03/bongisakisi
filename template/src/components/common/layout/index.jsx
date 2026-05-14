@@ -1,16 +1,18 @@
 import { Outlet, useLocation, Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { LogOut, User, Bell,  } from 'lucide-react';
 import { aquisitionService } from '../../../services/admin/aquivistion_service';
 import { ActivateKeyService } from './../../../services/activate-key';
 import ActivateKey from './../activate_key';
 import Head from './nav-head';
+import { ThemeContext } from '../../../router/provider';
 
 
 export default function LayoutIndex({ menu, menuSecond, curentLink }) {
     
 
     const activeSection = useLocation().pathname
+    const { color } = useContext(ThemeContext)
 
     // ======================================================================
     const [acquisitionCount, setAcquisitionCount] = useState(0)
@@ -44,7 +46,7 @@ export default function LayoutIndex({ menu, menuSecond, curentLink }) {
         <Head />
 
         <div className='flex h-[95.5%]'>
-            <div className='w-[20%] bg-emerald-900 flex flex-col justify-between text-white sticky right-0 h-full border-r border-gray-200 px-3 py-1.5'>
+            <div className={`w-[20%] ${color?.bg[900]} flex flex-col justify-between text-white sticky right-0 h-full border-r border-gray-200 px-3 py-1.5`}>
                 <div>
                     <nav className='flex flex-col gap-1'>
                         {menu?.map(item => {
@@ -56,7 +58,7 @@ export default function LayoutIndex({ menu, menuSecond, curentLink }) {
                                 className={`
                                     w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-sm
                                     ${activeSection === curentLink + item.id 
-                                        ? 'bg-emerald-600/50 text-emerald-300' 
+                                        ? color?.bg[650] + ' ' + color?.text[300] 
                                         : 'hover:bg-gray-50/10 text-gray-300'
                                     }
                                 `}
@@ -83,7 +85,7 @@ export default function LayoutIndex({ menu, menuSecond, curentLink }) {
                                 className={`
                                     w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-sm
                                     ${activeSection === curentLink + item.id 
-                                        ? 'bg-emerald-600/50 text-emerald-300'
+                                        ? color?.bg[650] + ' ' + color?.text[300] 
                                         : 'hover:bg-gray-50/10 text-gray-300'
                                     }
                                 `}
@@ -104,11 +106,11 @@ export default function LayoutIndex({ menu, menuSecond, curentLink }) {
 
                 <div className='mb-2'>
                     <Link to="/"
-                        className='
-                            flex items-center text-sm gap-2 border border-emerald-700 justify-center py-1.5 rounded-lg bg-emerald-800
-                            hover:bg-emerald-800/90 
-                            active:bg-emerald-800/50 active:scale-97  
-                        '>
+                        className={`
+                            flex items-center text-sm gap-2 border ${color?.border[700]} justify-center py-1.5 rounded-lg ${color?.bg[800]}
+                            ${color?.bg.hover[890]} 
+                            ${color?.bg.active[850]} active:scale-97  
+                        `}>
                         Se déconnnectr
                         <LogOut className='w-4' />
                     </Link>

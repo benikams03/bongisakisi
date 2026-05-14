@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { TrendingUp, DollarSign, Package, ShoppingCart, Calendar,  ArrowUpRight, ArrowDownRight, AlertTriangle } from 'lucide-react'
 import { rapportService } from "../../services/caissier/rapport_service";
 import { number } from "./../../hooks/number"
 import { formatDateToDMY } from "../../hooks/format_date"
+import { ThemeContext } from "./../../router/provider"
 
 export default function Dashboard() {
     
+    const { color } = useContext(ThemeContext)
     const [selectedPeriod, setSelectedPeriod] = useState('day')
     const [rapport, setRapport] = useState([])
 
@@ -49,7 +51,7 @@ export default function Dashboard() {
                                 onClick={() => setSelectedPeriod(period)}
                                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                                     selectedPeriod === period
-                                        ? 'bg-emerald-800 text-white'
+                                        ?  color?.preview + ' text-white'
                                         : 'text-gray-600 hover:text-gray-900'
                                 }`}
                             >

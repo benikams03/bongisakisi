@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { User, UserCheck, Plus, Crown, ChevronRight, Package, Download, X, Minus } from 'lucide-react'
 import { Bouton } from '../components/ui/bouton/index'
 import Update from '../components/common/update';
@@ -12,6 +12,7 @@ import { ActivateKeyService } from '../services/activate-key';
 import { Password } from '../components/ui/input/password';
 import { useForm } from 'react-hook-form';
 import { AuthService } from '../services/auth';
+import { ThemeContext } from '../router/provider';
 
 export default function SelectProfil() {
     const navigate = useNavigate();
@@ -21,6 +22,8 @@ export default function SelectProfil() {
     const [showOnboarding, setShowOnboarding] = useState(false)
     const [openKey, setOpenKey] = useState(false)
     const [isExpired, setExpired] = useState(false)
+
+    const { color } = useContext(ThemeContext)
 
     // Vérifier si c'est un nouvel utilisateur au chargement du composant
     useEffect(() => {
@@ -152,19 +155,20 @@ export default function SelectProfil() {
                                 className={`
                                     relative p-6 rounded-2xl border-1 transition-all duration-200 w-1/5
                                     ${isSelected 
-                                        ? 'border-emerald-500 bg-white shadow-lg scale-105' 
+                                        ? color?.border[500] + ' bg-white shadow-lg scale-105' 
                                         : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
                                     }
                                     group cursor-pointer
+                                    h-76
                                 `}
                             >
                                 {/* Icône */}
                                 <div className={`
                                     w-10 h-10 rounded-xl flex items-center justify-center mb-4
-                                    bg-gradient-to-br ${profile.color}
+                                    bg-gradient-to-br ${color?.bg[700]}
                                     transition-all duration-200
                                 `}>
-                                    <Icon className="w-5 h-5 text-white" />
+                                    <Icon className="w-5 h-5 text-gray-100" />
                                 </div>
 
                                 {/* Contenu */}
@@ -176,14 +180,6 @@ export default function SelectProfil() {
                                         {profile.description}
                                     </p>
                                 </div>
-
-                                {/* Indicateur de sélection */}
-                                {isSelected && (
-                                    <div className="absolute top-4 right-4 w-7 h-7 bg-gray-500 rounded-lg flex items-center justify-center">
-                                        <UserCheck className="w-4 h-4 text-white" />
-                                    </div>
-                                )}
-                                
                                 
                                 {isSelected && selectedProfile === 'admin' && (
                                     <form method='post' onSubmit={handleSubmit(submit_login)} className='mt-3'>
@@ -222,35 +218,6 @@ export default function SelectProfil() {
                             </button>
                         )
                     })}
-                    
-                    {/* Card pour créer un nouveau profil */}
-                    <button
-                        className="relative p-6 rounded-2xl border-1 border-dashed border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100 transition-all duration-200 group cursor-pointer w-1/5"
-                    >
-                        {/* Icône + */}
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-gray-200 group-hover:bg-gray-300 transition-colors duration-200">
-                            <Plus className="w-5 h-5 text-gray-600" />
-                        </div>
-
-                        {/* Contenu */}
-                        <div className="text-left">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                Nouveau Profil
-                            </h3>
-                            <p className="text-sm text-gray-600 leading-relaxed">
-                                Créer un profil personnalisé pour vos besoins spécifiques
-                            </p>
-                        </div>
-
-                        <div className="mt-16 text-center">
-                            <Bouton 
-                                onClick={() => setShowFeatureModal(true)}
-                                className="w-full">
-                                Continuer
-                                <ChevronRight className="w-5 h-5" />
-                            </Bouton>
-                        </div>
-                    </button>
                 </div>
 
                 {/* Footer */}

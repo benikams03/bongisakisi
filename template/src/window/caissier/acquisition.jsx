@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Package, Plus, Building2, ChevronDown, XCircle, User, Edit } from 'lucide-react'
+import { useState, useEffect, useContext } from 'react'
+import { Package, Plus, ChevronDown, XCircle, User, Edit, File } from 'lucide-react'
 import { Bouton } from '../../components/ui/bouton'
 import { InputLabel } from '../../components/ui/input'
 import { Select as SelectCustom } from '../../components/ui/input/select'
@@ -8,9 +8,12 @@ import { useForm } from 'react-hook-form'
 import { fournisseurService } from '../../services/admin/fourniseur_service'
 import { famillieService } from '../../services/admin/famillie_service'
 import { aquisitionService } from '../../services/admin/aquivistion_service'
+import { ThemeContext } from '../../router/provider'
 
 
 export default function Acquisition() {
+
+    const { color } = useContext(ThemeContext)
 
     const [fournisseurs, setFournisseurs] = useState([])
     const [families, setFamilies] = useState([])
@@ -118,7 +121,7 @@ export default function Acquisition() {
                     onClick={() => setOpenM(true)}
                     primary>
                     <Plus className="w-4 h-4" />
-                    Nouveau fournisseur
+                    Nouveau papier
                 </Bouton>
             </div>
         </div>
@@ -129,15 +132,19 @@ export default function Acquisition() {
                     {/* Header fournisseur */}
                     <div 
                         onClick={() => setSelectedSupplier(selectedSupplier === item.id ? null : item.id)}
-                        className="p-3 hover:bg-emerald-50/50 border-b border-gray-200 cursor-pointer transition-colors">
+                        className={"p-3 border-b border-gray-200 cursor-pointer transition-colors " + color?.bg.hover[55]}>
 
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
-                                    <Building2 className="w-4 h-4 text-gray-200" />
+                                <div className={"w-10 h-10 rounded-lg flex items-center justify-center " + color?.bg[200] }>
+                                    <File className={"w-4 h-4 " + color?.text[700]} />
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-gray-900">{item.name}</h3>
+                                    <h2 className='text-xs'>Papier {index + 1}</h2>
+                                    <h3 className="text-sm text-gray-900">
+                                        Titre:
+                                        <span className='font-semibold'> {item.name}</span>
+                                    </h3>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
@@ -150,7 +157,7 @@ export default function Acquisition() {
                                             e.stopPropagation()
                                             handleEditSupplier(item)
                                         }}
-                                        title="Modifier le fournisseur"
+                                        title="Modifier le titre du papier"
                                     >
                                         <Edit className="w-4 h-4" />
                                     </Bouton>
@@ -225,18 +232,18 @@ export default function Acquisition() {
         className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4"
         >
         <form method='post' onSubmit={handleSubmitAddFournisseur(handleAddFournisseur)} id="print-area" className="bg-white border border-gray-300 w-1/3 p-4 rounded-lg shadow animate-fadeIn">
-            <h2 className="text-xl font-semibold mb-5">Ajouter un fournisseur</h2>
+            <h2 className="text-xl font-semibold mb-5">Ajouter un papier</h2>
 
             <div className='space-y-2'>
-                <InputLabel label="Nom du fournisseur"
-                    icons={User} 
+                <InputLabel label="Titre du papier"
+                    icons={File} 
                     type="text" 
-                    placeholder="Jean Dupont"
+                    placeholder=""
                     {...registerAddFournisseur('name', {
-                        required: 'Le nom du fournisseur est obligatoire',
+                        required: 'Un titre est obligatoire',
                         minLength: {
                             value: 2,
-                            message: 'Le nom du fournisseur doit contenir au moins 2 caractères'
+                            message: 'Le titre doit contenir au moins 2 caractères'
                         }
                     })}
                     error={!!errorsAddFournisseur.name}
@@ -267,15 +274,15 @@ export default function Acquisition() {
             <h2 className="text-xl font-semibold mb-5">Ajouter une nouvelle commande</h2>
 
             <div className='space-y-2'>
-                <InputLabel label="Nom du fournisseur"
+                <InputLabel label="Nom du médicament"
                     icons={Package} 
                     type="text" 
                     placeholder="Pacetamol"
                     {...registerAddCommande('name', {
-                        required: 'Le nom du fournisseur est obligatoire',
+                        required: 'Le nom du médicament est obligatoire',
                         minLength: {
                             value: 2,
-                            message: 'Le nom du fournisseur doit contenir au moins 2 caractères'
+                            message: 'Le nom du médicament doit contenir au moins 2 caractères'
                         }
                     })}
                     error={!!errorsAddCommande.name}
@@ -318,14 +325,14 @@ export default function Acquisition() {
         <form method='post' onSubmit={handleSubmitUpdateFournisseur(handleUpdateFournisseur)} className="bg-white border border-gray-300 w-full max-w-md p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-4">Modifier le fournisseur</h2>
             
-            <InputLabel label="Nom du fournisseur"
-                icons={User} 
+            <InputLabel label="Titre du papier"
+                icons={File} 
                 type="text" 
                 {...registerUpdateFournisseur('name', {
-                    required: 'Le nom du fournisseur est obligatoire',
+                    required: 'Le titre est obligatoire',
                     minLength: {
                         value: 2,
-                        message: 'Le nom du fournisseur doit contenir au moins 2 caractères'
+                        message: 'Le titre doit contenir au moins 2 caractères'
                     }
                 })}
                 error={!!errorsUpdateFournisseur.name}

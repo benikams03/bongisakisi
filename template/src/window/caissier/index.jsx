@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { Package, Search, CreditCard, Pill, Plus, ShoppingCart, Minus, Trash2, CheckCircle,Printer  } from 'lucide-react'
 import { Bouton } from './../../components/ui/bouton/index'
 import { Input } from './../../components/ui/input/index'
@@ -10,9 +10,12 @@ import { number } from '../../hooks/number'
 import { formatDateToDMYWithTime } from '../../hooks/format_date'
 import { imprimantService } from '../../services/caissier/imprimant_service'
 import { parametreService } from '../../services/admin/parametre_service'
+import { ThemeContext } from '../../router/provider'
 
 
 export default function IndexCaisse() {
+
+    const { color } = useContext(ThemeContext)
 
     const [open, setOpen] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
@@ -95,15 +98,15 @@ export default function IndexCaisse() {
                     {produits?.map((items, index) => {
                         const view = items.medicament_name.toLowerCase().includes(searchTerm.toLowerCase())
                         return(
-                        <div key={index} className={`${ view ? '' : 'hidden' } group border border-gray-200 rounded-xl p-4 hover:shadow-lg hover:border-emerald-300 transition-all duration-200 cursor-pointer bg-gradient-to-br from-white to-gray-50`}>
+                        <div key={index} className={`${ view ? '' : 'hidden' } group border border-gray-200 rounded-xl p-4 hover:shadow-lg ${color?.border.hover[300]} transition-all duration-200 cursor-pointer bg-gradient-to-br from-white to-gray-50`}>
                             <div className="flex justify-between items-start mb-1">
-                                <div className="w-12 h-12 bg-gradient-to-br from-gray-300 to-gray-200 rounded-lg flex items-center justify-center">
-                                    <Pill className="w-6 h-6 text-gray-600" />
+                                <div className="w-9 h-9 border border-gray-200 rounded-lg flex items-center justify-center">
+                                    <Pill className="w-4 h-4 text-gray-600" />
                                 </div>
                                 <div>
                                     <span className={`px-2 py-1 rounded-full text-xs font-medium 
-                                        ${calculateStockStatus(items.stock, items.last_stock).color}
-                                        ${calculateStockStatus(items.stock, items.last_stock).bgColor}`}>
+                                        ${calculateStockStatus(items.stock, items.last_stock, color?.text[700], color?.bg[100]).color}
+                                        ${calculateStockStatus(items.stock, items.last_stock, color?.text[700], color?.bg[100]).bgColor}`}>
                                         Stock: {items.stock}
                                     </span>
                                     <div className="flex items-center justify-between">
@@ -129,9 +132,9 @@ export default function IndexCaisse() {
         <div className="w-[32%] h-full sticky top-3 rounded-lg border border-gray-200 flex flex-col justify-between">
             <div className="p-4 flex items-center justify-between ">
                 <h2 className="text-xl font-bold text-gray-900">Panier</h2>
-                <div className="flex items-center gap-2 bg-emerald-100 px-3 py-1 rounded-lg">
-                    <ShoppingCart className="w-4 h-4 text-emerald-600" />
-                    <span className="text-xs font-medium text-emerald-700">{panier?.length} articles</span>
+                <div className={"flex items-center gap-2 px-3 py-1 rounded-lg " + color?.bg[100]}>
+                    <ShoppingCart className={"w-4 h-4 " + color?.text[700]} />
+                    <span className={"text-xs font-medium " + color?.text[700]}>{panier?.length} articles</span>
                 </div>
             </div>
             <div className="p-2 h-full overflow-auto space-y-3">
@@ -202,7 +205,7 @@ export default function IndexCaisse() {
         >
         <div id="print-area" className="bg-white border border-gray-300 w-1/3 p-4 rounded-lg shadow animate-fadeIn">
             <div className="flex justify-center flex-col items-center">
-                <CheckCircle className="bg-emerald-600 rounded-full p-2 text-gray-300" size={44} />
+                <CheckCircle className={"rounded-full my-4 " + color?.text[700]} size={35} />
                 <h3 className="font-bold text-lg">Vente effectuée</h3>
             </div>
             <div className="p-4">
