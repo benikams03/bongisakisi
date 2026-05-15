@@ -6,7 +6,7 @@ import { RenderExportSettings } from './export'
 import { RenderSecuritySettings } from './security'
 import { RenderThemeSettings } from './theme'
 // import { RenderNotificationSettings } from './notifications'
-// import { RenderImportSettings } from './import'
+import { RenderImportSettings } from './import'
 // import { RenderRegionalSettings } from './regional'
 // import { RenderMaintenanceSettings } from './maintenance'
 
@@ -21,7 +21,7 @@ export default function SettingsPage() {
         { id: 'license', label: 'Licence', icon: Shield },
         { id: 'export', label: 'Export', icon: FileText },
         { id: 'security', label: 'Sécurité', icon: Lock },
-        // { id: 'import', label: 'Import', icon: Upload },
+        { id: 'import', label: 'Import', icon: Upload },
         // { id: 'regional', label: 'Régionalisation', icon: Globe },
         // { id: 'maintenance', label: 'Maintenance', icon: Wrench },
     ]
@@ -33,8 +33,8 @@ export default function SettingsPage() {
             case 'export': return <RenderExportSettings />
             case 'security': return <RenderSecuritySettings />
             case 'theme': return <RenderThemeSettings />
-            // case 'notifications': return <RenderNotificationSettings />
-            // case 'import': return <RenderImportSettings />
+            case 'notifications': return <RenderNotificationSettings />
+            case 'import': return <RenderImportSettings />
             // case 'regional': return <RenderRegionalSettings />
             // case 'maintenance': return <RenderMaintenanceSettings />
             default: return <RenderGeneralSettings />
