@@ -14,11 +14,19 @@ export class Queries {
 
     // findAll('name')
     findAll(table, columns = "*", options = {}) {
-        const { orderBy = null, order = 'ASC' } = options;
+        const { orderBy = null, order = 'ASC', limit = null, offset = null } = options;
         let sql = `SELECT ${columns} FROM ${table}`;
         
         if (orderBy) {
             sql += ` ORDER BY ${orderBy} ${order.toUpperCase()}`;
+        }
+        
+        if (limit !== null) {
+            sql += ` LIMIT ${limit}`;
+        }
+        
+        if (offset !== null) {
+            sql += ` OFFSET ${offset}`;
         }
         
         return this.db.prepare(sql).all();
@@ -26,7 +34,7 @@ export class Queries {
 
     // find('name', { name: 'John' })
     find(table, conditions = {}, columns = "*", options = {}) {
-        const { orderBy = null, order = 'ASC' } = options;
+        const { orderBy = null, order = 'ASC', limit = null, offset = null } = options;
         const where = Object.keys(conditions)
             .map(k => `${k}=@${k}`)
             .join(" AND ");
@@ -41,13 +49,21 @@ export class Queries {
             sql += ` ORDER BY ${orderBy} ${order}`;
         }
         
+        if (limit !== null) {
+            sql += ` LIMIT ${limit}`;
+        }
+        
+        if (offset !== null) {
+            sql += ` OFFSET ${offset}`;
+        }
+        
         if (!where && !orderBy) return this.findAll(table, columns, options);
         return this.db.prepare(sql).all(conditions);
     }
 
     // findOne('name', { name: 'John' })
     findOne(table, conditions = {}, columns = "*", options = {}) {
-        const { orderBy = null, order = 'ASC' } = options;
+        const { orderBy = null, order = 'ASC', limit = null, offset = null } = options;
         const where = Object.keys(conditions).map(k => `${k}=@${k}`).join(" AND ");
         
         let sql = `SELECT ${columns} FROM ${table}`;
@@ -60,7 +76,15 @@ export class Queries {
             sql += ` ORDER BY ${orderBy} ${order.toUpperCase()}`;
         }
         
-        sql += ` LIMIT 1`;
+        if (limit !== null) {
+            sql += ` LIMIT ${limit}`;
+        } else {
+            sql += ` LIMIT 1`;
+        }
+        
+        if (offset !== null) {
+            sql += ` OFFSET ${offset}`;
+        }
         
         if (!where && !orderBy) return null;
         return this.db.prepare(sql).get(conditions);
@@ -80,9 +104,9 @@ export class Queries {
     }
 
     // ---------- Jointures ----------
-    // join({ columns: "*", from: "table1", join: { table: "table2", on: "table1.id = table2.id" }, where: { id: 1 }, orderBy: "id", order: "ASC" })
+    // join({ columns: "*", from: "table1", join: { table: "table2", on: "table1.id = table2.id" }, where: { id: 1 }, orderBy: "id", order: "ASC", limit: null, offset: null })
     join(options) {
-        const { columns = "*", from, join, where, orderBy = null, order = 'ASC' } = options;
+        const { columns = "*", from, join, where, orderBy = null, order = 'ASC', limit = null, offset = null } = options;
         let sql = `SELECT ${columns} FROM ${from} JOIN ${join.table} ON ${join.on}`;
         
         if (where && Object.keys(where).length) {
@@ -92,6 +116,14 @@ export class Queries {
         
         if (orderBy) {
             sql += ` ORDER BY ${orderBy} ${order.toUpperCase()}`;
+        }
+        
+        if (limit !== null) {
+            sql += ` LIMIT ${limit}`;
+        }
+        
+        if (offset !== null) {
+            sql += ` OFFSET ${offset}`;
         }
         
         if (where && Object.keys(where).length) {
