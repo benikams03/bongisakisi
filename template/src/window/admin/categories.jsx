@@ -6,10 +6,12 @@ import Modal from "@mui/material/Modal"
 import { famillieService } from '../../services/admin/famillie_service'
 import { useForm } from 'react-hook-form'
 import ConfirmModal from '../../components/common/modal/confirme'
+import CategoriesLoading from '../../components/common/loading/admin/categories'
 
 export default function Categories() {
 
     const [loading, setLoading] = useState(false)
+    const [initialLoading, setInitialLoading] = useState(true)
     const [defaultCategorie, setDefaultCategorie] = useState([])
     const [customCategorie, setCustomCategorie] = useState([])
     const [openModal, setOpenModal] = useState(false)
@@ -41,6 +43,7 @@ export default function Categories() {
         const res = async () => {
             setDefaultCategorie((await famillieService.getDefault()))
             setCustomCategorie((await famillieService.getCustom()))
+            setInitialLoading(false)
         }
         res()
     },[loading])
@@ -84,72 +87,50 @@ export default function Categories() {
     
 
     return (
-        <div className="flex-1 p-2.5 h-full overflow-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Gestion des catégories</h2>
-                    <p className="text-sm text-gray-600 mt-1">Organisez vos produits par catégories</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 bg-gray-200 px-3 py-1 rounded-full">
-                        <Tag className="w-4 h-4 text-gray-600" />
-                        <span className="text-sm font-medium text-gray-700">
-                            {defaultCategorie?.data?.length + customCategorie?.data?.length || 0} catégories
-                        </span>
-                    </div>
-                    <Bouton 
-                        onClick={() => { setOpenModal(true) }}
-                        primary>
-                        <Plus className="w-4 h-4" />
-                        Nouvelle catégorie
-                    </Bouton>
-                </div>
-            </div>
-
-            {/* Catégories par défaut */}
-            <div className="mb-8">
-                <div className="flex items-center gap-2 mb-4">
-                    <Lock className="w-4 h-4 text-gray-500" />
-                    <h3 className="text-lg font-semibold text-gray-900">Catégories par défaut</h3>
-                    <span className="text-sm text-gray-500">(Non modifiables)</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {defaultCategorie?.data?.map((category, index) => (
-                        <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 relative">
-                            <div className="absolute top-2 right-2">
-                                <Lock className="w-4 h-4 text-gray-400" title="Catégorie par défaut" />
-                            </div>
-                            <div className="flex items-start gap-3">
-                                <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-                                    <Tag className="w-5 h-5 text-slate-600" />
-                                </div>
-                                <div className="flex-1">
-                                    <h4 className="font-semibold text-gray-900">{category.name}</h4>
-                                    <div className="flex items-center gap-2">
-                                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                                            <Package className="w-3 h-3" />
-                                            <span>{category.medicament_count} produits</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+        <>
+        
+            {initialLoading ? (
+                <CategoriesLoading />
+            ) : (
+                <div className="flex-1 p-2.5 h-full overflow-auto">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-900">Gestion des catégories</h2>
+                            <p className="text-sm text-gray-600 mt-1">Organisez vos produits par catégories</p>
                         </div>
-                    ))}
-                </div>
-            </div>
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 bg-gray-200 px-3 py-1 rounded-full">
+                                <Tag className="w-4 h-4 text-gray-600" />
+                                <span className="text-sm font-medium text-gray-700">
+                                    {defaultCategorie?.data?.length + customCategorie?.data?.length || 0} catégories
+                                </span>
+                            </div>
+                            <Bouton 
+                                onClick={() => { setOpenModal(true) }}
+                                primary>
+                                <Plus className="w-4 h-4" />
+                                Nouvelle catégorie
+                            </Bouton>
+                        </div>
+                    </div>
 
-            {/* Catégories personnalisées */}
-            {customCategorie?.data?.length > 0 && (
-                <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Catégories personnalisées</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {customCategorie?.data?.map((category, index) => (
-                            <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow transition-shadow">
-                                <div className="flex items-start justify-between">
+                    {/* Catégories par défaut */}
+                    <div className="mb-8">
+                        <div className="flex items-center gap-2 mb-4">
+                            <Lock className="w-4 h-4 text-gray-500" />
+                            <h3 className="text-lg font-semibold text-gray-900">Catégories par défaut</h3>
+                            <span className="text-sm text-gray-500">(Non modifiables)</span>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {defaultCategorie?.data?.map((category, index) => (
+                                <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 relative">
+                                    <div className="absolute top-2 right-2">
+                                        <Lock className="w-4 h-4 text-gray-400" title="Catégorie par défaut" />
+                                    </div>
                                     <div className="flex items-start gap-3">
-                                        <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                                            <Tag className="w-5 h-5 text-emerald-600" />
+                                        <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                                            <Tag className="w-5 h-5 text-slate-600" />
                                         </div>
                                         <div className="flex-1">
                                             <h4 className="font-semibold text-gray-900">{category.name}</h4>
@@ -161,41 +142,70 @@ export default function Categories() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-1">
-                                        <button 
-                                            onClick={() => openEditModal(category.name, category.id)}
-                                            className="p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
-                                            title="Modifier"
-                                        >
-                                            <Edit className="w-4 h-4 text-blue-600" />
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDeleteCategory(category.id)}
-                                            className="p-1 hover:bg-red-100 rounded transition-colors cursor-pointer"
-                                            title="Supprimer"
-                                        >
-                                            <Trash2 className="w-4 h-4 text-red-600" />
-                                        </button>
-                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
-            )}
 
-            {/* Message si aucune catégorie personnalisée */}
-            {customCategorie?.data?.length === 0 && (
-                <div className="text-center flex flex-col justify-center items-center py-12 bg-gray-50 rounded-lg border border-gray-200">
-                    <Tag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune catégorie personnalisée</h3>
-                    <p className="text-gray-600 mb-4">Créez vos propres catégories pour organiser vos produits</p>
-                    <Bouton 
-                        onClick={() => { setOpenModal(true) }}
-                        primary>
-                        <Plus className="w-4 h-4" />
-                        Créer une catégorie
-                    </Bouton>
+                    {/* Catégories personnalisées */}
+                    {customCategorie?.data?.length > 0 && (
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Catégories personnalisées</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {customCategorie?.data?.map((category, index) => (
+                                    <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow transition-shadow">
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex items-start gap-3">
+                                                <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                                                    <Tag className="w-5 h-5 text-emerald-600" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h4 className="font-semibold text-gray-900">{category.name}</h4>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                                                            <Package className="w-3 h-3" />
+                                                            <span>{category.medicament_count} produits</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <button 
+                                                    onClick={() => openEditModal(category.name, category.id)}
+                                                    className="p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
+                                                    title="Modifier"
+                                                >
+                                                    <Edit className="w-4 h-4 text-blue-600" />
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleDeleteCategory(category.id)}
+                                                    className="p-1 hover:bg-red-100 rounded transition-colors cursor-pointer"
+                                                    title="Supprimer"
+                                                >
+                                                    <Trash2 className="w-4 h-4 text-red-600" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Message si aucune catégorie personnalisée */}
+                    {customCategorie?.data?.length === 0 && (
+                        <div className="text-center flex flex-col justify-center items-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+                            <Tag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune catégorie personnalisée</h3>
+                            <p className="text-gray-600 mb-4">Créez vos propres catégories pour organiser vos produits</p>
+                            <Bouton 
+                                onClick={() => { setOpenModal(true) }}
+                                primary>
+                                <Plus className="w-4 h-4" />
+                                Créer une catégorie
+                            </Bouton>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -279,6 +289,6 @@ export default function Categories() {
                 title="Supprimer la famille"
                 message="Êtes-vous sûr de vouloir supprimer cette famille ?"
             />
-        </div>
+        </>
     )
 }

@@ -11,6 +11,7 @@ import { formatDateToDMYWithTime } from '../../hooks/format_date'
 import { imprimantService } from '../../services/caissier/imprimant_service'
 import { parametreService } from '../../services/admin/parametre_service'
 import { ThemeContext } from '../../router/provider'
+import IndexLoading from '../../components/common/loading/caissier/index'
 
 
 export default function IndexCaisse() {
@@ -22,6 +23,7 @@ export default function IndexCaisse() {
     const [produits, setProduits] = useState([])
     const [panier, setPanier] = useState([])
     const [loading, setLoading] = useState(false)
+    const [initialLoading, setInitialLoading] = useState(true)
     const [total, setTotal] = useState(0)
 
     const [caches, setCaches] = useState(false)
@@ -38,6 +40,7 @@ export default function IndexCaisse() {
             setTotal(data_panier.data.reduce((sum, item) => sum + item.price_total, 0));
             const data_printers = await parametreService.getPdfSettings()
             setPrinters(data_printers)
+            setInitialLoading(false)
         })()
     }, [loading])
 
@@ -73,7 +76,12 @@ export default function IndexCaisse() {
     <div className="flex-1 h-full flex gap-3">
         {/* Produits */}
         <div className="flex-1 h-full overflow-auto">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+
+            {initialLoading ? (
+                <IndexLoading />
+            ) : (
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold text-gray-900">Catalogue des médicaments</h2>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -126,6 +134,7 @@ export default function IndexCaisse() {
                     })}
                 </div>
             </div>
+            )}
         </div>
 
 

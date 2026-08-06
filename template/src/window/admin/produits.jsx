@@ -10,7 +10,7 @@ import { produitService } from '../../services/admin/produit_service'
 import { formatDateToDMY, isExpiringSoon, toYearMonth } from '../../hooks/format_date'
 import { calculateStockStatus } from '../../hooks/calcul'
 import ConfirmModal from '../../components/common/modal/confirme'
-import TableauLoading from '../../components/common/loading/tableau'
+import ProduitsLoading from '../../components/common/loading/admin/produits'
 
 
 export default function Produits() {
@@ -117,206 +117,209 @@ export default function Produits() {
     })
 
     return (
-        <div className="flex-1 p-2.5 h-full overflow-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Gestion des produits</h2>
-                    <p className="text-sm text-gray-600 mt-1">Gérez votre catalogue de médicaments</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 bg-gray-200 px-3 py-1 rounded-full">
-                        <Package className="w-4 h-4 text-gray-600" />
-                        <span className="text-sm font-medium text-gray-700">{medicaments?.data?.length} produits</span>
-                    </div>
-                    <Bouton 
-                        onClick={() => setOpenModal(true)}
-                        primary>
-                        <Plus className="w-4 h-4" />
-                        Nouveau produit
-                    </Bouton>
-                </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 w-full">
-                        <div className="flex items-center gap-2">
-                            <Filter className="w-4 h-4 text-gray-500" />
+        <>
+            {coLoad ? (
+                <ProduitsLoading />
+            ) : (
+                <div className="flex-1 p-2.5 h-full overflow-auto">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-900">Gestion des produits</h2>
+                            <p className="text-sm text-gray-600 mt-1">Gérez votre catalogue de médicaments</p>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 bg-gray-200 px-3 py-1 rounded-full">
+                                <Package className="w-4 h-4 text-gray-600" />
+                                <span className="text-sm font-medium text-gray-700">{medicaments?.data?.length} produits</span>
+                            </div>
                             <Bouton 
-                                outline={filter !== 'all'}
-                                primary={filter === 'all'}
-                                className="text-sm"
-                                onClick={() => setFilter('all')}
-                            >
-                                Tous les médicaments
-                            </Bouton>
-                            <Bouton 
-                                outline={filter !== 'low_stock'}
-                                primary={filter === 'low_stock'}
-                                className="text-sm"
-                                onClick={() => setFilter('low_stock')}
-                            >
-                                Stock faible
-                            </Bouton>
-                            <Bouton 
-                                outline={filter !== 'expired'}
-                                primary={filter === 'expired'}
-                                className="text-sm"
-                                onClick={() => setFilter('expired')}
-                            >
-                                Expirés ou expire bientôt
+                                onClick={() => setOpenModal(true)}
+                                primary>
+                                <Plus className="w-4 h-4" />
+                                Nouveau produit
                             </Bouton>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2 w-1/2">
-                        <Search className="w-4 h-4 text-gray-500" />
-                        <input
-                            type="text"
-                            placeholder="Rechercher un médicament..."
-                            className="px-3 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                            <Package className="w-5 h-5 text-green-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-600">Stock normal</p>
-                            <p className="text-xl font-bold text-gray-900">
-                                {medicaments?.data?.filter(m => ((m.stock / m.last_stock) * 100) > 45).length}
-                            </p>
+                    <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4 w-full">
+                                <div className="flex items-center gap-2">
+                                    <Filter className="w-4 h-4 text-gray-500" />
+                                </div>
+                                <div className="flex gap-2">
+                                    <Bouton 
+                                        outline={filter !== 'all'}
+                                        primary={filter === 'all'}
+                                        className="text-sm"
+                                        onClick={() => setFilter('all')}
+                                    >
+                                        Tous les médicaments
+                                    </Bouton>
+                                    <Bouton 
+                                        outline={filter !== 'low_stock'}
+                                        primary={filter === 'low_stock'}
+                                        className="text-sm"
+                                        onClick={() => setFilter('low_stock')}
+                                    >
+                                        Stock faible
+                                    </Bouton>
+                                    <Bouton 
+                                        outline={filter !== 'expired'}
+                                        primary={filter === 'expired'}
+                                        className="text-sm"
+                                        onClick={() => setFilter('expired')}
+                                    >
+                                        Expirés ou expire bientôt
+                                    </Bouton>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2 w-1/2">
+                                <Search className="w-4 h-4 text-gray-500" />
+                                <input
+                                    type="text"
+                                    placeholder="Rechercher un médicament..."
+                                    className="px-3 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                            <AlertTriangle className="w-5 h-5 text-orange-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-600">Stock faible</p>
-                            <p className="text-xl font-bold text-gray-900">
-                                {medicaments?.data?.filter(m => ((m.stock / m.last_stock) * 100) <= 45).length}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                            <Calendar className="w-5 h-5 text-red-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-600">Expirés ou expire bientôt</p>
-                            <p className="text-xl font-bold text-gray-900">
-                                {medicaments?.data?.filter(m => isExpiringSoon(m.date_expiration)).length}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            { coLoad && <TableauLoading icone={Package} titre="des produits" /> }
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div className="bg-white border border-gray-200 rounded-lg p-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <Package className="w-5 h-5 text-green-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-600">Stock normal</p>
+                                    <p className="text-xl font-bold text-gray-900">
+                                        {medicaments?.data?.filter(m => ((m.stock / m.last_stock) * 100) > 45).length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white border border-gray-200 rounded-lg p-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <AlertTriangle className="w-5 h-5 text-orange-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-600">Stock faible</p>
+                                    <p className="text-xl font-bold text-gray-900">
+                                        {medicaments?.data?.filter(m => ((m.stock / m.last_stock) * 100) <= 45).length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white border border-gray-200 rounded-lg p-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                    <Calendar className="w-5 h-5 text-red-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-600">Expirés ou expire bientôt</p>
+                                    <p className="text-xl font-bold text-gray-900">
+                                        {medicaments?.data?.filter(m => isExpiringSoon(m.date_expiration)).length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            {/* Tableau des produits */}
-            { !coLoad && (
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-gray-50 border-b border-gray-200">
-                            <tr>
-                                <th className="text-left py-3 px-4 font-medium text-gray-500">Produit</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-500">Catégorie</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-500">Stock</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-500">Prix d'achat</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-500">Prix de vente</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-500">Expiration</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-500">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                            {filteredMedicaments?.map((product, index) => {
-                                const view = product.medicament_name.toLowerCase().includes(searchTerm.toLowerCase())
-                                return (
-                                    <tr key={index} className={`hover:bg-gray-50 ${ view ? '' : 'hidden' }`}>
-                                        <td className="py-3 px-4">
-                                            <div>
-                                                <h4 className="font-medium text-gray-900">{product.medicament_name}</h4>
-                                            </div>
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            <span className="text-sm text-gray-900">{product.family_name}</span>
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            <div className="flex items-center gap-2">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium
-                                                    ${calculateStockStatus(product.stock, product.last_stock).color}
-                                                    ${calculateStockStatus(product.stock, product.last_stock).bgColor}`}>
-                                                    {product.stock}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            <span className="text-sm font-medium text-gray-900">{product.price_buy} FC</span>
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            <span className="text-sm font-medium text-emerald-600">{product.price_sell} FC</span>
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            <div className="flex items-center gap-2">
-                                                <span className={`
-                                                    text-sm ${isExpiringSoon(product.date_expiration) == "expirer" ? 'text-red-500' : 'text-gray-900'} `}>{formatDateToDMY(product.date_expiration)}</span>
-                                                { isExpiringSoon(product.date_expiration) == "bientot" && <AlertTriangle className="w-4 h-4 text-orange-500" title="Expire bientôt" /> }
-                                                { isExpiringSoon(product.date_expiration) == "expirer" && <AlertTriangle className="w-4 h-4 text-red-500" title="Expire bientôt" /> }
-                                            </div>
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            <div className="flex items-center gap-2">
-                                                <button 
-                                                    onClick={() => openViewModal(product)}
-                                                    className="p-1 hover:bg-gray-100 rounded transition-colors"
-                                                    title="Voir les détails"
-                                                >
-                                                    <Eye className="w-4 h-4 text-gray-600" />
-                                                </button>
-                                                <button 
-                                                    onClick={() => openEditModal(product)}
-                                                    className="p-1 hover:bg-gray-100 rounded transition-colors"
-                                                    title="Modifier"
-                                                >
-                                                    <Edit className="w-4 h-4 text-blue-600" />
-                                                </button>
-                                                <button 
-                                                    onClick={() => handleDeleteProduct(product.id)}
-                                                    className="p-1 hover:bg-red-100 rounded transition-colors"
-                                                    title="Supprimer"
-                                                >
-                                                    <Trash2 className="w-4 h-4 text-red-600" />
-                                                </button>
-                                            </div>
-                                        </td>
+                    {/* Tableau des produits */}
+                    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-50 border-b border-gray-200">
+                                    <tr>
+                                        <th className="text-left py-3 px-4 font-medium text-gray-500">Produit</th>
+                                        <th className="text-left py-3 px-4 font-medium text-gray-500">Catégorie</th>
+                                        <th className="text-left py-3 px-4 font-medium text-gray-500">Stock</th>
+                                        <th className="text-left py-3 px-4 font-medium text-gray-500">Prix d'achat</th>
+                                        <th className="text-left py-3 px-4 font-medium text-gray-500">Prix de vente</th>
+                                        <th className="text-left py-3 px-4 font-medium text-gray-500">Expiration</th>
+                                        <th className="text-left py-3 px-4 font-medium text-gray-500">Actions</th>
                                     </tr>
-                                )
-                            })}
-                        </tbody>
-                    </table>
-                    { filteredMedicaments?.length === 0 &&
-                    (<div className='flex items-center justify-center flex-col text-center w-full h-80'>
-                        <Package className="w-12 h-12 text-gray-400 mb-3" />
-                        <p className="text-gray-600">Aucun produit trouvé</p>
-                    </div>) }
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {filteredMedicaments?.map((product, index) => {
+                                        const view = product.medicament_name.toLowerCase().includes(searchTerm.toLowerCase())
+                                        return (
+                                            <tr key={index} className={`hover:bg-gray-50 ${ view ? '' : 'hidden' }`}>
+                                                <td className="py-3 px-4">
+                                                    <div>
+                                                        <h4 className="font-medium text-gray-900">{product.medicament_name}</h4>
+                                                    </div>
+                                                </td>
+                                                <td className="py-3 px-4">
+                                                    <span className="text-sm text-gray-900">{product.family_name}</span>
+                                                </td>
+                                                <td className="py-3 px-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`px-2 py-1 rounded-full text-xs font-medium
+                                                            ${calculateStockStatus(product.stock, product.last_stock).color}
+                                                            ${calculateStockStatus(product.stock, product.last_stock).bgColor}`}>
+                                                            {product.stock}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="py-3 px-4">
+                                                    <span className="text-sm font-medium text-gray-900">{product.price_buy} FC</span>
+                                                </td>
+                                                <td className="py-3 px-4">
+                                                    <span className="text-sm font-medium text-emerald-600">{product.price_sell} FC</span>
+                                                </td>
+                                                <td className="py-3 px-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`
+                                                            text-sm ${isExpiringSoon(product.date_expiration) == "expirer" ? 'text-red-500' : 'text-gray-900'} `}>{formatDateToDMY(product.date_expiration)}</span>
+                                                        { isExpiringSoon(product.date_expiration) == "bientot" && <AlertTriangle className="w-4 h-4 text-orange-500" title="Expire bientôt" /> }
+                                                        { isExpiringSoon(product.date_expiration) == "expirer" && <AlertTriangle className="w-4 h-4 text-red-500" title="Expire bientôt" /> }
+                                                    </div>
+                                                </td>
+                                                <td className="py-3 px-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <button 
+                                                            onClick={() => openViewModal(product)}
+                                                            className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                                            title="Voir les détails"
+                                                        >
+                                                            <Eye className="w-4 h-4 text-gray-600" />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => openEditModal(product)}
+                                                            className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                                            title="Modifier"
+                                                        >
+                                                            <Edit className="w-4 h-4 text-blue-600" />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleDeleteProduct(product.id)}
+                                                            className="p-1 hover:bg-red-100 rounded transition-colors"
+                                                            title="Supprimer"
+                                                        >
+                                                            <Trash2 className="w-4 h-4 text-red-600" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
+                            { filteredMedicaments?.length === 0 &&
+                            (<div className='flex items-center justify-center flex-col text-center w-full h-80'>
+                                <Package className="w-12 h-12 text-gray-400 mb-3" />
+                                <p className="text-gray-600">Aucun produit trouvé</p>
+                            </div>) }
+                        </div>
+                    </div>
                 </div>
-            </div>  )}
+            )}
 
             {/* ======================================================================================== */}
 
@@ -588,6 +591,6 @@ export default function Produits() {
                 title="Supprimer du medicament"
                 message="Êtes-vous sûr de vouloir supprimer ce medicament ?"
             />
-        </div>
+        </>
     )
 }

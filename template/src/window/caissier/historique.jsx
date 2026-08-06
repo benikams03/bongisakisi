@@ -6,6 +6,7 @@ import { ordersService } from '../../services/caissier/orders_service'
 import { formatTimeOnly, formatDateToDMYWithTime } from '../../hooks/format_date'
 import { number } from "../../hooks/number";
 import ConfirmModal from '../../components/common/modal/confirme'
+import HistoriqueLoading from "../../components/common/loading/historique";
 
 export default function Historique() {
 
@@ -15,98 +16,102 @@ export default function Historique() {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [load, setLoad] = useState(false);
     const [cache, setCache] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         (async () => {
             const data = await ordersService.getPanierToday()
             setPanierToday(data.data)
+            setLoading(false)
         })()
     }, [load])
     
 
     return (<>
-        <div className="flex-1 p-2.5 h-full overflow-auto">
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-900">Historique des ventes du jour</h3>
-            </div>
-            
-            {/* Tableau des ventes */}
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-gray-50 border-b border-gray-200">
-                            <tr>
-                                <th className="text-left py-3 px-4 font-medium text-gray-700">Heure</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-700">Total</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-700">Articles</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-700">Statut</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                            { panierToday?.map((panier, index) => (
-                                <tr key={index} className="hover:bg-gray-50">
-                                    <td className="py-3 px-4">
-                                        <span className="text-sm text-gray-900">{formatTimeOnly(panier.datecreate)}</span>
-                                    </td>
-                                    <td className="py-3 px-4">
-                                        <span className="text-sm font-medium text-gray-900">{panier.totalPanier} FC</span>
-                                    </td>
-                                    <td className="py-3 px-4">
-                                        <span className="text-sm text-gray-600">{panier.nombreMedicaments} articles</span>
-                                    </td>
-                                    <td className="py-3 px-4">
-                                        
-
-                                        <span className={`px-2 py-1 rounded-full flex items-center inline-block text-xs font-medium 
-                                        ${
-                                            panier.medicaments[0].status === 'confirmed' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'
-                                        }`}>
-                                                { panier.medicaments[0].status === 'confirmed' ? (
-                                                    <div className="flex items-center gap-1">
-                                                        <CheckCircle className="w-3 h-3" />
-                                                        <span>Validée</span>
-                                                    </div> ) : (
-                                                    <div className="flex items-center gap-1">
-                                                        <XCircle className="w-3 h-3" />
-                                                        <span>Annulée</span>
-                                                    </div>
-                                                )}
-                                        </span>
-                                    </td>
-                                    <td className="py-3 px-4">
-                                        <div className="flex items-center gap-2">
-                                            { panier.medicaments[0].status !== 'cancelled' && (
-                                                <button 
-                                                    className="p-1 hover:bg-red-100 rounded transition-colors"
-                                                    title="Annuler la vente"
-                                                    onClick={()=>{
-                                                        setCache(panier.panier);
-                                                        setShowConfirmModal(true)
-                                                    }}
-                                                >
-                                                    <XCircle className="w-4 h-4 text-red-600" />
-                                                </button>
-                                            )}
-                                            <button  
-                                                onClick={() => {
-                                                    setViewOrder(panier?.medicaments)
-                                                    setOpen(true)
-                                                }}
-                                                className="p-1 hover:bg-gray-100 rounded transition-colors">
-                                                <Eye className="w-4 h-4 text-gray-600" />
-                                            </button>
-                                        </div>
-                                    </td>
+        {loading ? (
+            <HistoriqueLoading />
+        ) : (
+            <div className="flex-1 p-2.5 h-full overflow-auto">
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900">Historique des ventes du jour</h3>
+                </div>
+                
+                {/* Tableau des ventes */}
+                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th className="text-left py-3 px-4 font-medium text-gray-700">Heure</th>
+                                    <th className="text-left py-3 px-4 font-medium text-gray-700">Total</th>
+                                    <th className="text-left py-3 px-4 font-medium text-gray-700">Articles</th>
+                                    <th className="text-left py-3 px-4 font-medium text-gray-700">Statut</th>
+                                    <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                                { panierToday?.map((panier, index) => (
+                                    <tr key={index} className="hover:bg-gray-50">
+                                        <td className="py-3 px-4">
+                                            <span className="text-sm text-gray-900">{formatTimeOnly(panier.datecreate)}</span>
+                                        </td>
+                                        <td className="py-3 px-4">
+                                            <span className="text-sm font-medium text-gray-900">{panier.totalPanier} FC</span>
+                                        </td>
+                                        <td className="py-3 px-4">
+                                            <span className="text-sm text-gray-600">{panier.nombreMedicaments} articles</span>
+                                        </td>
+                                        <td className="py-3 px-4">
+                                            
+
+                                            <span className={`px-2 py-1 rounded-full flex items-center inline-block text-xs font-medium 
+                                            ${
+                                                panier.medicaments[0].status === 'confirmed' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'
+                                            }`}>
+                                                    { panier.medicaments[0].status === 'confirmed' ? (
+                                                        <div className="flex items-center gap-1">
+                                                            <CheckCircle className="w-3 h-3" />
+                                                            <span>Validée</span>
+                                                        </div> ) : (
+                                                        <div className="flex items-center gap-1">
+                                                            <XCircle className="w-3 h-3" />
+                                                            <span>Annulée</span>
+                                                        </div>
+                                                    )}
+                                            </span>
+                                        </td>
+                                        <td className="py-3 px-4">
+                                            <div className="flex items-center gap-2">
+                                                { panier.medicaments[0].status !== 'cancelled' && (
+                                                    <button 
+                                                        className="p-1 hover:bg-red-100 rounded transition-colors"
+                                                        title="Annuler la vente"
+                                                        onClick={()=>{
+                                                            setCache(panier.panier);
+                                                            setShowConfirmModal(true)
+                                                        }}
+                                                    >
+                                                        <XCircle className="w-4 h-4 text-red-600" />
+                                                    </button>
+                                                )}
+                                                <button  
+                                                    onClick={() => {
+                                                        setViewOrder(panier?.medicaments)
+                                                        setOpen(true)
+                                                    }}
+                                                    className="p-1 hover:bg-gray-100 rounded transition-colors">
+                                                    <Eye className="w-4 h-4 text-gray-600" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-
-
-        </div>
+        )}
 
         {/* ===================================================================== */}
         <Modal 

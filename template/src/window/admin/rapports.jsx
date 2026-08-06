@@ -7,6 +7,7 @@ import { exportService } from '../../services/admin/export_service'
 import { number } from "./../../hooks/number"
 import { useForm } from 'react-hook-form'
 import { formatDateToFrench } from '../../hooks/format_date'
+import RapportsLoading from '../../components/common/loading/admin/rapports'
 
 export default function Rapports() {
     const now = new Date()
@@ -14,6 +15,7 @@ export default function Rapports() {
 
     const [exportDatas, setExportDatas] = useState([])
     const [load, setLoad] = useState(true)
+    const [loading, setLoading] = useState(true)
 
     const {
         register: registerDay,
@@ -30,6 +32,7 @@ export default function Rapports() {
             setExportDatas(await exportService.get( filterType, 
                 filterType === 'mensuel' ? watchMonth('mensuel') : 
                     filterType === 'journalier' ? watchDay('journalier') : 'all'))
+            setLoading(false)
         })()
     },[filterType, load])   
     
@@ -153,99 +156,103 @@ export default function Rapports() {
             </div>
 
             {/* Liste des données d'exportation */}
-            <div className="bg-white rounded-lg shadow-xs border border-gray-200">
-                <div className="p-6 border-b border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900">Rapports disponibles</h3>
-                </div>
-                <div className="divide-y divide-gray-200">
-                    {exportDatas?.map((item, index) => (
-                        <div key={index} className="p-6">
-                            <div className="flex justify-between items-start">
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <h4 className="font-medium text-gray-900">
-                                            {filterType === 'journalier' && `Rapport du : ${formatDateToFrench(item.periode)}`}
-                                            {filterType === 'mensuel' && `Rapport du mois : ${formatDateToFrench(item.periode)}`}
-                                            {filterType === 'annuel' && `Rapport de l'année ${item.periode}`}
-                                        </h4>
-                                        {getStatusBadge(item.periode)}
+            {loading ? (
+                <RapportsLoading />
+            ) : (
+                <div className="bg-white rounded-lg shadow-xs border border-gray-200">
+                    <div className="p-6 border-b border-gray-200">
+                        <h3 className="text-lg font-semibold text-gray-900">Rapports disponibles</h3>
+                    </div>
+                    <div className="divide-y divide-gray-200">
+                        {exportDatas?.map((item, index) => (
+                            <div key={index} className="p-6">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <h4 className="font-medium text-gray-900">
+                                                {filterType === 'journalier' && `Rapport du : ${formatDateToFrench(item.periode)}`}
+                                                {filterType === 'mensuel' && `Rapport du mois : ${formatDateToFrench(item.periode)}`}
+                                                {filterType === 'annuel' && `Rapport de l'année ${item.periode}`}
+                                            </h4>
+                                            {/* {getStatusBadge(item.periode)} */}
+                                        </div>
+                                        
+                                        {/* Statistiques */}
+                                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                                                    <DollarSign className="w-4 h-4 text-green-600" />
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-xs text-gray-500 truncate">Ventes</p>
+                                                    <p className="font-semibold text-gray-900 text-sm truncate">
+                                                        {number.format(item.total_ventes)} FC
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                                                    <TrendingUp className="w-4 h-4 text-blue-600" />
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-xs text-gray-500 truncate">Bénéfice</p>
+                                                    <p className="font-semibold text-gray-900 text-sm truncate" >
+                                                        {number.format(item.total_benefice)} FC
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                                                    <Package className="w-4 h-4 text-purple-600" />
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-xs text-gray-500 truncate">Capital</p>
+                                                    <p className="font-semibold text-gray-900 text-sm truncate">
+                                                        {number.format(item.capital)} FC
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                                                    <ShoppingCart className="w-4 h-4 text-orange-600" />
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-xs text-gray-500 truncate">Produits vendus</p>
+                                                    <p className="font-semibold text-gray-900 text-sm truncate">
+                                                        {item.total_quantite}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                                                    <ClipboardList className="w-4 h-4 text-blue-600" />
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-xs text-gray-500 truncate">Commandes</p>
+                                                    <p className="font-semibold text-gray-900 text-sm truncate">
+                                                        {item.nombre_commandes}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    
-                                    {/* Statistiques */}
-                                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">
-                                        <div className="flex items-center gap-2 min-w-0">
-                                            <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
-                                                <DollarSign className="w-4 h-4 text-green-600" />
-                                            </div>
-                                            <div className="min-w-0 flex-1">
-                                                <p className="text-xs text-gray-500 truncate">Ventes</p>
-                                                <p className="font-semibold text-gray-900 text-sm truncate">
-                                                    {number.format(item.total_ventes)} FC
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2 min-w-0">
-                                            <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
-                                                <TrendingUp className="w-4 h-4 text-blue-600" />
-                                            </div>
-                                            <div className="min-w-0 flex-1">
-                                                <p className="text-xs text-gray-500 truncate">Bénéfice</p>
-                                                <p className="font-semibold text-gray-900 text-sm truncate" >
-                                                    {number.format(item.total_benefice)} FC
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2 min-w-0">
-                                            <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
-                                                <Package className="w-4 h-4 text-purple-600" />
-                                            </div>
-                                            <div className="min-w-0 flex-1">
-                                                <p className="text-xs text-gray-500 truncate">Capital</p>
-                                                <p className="font-semibold text-gray-900 text-sm truncate">
-                                                    {number.format(item.capital)} FC
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2 min-w-0">
-                                            <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
-                                                <ShoppingCart className="w-4 h-4 text-orange-600" />
-                                            </div>
-                                            <div className="min-w-0 flex-1">
-                                                <p className="text-xs text-gray-500 truncate">Produits vendus</p>
-                                                <p className="font-semibold text-gray-900 text-sm truncate">
-                                                    {item.total_quantite}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2 min-w-0">
-                                            <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
-                                                <ClipboardList className="w-4 h-4 text-blue-600" />
-                                            </div>
-                                            <div className="min-w-0 flex-1">
-                                                <p className="text-xs text-gray-500 truncate">Commandes</p>
-                                                <p className="font-semibold text-gray-900 text-sm truncate">
-                                                    {item.nombre_commandes}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                {/* Actions */}
-                                <Link to={`/admin/export-view/${filterType}/${item.periode}`}>
-                                    <Bouton
-                                        outline
-                                        size="sm"
-                                    >
-                                        <Eye className="w-4 h-4" />
-                                        Visualiser
-                                    </Bouton>
-                                </Link>
+                                    {/* Actions */}
+                                    <Link to={`/admin/export-view/${filterType}/${item.periode}`}>
+                                        <Bouton
+                                            outline
+                                            size="sm"
+                                        >
+                                            <Eye className="w-4 h-4" />
+                                            Visualiser
+                                        </Bouton>
+                                    </Link>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     </>)
 }
