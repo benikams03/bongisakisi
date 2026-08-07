@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react'
-import { Package, Search, CreditCard, Pill, Plus, ShoppingCart, Minus, Trash2, CheckCircle,Printer  } from 'lucide-react'
+import { Package, Search, CreditCard, Pill, Plus, ShoppingCart, Minus, Trash2, CheckCircle,Printer, User  } from 'lucide-react'
 import { Bouton } from './../../components/ui/bouton/index'
 import { Input } from './../../components/ui/input/index'
 import Modal from "@mui/material/Modal"
@@ -19,6 +19,7 @@ export default function IndexCaisse() {
     const { color } = useContext(ThemeContext)
 
     const [open, setOpen] = useState(false)
+    const [openDebt, setOpenDebt] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [produits, setProduits] = useState([])
     const [panier, setPanier] = useState([])
@@ -30,6 +31,18 @@ export default function IndexCaisse() {
     const [sendData, setSendData] = useState([])
 
     const [printers, setPrinters] = useState([])
+
+    // Debt related states
+    const [debtCustomerName, setDebtCustomerName] = useState('')
+    const [showSuggestions, setShowSuggestions] = useState(false)
+    
+    // Mock data for existing debts
+    const [existingDebts] = useState([
+        { id: 1, name: 'Jean Mutombo', debt: 50000 },
+        { id: 2, name: 'Marie Nseka', debt: 25000 },
+        { id: 3, name: 'Pierre Mbala', debt: 75000 },
+        { id: 4, name: 'Anne Kanza', debt: 15000 },
+    ])
 
     useEffect(() => {
         (async ()=> {
@@ -187,7 +200,7 @@ export default function IndexCaisse() {
                 
             </div>
 
-            <div className="border-t border-gray-200 space-y-1 p-4 bg-white rounded-b-xl">
+            <div className="border-t border-gray-200 space-y-2 p-4 bg-white rounded-b-xl">
                 <div className="flex justify-between items-center py-2">
                     <span className="text-lg font-bold text-gray-500">Total</span>
                     <span className="text-2xl font-bold">{number.format(total)} FC</span>
@@ -201,6 +214,16 @@ export default function IndexCaisse() {
                     }}>
                     <CreditCard className="w-5 h-5" />
                     Valider la vente
+                </Bouton>
+                <Bouton outline
+                    className='w-full'
+                    onClick={() => {
+                        if (panier?.length > 0) {
+                            setOpenDebt(true)
+                        }
+                    }}>
+                    <User className="w-5 h-5" />
+                    Valider comme dette
                 </Bouton>
             </div>
         </div>
@@ -284,6 +307,126 @@ export default function IndexCaisse() {
                     Annuler
                 </Bouton>
             </div> }
+        </div>
+    </Modal>
+
+    {/* ================================================================================= */}
+    {/* Debt Modal */}
+    <Modal 
+        open={openDebt}
+        onClose={() => {
+            setOpenDebt(false)
+            setDebtCustomerName('')
+            setShowSuggestions(false)
+        }}
+        className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 px-4"
+        >
+        <div className="bg-white border border-gray-300 w-1/3 p-6 rounded-lg shadow animate-fadeIn">
+            <div className="flex justify-center flex-col items-center mb-4">
+                <User className={"rounded-full my-2 " + color?.text[700]} size={35} />
+                <h3 className="font-bold text-lg">Validation de dette</h3>
+            </div>
+            
+            <div className="p-4">
+                <div className="flex justify-center items-center mb-4">
+                    <div className="text-sm">
+                        <p>{formatDateToDMYWithTime(new Date())}</p>
+                    </div>
+                </div>
+                
+                <div className="py-2 mb-4">
+                    {panier?.map((items, index)=>(
+                        <div key={index} className="flex justify-between items-center">
+                            <p className="text-gray-600">{items.name} <span className='text-sm text-gray-400'>X {items.quantity}</span></p>
+                            <p className="font-semibold ">{number.format(items.price_total)} Fc</p>
+                        </div>
+                    ))}
+                </div>
+                
+                <div className="border-t border-gray-400/50 my-2" />
+                <div className="flex justify-between items-center text-xl font-bold mb-4">
+                    <h2 className="">Total dette</h2>
+                    <p className="font-semibold text-orange-600">{number.format(total) } Fc</p>
+                </div>
+
+                {/* Customer name input with autocomplete */}
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Nom du client
+                    </label>
+                    <div className="relative">
+                        <Input 
+                            placeholder="Entrez le nom du client..."
+                            value={debtCustomerName}
+                            onChange={(e) => {
+                                setDebtCustomerName(e.target.value)
+                                setShowSuggestions(e.target.value.length > 0)
+                            }}
+                            icons={<User className="text-gray-400 w-4 h-4" />}
+                        />
+                        
+                        {/* Autocomplete suggestions */}
+                        {showSuggestions && debtCustomerName.length > 0 && (
+                            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-auto">
+                                {existingDebts
+                                    .filter(debt => 
+                                        debt.name.toLowerCase().includes(debtCustomerName.toLowerCase())
+                                    )
+                                    .map((debt) => (
+                                        <div 
+                                            key={debt.id}
+                                            onClick={() => {
+                                                setDebtCustomerName(debt.name)
+                                                setShowSuggestions(false)
+                                            }}
+                                            className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                        >
+                                            <div className="flex justify-between items-center">
+                                                <span className="font-medium text-gray-900">{debt.name}</span>
+                                                <span className="text-sm text-orange-600">
+                                                    Dette: {number.format(debt.debt)} FC
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+                                {existingDebts.filter(debt => 
+                                    debt.name.toLowerCase().includes(debtCustomerName.toLowerCase())
+                                ).length === 0 && (
+                                    <div className="px-4 py-3 text-gray-500 text-sm">
+                                        Aucun client trouvé
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+            
+            <div className="flex gap-2">
+                <Bouton className="w-full" outline
+                    onClick={() => {
+                        setOpenDebt(false)
+                        setDebtCustomerName('')
+                        setShowSuggestions(false)
+                    }}>
+                    Annuler
+                </Bouton>
+                <Bouton primary
+                    onClick={async () => {
+                        if (debtCustomerName.trim()) {
+                            // Here you would add the debt validation logic
+                            console.log('Debt validated for:', debtCustomerName, 'Amount:', total)
+                            setOpenDebt(false)
+                            setDebtCustomerName('')
+                            setShowSuggestions(false)
+                            setLoading(!loading)
+                        }
+                    }} 
+                    className="w-full">
+                    Confirmer la dette
+                </Bouton>
+            </div>
         </div>
     </Modal>
     </>)

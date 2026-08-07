@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, Tag, FileText, Settings, Truck, Download } from 'lucide-react';
+import { LayoutDashboard, Package, Tag, FileText, Settings, Truck, Download, Wallet, User } from 'lucide-react';
 import LayoutIndex from '.';
 
 const menuItems = [
@@ -7,6 +7,8 @@ const menuItems = [
     { id: 'categories', label: 'Catégories', icon: Tag },
     { id: 'approvisionnement', label: 'Acquisition', icon: Truck, notif : 1 },
     { id: 'rapports', label: 'Rapports', icon: FileText },
+    { id: 'dettes', label: 'Dettes', icon: User },
+    { id: 'inventaire', label: 'Inventaire', icon: Wallet },
 ]
 
 const menuItemsSecondaire = [

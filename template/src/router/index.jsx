@@ -9,6 +9,7 @@ import IndexCaisse from '../window/caissier/index'
 import Historique from '../window/caissier/historique'
 import Rapport from '../window/caissier/rapport'
 import Acquisition from '../window/caissier/acquisition'
+import Dettes from '../window/caissier/dettes'
 
 // ADMIN
 import Dashboard from '../window/admin/dashboard'
@@ -18,6 +19,8 @@ import Rapports from '../window/admin/rapports'
 import Settings from '../window/admin/settings/index'
 import Approvisionnement from '../window/admin/approvisionnement'
 import ExportView from '../window/admin/export-view'
+import Inventaire from '../window/admin/inventaire'
+import AdminDettes from '../window/admin/dettes'
 
 export const route = createHashRouter([
     {
@@ -43,6 +46,10 @@ export const route = createHashRouter([
             {
                 path: 'acquisition',
                 element: <Acquisition />
+            },
+            {
+                path: 'dettes',
+                element: <Dettes />
             }
         ]
     },
@@ -73,6 +80,14 @@ export const route = createHashRouter([
             {
                 path: 'export-view/:type/:date',
                 element: <ExportView />
+            },
+            {
+                path: 'inventaire',
+                element: <Inventaire />
+            },
+            {
+                path: 'dettes',
+                element: <AdminDettes />
             },
             {
                 path: 'settings',

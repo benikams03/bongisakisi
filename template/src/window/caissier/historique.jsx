@@ -6,7 +6,7 @@ import { ordersService } from '../../services/caissier/orders_service'
 import { formatTimeOnly, formatDateToDMYWithTime } from '../../hooks/format_date'
 import { number } from "../../hooks/number";
 import ConfirmModal from '../../components/common/modal/confirme'
-import HistoriqueLoading from "../../components/common/loading/historique";
+import HistoriqueLoading from "../../components/common/loading/caissier/historique";
 
 export default function Historique() {
 

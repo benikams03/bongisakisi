@@ -1,7 +1,7 @@
 import { rapportService } from "../../services/caissier/rapport_service";
 import { useState, useEffect } from "react";
 import { number } from "./../../hooks/number"
-import RapportLoading from "../../components/common/loading/rapport";
+import RapportLoading from "../../components/common/loading/caissier/rapport";
 
 export default function Rapport() {
     

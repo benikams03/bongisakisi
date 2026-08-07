@@ -8,35 +8,36 @@ import { ThemeProvider } from './router/provider'
 
 // Configuration personnalisée du toaster
 const toasterConfig = {
-    position: 'top-center',
-    duration: 4000,
+    position: 'top-left',
+    duration: 2500,
     style: {
-        background: 'white',
-        border: '1px solid #e5e7eb',
-        borderRadius: '0.75rem',
-        padding: '10px',
-        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-        maxWidth: '400px',
+        background: 'rgba(255, 255, 255, 0.9)',
+        border: '1px solid rgba(229, 231, 235, 0.8)',
+        borderRadius: '0.375rem',
+        padding: '8px 10px',
+        boxShadow: '0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+        maxWidth: '280px',
+        fontSize: '12px',
     },
     success: {
-        duration: 3000,
-        icon: <CheckCircle className="w-4 h-4 text-emerald-500" />,
+        duration: 2000,
+        icon: <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />,
         style: {
-        borderLeft: '4px solid #10b981',
+            background: 'rgba(255, 255, 255, 0.9)',
         }
     },
     error: {
-        duration: 5000,
-        icon: <XCircle className="w-4 h-4 text-red-500" />,
+        duration: 3000,
+        icon: <XCircle className="w-3.5 h-3.5 text-red-500" />,
         style: {
-        borderLeft: '4px solid #ef4444',
+            background: 'rgba(255, 255, 255, 0.9)',
         }
     },
     loading: {
         duration: Infinity,
-        icon: <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />,
+        icon: <div className="w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />,
         style: {
-        borderLeft: '4px solid #10b981',
+            background: 'rgba(255, 255, 255, 0.9)',
         }
     }
 }
