@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Bouton } from "../../components/ui/bouton/index";
-import { CheckCircle,XCircle,Printer, Eye, Clock } from "lucide-react";
+import { CheckCircle,XCircle,Printer, Eye, AlertCircle } from "lucide-react";
 import Modal from "@mui/material/Modal"
 import { ordersService } from '../../services/caissier/orders_service'
 import { formatTimeOnly, formatDateToDMYWithTime } from '../../hooks/format_date'
@@ -82,7 +82,7 @@ export default function Historique() {
                                                         ) :
                                                         (
                                                             <div className="flex items-center gap-1">
-                                                                <Clock className="w-3 h-3" />
+                                                                <AlertCircle className="w-3 h-3" />
                                                                 <span>Annulé</span>
                                                             </div>
                                                         )

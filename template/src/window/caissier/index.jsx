@@ -10,6 +10,7 @@ import { number } from '../../hooks/number'
 import { formatDateToDMYWithTime } from '../../hooks/format_date'
 import { imprimantService } from '../../services/caissier/imprimant_service'
 import { parametreService } from '../../services/admin/parametre_service'
+import { clientService } from '../../services/caissier/client_service'
 import { ThemeContext } from '../../router/provider'
 import IndexLoading from '../../components/common/loading/caissier/index'
 
@@ -36,13 +37,8 @@ export default function IndexCaisse() {
     const [debtCustomerName, setDebtCustomerName] = useState('')
     const [showSuggestions, setShowSuggestions] = useState(false)
     
-    // Mock data for existing debts
-    const [existingDebts] = useState([
-        { id: 1, name: 'Jean Mutombo', debt: 50000 },
-        { id: 2, name: 'Marie Nseka', debt: 25000 },
-        { id: 3, name: 'Pierre Mbala', debt: 75000 },
-        { id: 4, name: 'Anne Kanza', debt: 15000 },
-    ])
+    // Load existing debts from database
+    const [existingDebts, setExistingDebts] = useState([])
 
     useEffect(() => {
         (async ()=> {
@@ -53,6 +49,15 @@ export default function IndexCaisse() {
             setTotal(data_panier.data.reduce((sum, item) => sum + item.price_total, 0));
             const data_printers = await parametreService.getPdfSettings()
             setPrinters(data_printers)
+            
+            // Load clients with debts
+            const data_clients = await clientService.getClients()
+            setExistingDebts(data_clients.map(c => ({
+                id: c.id,
+                name: c.name,
+                debt: c.total_debt
+            })))
+            
             setInitialLoading(false)
         })()
     }, [loading])

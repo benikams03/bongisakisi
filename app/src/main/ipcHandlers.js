@@ -13,6 +13,7 @@ import { activateKeyController } from './controllers/activateKeyController.js';
 import { exportController } from './controllers/exportController.js';
 import { imprimeController } from './controllers/imprimeController.js';
 import { authentificationController } from './controllers/authentificate.js';
+import { clientController } from './controllers/clientController.js';
 
 const { autoUpdater } = updater;
 const store = new Store();
@@ -153,3 +154,8 @@ ipcMain.handle('print', (_, data) => imprimeController.print(data))
 // auth
 ipcMain.handle('auth-login', (_, data) => authentificationController.login(data))
 ipcMain.handle('change-password', (_, data) => authentificationController.changePassword(data))
+
+// Clients
+ipcMain.handle('getClients', () => clientController.getClient())
+ipcMain.handle('getClientCommands', (_, clientId) => clientController.getClientCommands(clientId))
+ipcMain.handle('validateDebtPayment', (_, data) => clientController.validateDebtPayment(data))

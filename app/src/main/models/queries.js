@@ -145,4 +145,9 @@ export class Queries {
     raw(sql, params = {}) {
         return this.db.prepare(sql).all(params);
     }
+
+    // ---------- Requête brute sans retour de données (INSERT, UPDATE, DELETE) ----------
+    run(sql, params = {}) {
+        return this.db.prepare(sql).run(params);
+    }
 }
