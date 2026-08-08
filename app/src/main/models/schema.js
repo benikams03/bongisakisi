@@ -34,14 +34,22 @@ export class Schema {
                 id: 'INTEGER PRIMARY KEY AUTOINCREMENT',
                 id_medoc: 'INTEGER NOT NULL',
                 quantity: 'INTEGER NOT NULL',
+                dette: 'BOOLEAN DEFAULT 0',
+                id_client: 'INTEGER',
                 price_total: 'REAL NOT NULL',
                 price_benefit: 'REAL NOT NULL',
                 panier: 'INTEGER NOT NULL',
                 status: 'TEXT NOT NULL',
                 datecreate: 'DATETIME DEFAULT (datetime(\'now\', \'localtime\'))',
                 FOREIGN_KEY: [
-                    'FOREIGN KEY (id_medoc) REFERENCES medicaments(id)'
+                    'FOREIGN KEY (id_medoc) REFERENCES medicaments(id)',
+                    'FOREIGN KEY (id_client) REFERENCES clients(id)'
                 ]
+            },
+            clients: {
+                id: 'INTEGER PRIMARY KEY AUTOINCREMENT',
+                name: 'TEXT NOT NULL',
+                date_creation: 'DATETIME DEFAULT CURRENT_TIMESTAMP'
             },
             notifications: {
                 id: 'INTEGER PRIMARY KEY AUTOINCREMENT',
@@ -337,6 +345,9 @@ export class Schema {
     // ---------- Recréer une table sans certaines colonnes ----------
     recreateTableWithoutColumns(tableName, columnsToRemove) {
         try {
+            // Désactiver les contraintes de foreign key temporairement
+            this.db.prepare('PRAGMA foreign_keys = OFF').run();
+            
             // Obtenir les colonnes à conserver
             const allColumns = this.getTableColumns(tableName);
             const columnsToKeep = Object.keys(allColumns).filter(col => !columnsToRemove.includes(col));
@@ -371,9 +382,14 @@ export class Schema {
             // Renommer la table temporaire
             this.db.prepare(`ALTER TABLE ${tempTableName} RENAME TO ${tableName}`).run();
             
+            // Réactiver les contraintes de foreign key
+            this.db.prepare('PRAGMA foreign_keys = ON').run();
+            
             console.log(`Table ${tableName} recréée avec succès, colonnes supprimées: ${columnsToRemove.join(', ')}`);
             
         } catch (error) {
+            // S'assurer que les foreign keys sont réactivées même en cas d'erreur
+            this.db.prepare('PRAGMA foreign_keys = ON').run();
             console.error(`Erreur lors de la recréation de la table ${tableName}:`, error);
             throw error;
         }
@@ -429,13 +445,24 @@ export class Schema {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 id_medoc INTEGER NOT NULL,
                 quantity INTEGER NOT NULL,
+                dette BOOLEAN DEFAULT 0,
+                id_client INTEGER,
                 price_total REAL NOT NULL,
                 price_benefit REAL NOT NULL,
                 panier INTEGER NOT NULL,
                 status TEXT NOT NULL,
                 datecreate DATETIME DEFAULT (datetime('now', 'localtime')),
 
-                FOREIGN KEY (id_medoc) REFERENCES medicaments(id)
+                FOREIGN KEY (id_medoc) REFERENCES medicaments(id),
+                FOREIGN KEY (id_client) REFERENCES clients(id)
+            )
+        `).run();
+
+        this.db.prepare(`
+            CREATE TABLE IF NOT EXISTS clients (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                date_creation DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `).run();
 

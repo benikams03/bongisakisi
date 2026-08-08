@@ -119,6 +119,7 @@ ipcMain.handle('addPanier', (_, data) => orderController.addPanier(data))
 ipcMain.handle('removePanier', (_, data) => orderController.removePanier(data))
 ipcMain.handle('removePanierDirect', (_, data) => orderController.removePanierDirect(data))
 ipcMain.handle('confirmPanier', () => orderController.confirmPanier())  
+ipcMain.handle('confirmPanierDebt', (_, data) => orderController.confirmPanierDette(data))  
 ipcMain.handle('getPanierToday', () => orderController.getPanierToday())
 ipcMain.handle('annulerCommande', (_, id) => orderController.annulerCommande(id))
 

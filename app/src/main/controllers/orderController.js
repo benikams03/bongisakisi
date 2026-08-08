@@ -1,5 +1,6 @@
 import { queries } from './../models/index.js'
 import log from 'electron-log';
+import { Text } from '../utils/text.js';
 
 
 class OrderController {
@@ -253,6 +254,63 @@ class OrderController {
             };
         }
     }
+
+    
+    confirmPanierDette(data) {
+        try {
+
+            const verifyClient = this.queries.find('clients', { 
+                name: Text.trim(Text.capitalize(data.customerName)) 
+            });
+            
+            let get_id_client;            
+
+            if (!verifyClient || verifyClient.length === 0) {
+                const res = this.queries.insert('clients', {
+                    name: Text.capitalize(data.customerName)
+                });
+                get_id_client = res.lastInsertRowid
+            } else {
+                get_id_client = verifyClient?.[0]?.id
+            }
+
+            // Récupérer d'abord le panier actuel
+            const panierItems = this.queries.find('orders', { 
+                status: 'pending'
+            });
+
+            if (!panierItems || panierItems.length === 0) {
+                return {
+                    success: false,
+                    error: 'Le panier est vide'
+                };
+            }
+
+            // Mettre à jour uniquement les articles du panier actuel pour qu'elle soit considerer comme etant une dette
+            panierItems.forEach(item => {
+                this.queries.update('orders', {
+                    status: 'debt',
+                    id_client: get_id_client,
+                    dette: 1,
+                }, { 
+                    id: item.id 
+                });
+            });
+
+            return {
+                success: true,
+                message: 'Dette confirmée'
+            };
+
+        } catch (error) {
+            log.error('Error confirming panier debt:', error);
+            return {
+                success: false,
+                error: 'Erreur lors de la confirmation de la dette'
+            };
+        }
+    }
+
 
     getPanierToday() {
         try {

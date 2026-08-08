@@ -73,7 +73,25 @@ export const ordersService = {
             }
         }
         catch(e) {
-            toast.error('Erreur lors de l\'ajout du panier')
+            toast.error('Erreur lors de la confirmation du panier')
+            return false
+        }
+    },
+    
+    
+    confirmPanierDebt : async (customerName) => {
+        try{ 
+            const result = await window.localApi.invoke('confirmPanierDebt', { customerName })
+            if(result.success) {
+                toast.success('Dette confirmée avec succès')
+                return true
+            }else{
+                toast.error(result.error || 'Erreur lors de la confirmation de la dette')
+                return false
+            }
+        }
+        catch(e) {
+            toast.error('Erreur lors de la confirmation de la dette' )
             return false
         }
     },

@@ -390,13 +390,13 @@ export default function IndexCaisse() {
                                         </div>
                                     ))
                                 }
-                                {existingDebts.filter(debt => 
+                                {/* {existingDebts.filter(debt => 
                                     debt.name.toLowerCase().includes(debtCustomerName.toLowerCase())
                                 ).length === 0 && (
                                     <div className="px-4 py-3 text-gray-500 text-sm">
                                         Aucun client trouvé
                                     </div>
-                                )}
+                                )} */}
                             </div>
                         )}
                     </div>
@@ -414,13 +414,17 @@ export default function IndexCaisse() {
                 </Bouton>
                 <Bouton primary
                     onClick={async () => {
-                        if (debtCustomerName.trim()) {
-                            // Here you would add the debt validation logic
-                            console.log('Debt validated for:', debtCustomerName, 'Amount:', total)
-                            setOpenDebt(false)
-                            setDebtCustomerName('')
-                            setShowSuggestions(false)
-                            setLoading(!loading)
+                        if (debtCustomerName.trim()) { 
+
+                            await setSendData(panier)
+                            const data = await ordersService.confirmPanierDebt(debtCustomerName)
+                            if (data) {
+                                setOpenDebt(false)
+                                setDebtCustomerName('')
+                                setShowSuggestions(false)
+                                setLoading(!loading)
+                            }
+
                         }
                     }} 
                     className="w-full">
