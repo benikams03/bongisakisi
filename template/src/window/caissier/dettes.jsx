@@ -10,6 +10,7 @@ import { formatDateToDMYWithTime } from '../../hooks/format_date'
 import { imprimantService } from '../../services/caissier/imprimant_service'
 import { parametreService } from '../../services/admin/parametre_service'
 import { ThemeContext } from '../../router/provider'
+import DettesLoading from '../../components/common/loading/caissier/dettes'
 
 export default function Dettes() {
     const { color } = useContext(ThemeContext)
@@ -173,176 +174,176 @@ export default function Dettes() {
     )
 
     return(<>
-        <div className="flex-1 h-full flex gap-3">
-            {/* Left side - Customer list */}
-            <div className="w-[30%] h-full flex flex-col">
-                <div className="bg-white rounded-lg border border-gray-200 p-4 mb-3">
-                    <h2 className="text-xl font-bold text-gray-900 mb-3">Clients avec dettes</h2>
-                    <div className="space-y-2">
-                        <Input 
-                            icons={<Search className="text-gray-400 w-4 h-4" />} 
-                            placeholder="Rechercher un client..." 
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+        {loadingCustomers ? (
+            <DettesLoading />
+        ) : (
+            <div className="flex-1 h-full flex gap-3">
+                {/* Left side - Customer list */}
+                <div className="w-[30%] h-full flex flex-col">
+                    <div className="bg-white rounded-lg border border-gray-200 p-4 mb-3">
+                        <h2 className="text-xl font-bold text-gray-900 mb-3">Clients avec dettes</h2>
+                        <div className="space-y-2">
+                            <Input 
+                                icons={<Search className="text-gray-400 w-4 h-4" />} 
+                                placeholder="Rechercher un client..." 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
                     </div>
-                </div>
 
-                <div className="flex-1 bg-white rounded-lg border border-gray-200 overflow-auto">
-                    {loadingCustomers ? (
-                        <div className="flex items-center justify-center h-full">
-                            <p className="text-gray-500">Chargement...</p>
-                        </div>
-                    ) : filteredCustomers.length === 0 ? (
-                        <div className="flex items-center justify-center h-full">
-                            <p className="text-gray-500">Aucun client avec dettes</p>
-                        </div>
-                    ) : (
-                        filteredCustomers.map((customer) => (
-                            <div 
-                                key={customer.id}
-                                onClick={() => handleSelectCustomer(customer)}
-                                className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
-                                    selectedCustomer?.id === customer.id ? 'bg-gray-50 border-l-4 border-l-gray-800' : ''
-                                }`}
-                            >
-                            <div className="flex items-center gap-3">
-                                <div className="w-7 h-7 rounded-full flex items-center justify-center">
-                                    <User className="w-6 h-6 text-black" />
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="font-semibold text-gray-900">{customer.name}</h3>
-                                    <p className="text-sm text-green-600 font-medium">{number.format(customer.totalDebt || 0)} FC</p>
-                                </div>
-                                <ArrowRight className="w-4 h-4 text-gray-400" />
+                    <div className="flex-1 bg-white rounded-lg border border-gray-200 overflow-auto">
+                        {filteredCustomers.length === 0 ? (
+                            <div className="flex items-center justify-center h-full">
+                                <p className="text-gray-500">Aucun client avec dettes</p>
                             </div>
-                        </div>
-                            ))
-                        )}
-                    </div>
-            </div>
-
-            {/* Middle - Customer commands */}
-            <div className="flex-1 h-full overflow-auto">
-                {selectedCustomer ? (
-                    <div className="bg-white rounded-lg border border-gray-200 p-6 h-full flex flex-col">
-                        <div className="mb-4">
-                            <h2 className="text-xl font-bold text-gray-900">{selectedCustomer.name}</h2>
-                            <p className="text-sm text-gray-600 mt-1">Historique des commandes</p>
-                        </div>
-
-                        <div className="flex-1 overflow-auto space-y-3">
-                            {selectedCustomer.commands.map((command, index) => (
+                        ) : (
+                            filteredCustomers.map((customer) => (
                                 <div 
-                                    key={index} 
-                                    className={`border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow ${
-                                        hasCart ? 'opacity-60 grayscale pointer-events-none' : ''
+                                    key={customer.id}
+                                    onClick={() => handleSelectCustomer(customer)}
+                                    className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
+                                        selectedCustomer?.id === customer.id ? 'bg-gray-50 border-l-4 border-l-gray-800' : ''
                                     }`}
                                 >
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-xs text-gray-500">{command.date}</span>
-                                                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
-                                                    {command.medicaments.length} article(s)
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="font-bold text-orange-600">{number.format(command.total || 0)} FC</p>
-                                        </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-7 h-7 rounded-full flex items-center justify-center">
+                                        <User className="w-6 h-6 text-black" />
                                     </div>
-                                    <div className="flex gap-2">
-                                        <Bouton 
-                                            outline
-                                            onClick={() => handleViewInvoice(command)}
-                                            className="flex-1 text-sm"
-                                        >
-                                            <Eye className="w-4 h-4" />
-                                            Voir facture
-                                        </Bouton>
-                                        <Bouton 
-                                            primary
-                                            onClick={() => handleAddCommandToCart(command)}
-                                            className="flex-1 text-sm"
-                                            disabled={hasCart}
-                                        >
-                                            <Plus className="w-4 h-4" />
-                                            Ajouter au panier
-                                        </Bouton>
+                                    <div className="flex-1">
+                                        <h3 className="font-semibold text-gray-900">{customer.name}</h3>
+                                        <p className="text-sm text-green-600 font-medium">{number.format(customer.totalDebt || 0)} FC</p>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ) : (
-                    <div className="bg-white rounded-lg border border-gray-200 p-6 h-full flex items-center justify-center">
-                        <div className="text-center">
-                            <User className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                            <p className="text-gray-500 font-medium">Sélectionnez un client</p>
-                            <p className="text-sm text-gray-400 mt-1">Choisissez un client pour voir ses commandes</p>
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {/* Right side - Cart */}
-            <div className="w-[32%] h-full sticky top-3 rounded-lg border border-gray-200 flex flex-col justify-between">
-                <div className="p-4 flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-gray-900">Panier de paiement</h2>
-                    <div className={"flex items-center gap-2 px-3 py-1 rounded-lg " + color?.bg[100]}>
-                        <ShoppingCart className={"w-4 h-4 " + color?.text[700]} />
-                        <span className={"text-xs font-medium " + color?.text[700]}>{panier?.length} articles</span>
-                    </div>
-                </div>
-                <div className="p-2 h-full overflow-auto space-y-3">
-                    { panier?.length === 0 && (<div className="flex flex-col items-center justify-center h-full w-full px-12 text-center">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                            <ShoppingCart className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <p className="text-gray-500 font-medium">Le panier est vide</p>
-                        <p className="text-sm text-gray-400 mt-1 mb-16">Ajoutez des dettes à payer</p>
-                    </div>)}
-
-                    { panier?.map((items, index)=>(
-                        <div key={index} className="flex justify-between border border-gray-200 rounded-lg items-center py-2 px-4 hover:bg-gray-50 transition-all duration-200">
-                            <div className="flex-1">
-                                <h4 className="font-semibold text-sm text-gray-900">{items.name}</h4>
-                                <div className="flex items-center text-xs gap-3 text-sm text-gray-600 mt-1">
-                                    <span>{number.format(items.price_total || 0)} FC</span>
-                                    <span className="text-gray-400">X {items.quantity}</span>
+                                    <ArrowRight className="w-4 h-4 text-gray-400" />
                                 </div>
                             </div>
+                                ))
+                            )}
                         </div>
-                    )) }
                 </div>
 
-                <div className="border-t border-gray-200 space-y-2 p-4 bg-white rounded-b-xl">
-                    <div className="flex justify-between items-center py-2">
-                        <span className="text-lg font-bold text-gray-500">Total à payer</span>
-                        <span className="text-2xl font-bold">{number.format(total || 0)} FC</span>
+                {/* Middle - Customer commands */}
+                <div className="flex-1 h-full overflow-auto">
+                    {selectedCustomer ? (
+                        <div className="bg-white rounded-lg border border-gray-200 p-6 h-full flex flex-col">
+                            <div className="mb-4">
+                                <h2 className="text-xl font-bold text-gray-900">{selectedCustomer.name}</h2>
+                                <p className="text-sm text-gray-600 mt-1">Historique des commandes</p>
+                            </div>
+
+                            <div className="flex-1 overflow-auto space-y-3">
+                                {selectedCustomer.commands.map((command, index) => (
+                                    <div 
+                                        key={index} 
+                                        className={`border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow ${
+                                            hasCart ? 'opacity-60 grayscale pointer-events-none' : ''
+                                        }`}
+                                    >
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="text-xs text-gray-500">{command.date}</span>
+                                                    <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
+                                                        {command.medicaments.length} article(s)
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="font-bold text-orange-600">{number.format(command.total || 0)} FC</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Bouton 
+                                                outline
+                                                onClick={() => handleViewInvoice(command)}
+                                                className="flex-1 text-sm"
+                                            >
+                                                <Eye className="w-4 h-4" />
+                                                Voir facture
+                                            </Bouton>
+                                            <Bouton 
+                                                primary
+                                                onClick={() => handleAddCommandToCart(command)}
+                                                className="flex-1 text-sm"
+                                                disabled={hasCart}
+                                            >
+                                                <Plus className="w-4 h-4" />
+                                                Ajouter au panier
+                                            </Bouton>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="bg-white rounded-lg border border-gray-200 p-6 h-full flex items-center justify-center">
+                            <div className="text-center">
+                                <User className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                                <p className="text-gray-500 font-medium">Sélectionnez un client</p>
+                                <p className="text-sm text-gray-400 mt-1">Choisissez un client pour voir ses commandes</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Right side - Cart */}
+                <div className="w-[32%] h-full sticky top-3 rounded-lg border border-gray-200 flex flex-col justify-between">
+                    <div className="p-4 flex items-center justify-between">
+                        <h2 className="text-xl font-bold text-gray-900">Panier de paiement</h2>
+                        <div className={"flex items-center gap-2 px-3 py-1 rounded-lg " + color?.bg[100]}>
+                            <ShoppingCart className={"w-4 h-4 " + color?.text[700]} />
+                            <span className={"text-xs font-medium " + color?.text[700]}>{panier?.length} articles</span>
+                        </div>
                     </div>
-                    <div className='flex gap-2'>
-                        <Bouton outline
-                            className='w-full'
-                            onClick={handleCancelCart}>
-                            <CreditCard className="w-5 h-5" />
-                            Annuler
-                        </Bouton>
-                        <Bouton primary
-                            className='w-full'
-                            onClick={() => {
-                                if (panier?.length > 0) {
-                                    setOpen(true)
-                                }
-                            }}>
-                            <CreditCard className="w-5 h-5" />
-                            Valider
-                        </Bouton>
+                    <div className="p-2 h-full overflow-auto space-y-3">
+                        { panier?.length === 0 && (<div className="flex flex-col items-center justify-center h-full w-full px-12 text-center">
+                            <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <ShoppingCart className="w-8 h-8 text-gray-400" />
+                            </div>
+                            <p className="text-gray-500 font-medium">Le panier est vide</p>
+                            <p className="text-sm text-gray-400 mt-1 mb-16">Ajoutez des dettes à payer</p>
+                        </div>)}
+
+                        { panier?.map((items, index)=>(
+                            <div key={index} className="flex justify-between border border-gray-200 rounded-lg items-center py-2 px-4 hover:bg-gray-50 transition-all duration-200">
+                                <div className="flex-1">
+                                    <h4 className="font-semibold text-sm text-gray-900">{items.name}</h4>
+                                    <div className="flex items-center text-xs gap-3 text-sm text-gray-600 mt-1">
+                                        <span>{number.format(items.price_total || 0)} FC</span>
+                                        <span className="text-gray-400">X {items.quantity}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )) }
+                    </div>
+
+                    <div className="border-t border-gray-200 space-y-2 p-4 bg-white rounded-b-xl">
+                        <div className="flex justify-between items-center py-2">
+                            <span className="text-lg font-bold text-gray-500">Total à payer</span>
+                            <span className="text-2xl font-bold">{number.format(total || 0)} FC</span>
+                        </div>
+                        <div className='flex gap-2'>
+                            <Bouton outline
+                                className='w-full'
+                                onClick={handleCancelCart}>
+                                <CreditCard className="w-5 h-5" />
+                                Annuler
+                            </Bouton>
+                            <Bouton primary
+                                className='w-full'
+                                onClick={() => {
+                                    if (panier?.length > 0) {
+                                        setOpen(true)
+                                    }
+                                }}>
+                                <CreditCard className="w-5 h-5" />
+                                Valider
+                            </Bouton>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        )}
 
         {/* ================================================================================= */}
         <Modal 
