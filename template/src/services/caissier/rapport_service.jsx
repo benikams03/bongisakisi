@@ -42,4 +42,20 @@ export const rapportService = {
         }
     },
 
+    getInventoryStats : async () => {
+        try{ 
+            const result = await window.localApi.invoke('getInventoryStats')
+            if(result.success) {
+                return result.data
+            } else {
+                toast.error(result.error || 'Erreur lors de la récupération des statistiques d\'inventaire')
+                return null
+            }
+        }
+        catch {
+            toast.error('Erreur lors de la récupération des statistiques d\'inventaire')
+            return null
+        }
+    },
+
 }

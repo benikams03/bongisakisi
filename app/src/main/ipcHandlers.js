@@ -155,6 +155,9 @@ ipcMain.handle('print', (_, data) => imprimeController.print(data))
 ipcMain.handle('auth-login', (_, data) => authentificationController.login(data))
 ipcMain.handle('change-password', (_, data) => authentificationController.changePassword(data))
 
+// Inventory stats
+ipcMain.handle('getInventoryStats', () => rapportController.getInventoryStats())
+
 // Clients
 ipcMain.handle('getClients', () => clientController.getClient())
 ipcMain.handle('getClientCommands', (_, clientId) => clientController.getClientCommands(clientId))

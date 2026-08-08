@@ -8,6 +8,43 @@ class RapportController {
         this.queries = queries;
     }
 
+    getInventoryStats() {
+        try {
+            // Total number of medicaments (sum of stock)
+            const totalMedicaments = this.queries.raw(`
+                SELECT SUM(stock) as total
+                FROM medicaments
+            `);
+
+            // Capital if everything is sold (sum of price_sell * stock)
+            const capitalVente = this.queries.raw(`
+                SELECT SUM(price_sell * stock) as total
+                FROM medicaments
+            `);
+
+            // Total purchase price (sum of price_buy * stock)
+            const prixAchatTotal = this.queries.raw(`
+                SELECT SUM(price_buy * stock) as total
+                FROM medicaments
+            `);
+
+            return {
+                success: true,
+                data: {
+                    totalMedicaments: totalMedicaments[0]?.total || 0,
+                    capitalVente: capitalVente[0]?.total || 0,
+                    prixAchatTotal: prixAchatTotal[0]?.total || 0
+                }
+            };
+        } catch (error) {
+            log.error('Error getting inventory stats:', error);
+            return {
+                success: false,
+                error: 'Erreur lors de la récupération des statistiques d\'inventaire'
+            };
+        }
+    }
+
     getStatCaissier() {
 
         try {
