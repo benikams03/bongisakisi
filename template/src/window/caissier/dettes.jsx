@@ -199,7 +199,7 @@ export default function Dettes() {
                             </div>
                         ) : (
                             filteredCustomers.map((customer) => (
-                                <div 
+                            <div 
                                     key={customer.id}
                                     onClick={() => handleSelectCustomer(customer)}
                                     className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
