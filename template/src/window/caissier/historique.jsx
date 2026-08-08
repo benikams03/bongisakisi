@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Bouton } from "../../components/ui/bouton/index";
-import { CheckCircle,XCircle,Printer, Eye } from "lucide-react";
+import { CheckCircle,XCircle,Printer, Eye, Clock } from "lucide-react";
 import Modal from "@mui/material/Modal"
 import { ordersService } from '../../services/caissier/orders_service'
 import { formatTimeOnly, formatDateToDMYWithTime } from '../../hooks/format_date'
@@ -65,19 +65,28 @@ export default function Historique() {
                                             
 
                                             <span className={`px-2 py-1 rounded-full flex items-center inline-block text-xs font-medium 
-                                            ${
-                                                panier.medicaments[0].status === 'confirmed' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'
-                                            }`}>
+                                                ${
+                                                    panier.medicaments[0].status === 'confirmed' ? 'bg-blue-100 text-blue-700' : ( panier.medicaments[0].status === 'debt' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700')
+                                                }`}>
                                                     { panier.medicaments[0].status === 'confirmed' ? (
                                                         <div className="flex items-center gap-1">
                                                             <CheckCircle className="w-3 h-3" />
                                                             <span>Validée</span>
-                                                        </div> ) : (
-                                                        <div className="flex items-center gap-1">
-                                                            <XCircle className="w-3 h-3" />
-                                                            <span>Annulée</span>
-                                                        </div>
-                                                    )}
+                                                        </div> ) : 
+                                                        panier.medicaments[0].status === 'debt' ?
+                                                        (
+                                                            <div className="flex items-center gap-1">
+                                                                <XCircle className="w-3 h-3" />
+                                                                <span>En dette</span>
+                                                            </div>
+                                                        ) :
+                                                        (
+                                                            <div className="flex items-center gap-1">
+                                                                <Clock className="w-3 h-3" />
+                                                                <span>Annulé</span>
+                                                            </div>
+                                                        )
+                                                    }
                                             </span>
                                         </td>
                                         <td className="py-3 px-4">
@@ -125,6 +134,9 @@ export default function Historique() {
                         <div className="text-sm">
                             {/* <p>Facture #621223</p> */}
                             <p>{formatDateToDMYWithTime(viewOrder?.[0]?.datecreate)}</p>
+                            {viewOrder?.[0]?.status === 'debt' && viewOrder?.[0]?.client_name && (
+                                <p className="text-orange-600 font-medium mt-1">Client: {viewOrder[0].client_name}</p>
+                            )}
                         </div>
                     </div>
                     <div className="py-2">

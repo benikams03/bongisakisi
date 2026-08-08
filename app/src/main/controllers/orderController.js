@@ -336,9 +336,12 @@ class OrderController {
                         orders.panier,
                         orders.datecreate,
                         orders.status as status,
-                        medicaments.name as name
+                        orders.id_client as id_client,
+                        medicaments.name as name,
+                        clients.name as client_name
                     FROM orders
                     LEFT JOIN medicaments ON orders.id_medoc = medicaments.id
+                    LEFT JOIN clients ON orders.id_client = clients.id
                     WHERE orders.status != 'pending' 
                     AND DATE(orders.datecreate) = DATE('now')
                     AND orders.panier = ${panierRow.panier}
